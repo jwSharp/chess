@@ -14,12 +14,16 @@ pawn = piece.Piece(pygame.image.load(assets_path + 'pawn.png'), (0, 6), 'pawn', 
 rook = piece.Piece(pygame.image.load(assets_path + 'rook.png'), (0, 7), 'rook', 0, [('0', '1|8'), ('0', '-1|-8'), ('1|8', '0'), ('-1|-8', '0')])
 bishop = piece.Piece(pygame.image.load(assets_path + 'bishop.png'), (2, 7), 'bishop', 0, [('1|7', '1|7'), ('-1|-7', '-1|-7'), ('-1|-7', '1|7'), ('1|7', '-1|-7')])
 knight = piece.Piece(pygame.image.load(assets_path + 'knight.png'), (1, 7), 'knight', 0, [('1', '2'), ('-1', '2'), ('2', '1'), ('-2', '1'), ('2', '-1'), ('-2', '-1'), ('1', '-2'), ('-1', '-2')])
+queen = piece.Piece(pygame.image.load(assets_path + 'queen.png'), (3, 7), 'queen', 0, [('0', '1|8'), ('0', '-1|-8'), ('1|8', '0'), ('-1|-8', '0'), ('1|7', '1|7'), ('-1|-7', '-1|-7'), ('-1|-7', '1|7'), ('1|7', '-1|-7')])
+king = piece.Piece(pygame.image.load(assets_path + 'king.png'), (4, 7), 'king', 0, [('0', '1'), ('0', '-1'), ('1', '0'), ('-1', '0'), ('1', '1'), ('-1', '-1'), ('1', '-1'), ('-1', '1')])
 
 
-pawn1 = piece.Piece(pygame.image.load(assets_path + 'pawn1.png'), (0, 1), 'pawn', 1, [('0', '1'), ('F', '0', '1|3')], [('1', '2'), ('-1', '2')])
-rook1 = piece.Piece(pygame.image.load(assets_path + 'rook1.png'), (0, 0), 'rook', 1, [('0', '1|8'), ('0', '-1|-8'), ('1|8', '0'), ('-1|-8', '0')])
-bishop1 = piece.Piece(pygame.image.load(assets_path + 'bishop1.png'), (2, 0), 'bishop', 1, [('1|7', '1|7'), ('-1|-7', '-1|-7'), ('-1|-7', '1|7'), ('1|7', '-1|-7')])
-knight1 = piece.Piece(pygame.image.load(assets_path + 'knight1.png'), (1, 0), 'knight', 1, [('1', '2'), ('-1', '2'), ('2', '1'), ('-2', '1'), ('2', '-1'), ('-2', '-1'), ('1', '-2'), ('-1', '-2')])
+pawn1 = piece.Piece(pygame.image.load(assets_path + 'pawn1.png'), (0, 1), 'pawn', 1, [('0', '-1'), ('F', '0', '-1|-3')], [('1', '-2'), ('-1', '-2')])
+rook1 = piece.Piece(pygame.image.load(assets_path + 'rook1.png'), (0, 0), 'rook', 1, rook.piece_moves)
+bishop1 = piece.Piece(pygame.image.load(assets_path + 'bishop1.png'), (2, 0), 'bishop', 1, bishop.piece_moves)
+knight1 = piece.Piece(pygame.image.load(assets_path + 'knight1.png'), (1, 0), 'knight', 1, knight.piece_moves)
+queen1 = piece.Piece(pygame.image.load(assets_path + 'queen1.png'), (3, 0), 'queen', 1, queen.piece_moves)
+king1 = piece.Piece(pygame.image.load(assets_path + 'king1.png'), (4, 0), 'king', 1, king.piece_moves)
 
 # Rectangle for our chess board
 board_panel = pygame.Rect(SCREEN.get_width() / 2 - 200, SCREEN.get_height() / 2 - 200, 400, 400)
@@ -27,7 +31,7 @@ board_panel = pygame.Rect(SCREEN.get_width() / 2 - 200, SCREEN.get_height() / 2 
 def main():
     pygame.init()
     pygame.display.set_caption('Chess')
-    chess = board.Board(SCREEN, board_panel, pawn, rook, bishop, knight, pawn1, rook1, bishop1, knight1) # chess class
+    chess = board.Board(SCREEN, board_panel, pawn, rook, bishop, queen, king, knight, pawn1, rook1, bishop1, knight1, queen1, king1) # chess class
     chess.add_sets(pawn, ('0|7', '6'))
     chess.add_sets(rook, ('7|7', '7'))
     chess.add_sets(bishop, ('5|5', '7'))
