@@ -1,4 +1,4 @@
 #########
 # Paths #
 #########
-CHESS_PIECES = 'GUI Files/Chess/Pieces'
+CHESS_PIECES = 'GUI/Pieces/Chess'
