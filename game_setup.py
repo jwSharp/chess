@@ -5,7 +5,7 @@ from pathlib import Path
 
 SCREEN = pygame.display.set_mode((600, 600))
 
-file_path = Path(__file__).parent.absolute()
+file_path = Path(__file__).parent.absolute().parent.absolute().parent.absolute() 
 assets_path = str(file_path / 'assets') + '/' # add .parent.absolute() after file_path to go back at directory
 
 ###############
