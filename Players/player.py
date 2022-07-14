@@ -10,7 +10,7 @@ class Player:
         self.rating = rating
 
         self.board = board
-        #self.team = team
+        self.team = team
 
     def move(self, destination: (int, int)):
         if not is_legal_move(self, Location(destination)):

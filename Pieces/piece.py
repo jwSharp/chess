@@ -1,6 +1,8 @@
+import pygame
+from pathlib import Path
+
 import constants.py
 import player.py
-from pathlib import Path
 
 ##################
 # Abstract Class #
@@ -19,15 +21,9 @@ class Piece:
     @staticmethod #TODO make a static variable
     _ways_to_move = []
 
-    @staticmethod #TODO make a static variable
-    
-    @staticmethod #TODO make a static variable
-    _sprites = [] #TODO set based on path
-
-    def __init__(self, position: (int, int), team: int, player: Player):
+    def __init__(self, position: (int, int), player: Player):
         self.player = player
-        self.sprite = _set_sprite(team)
-        self.team = team
+        self.sprite = _set_sprite() #TODO based on order
 
         self.position_board = Location(position)
         self.position_real_time = Location(position)
@@ -42,11 +38,10 @@ class Piece:
 
         #TODO updates to team stats
 
-
-    def _set_sprite(team: int):
-        '''Returns a string containing the path to the correct png.'''
+    def _set_sprite(team: int) -> pygame.image:
+        '''Returns a path to the correct png.'''
         if self.player.team == 0:
-            p = Path(CHESS_PIECES / 'White')
+            piece_path = Path(CHESS_PIECES / 'White')
         else:
-            p = Path(CHESS_PIECES / 'Black')
-        return '' #TODO return [images in _sprites folder][team]
+            piece_path = Path(CHESS_PIECES / 'Black')
+        return pygame.image.load(piece_path)
