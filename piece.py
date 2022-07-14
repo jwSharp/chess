@@ -1,5 +1,6 @@
-import board.py
+import constants.py
 import player.py
+from pathlib import Path
 
 ##################
 # Abstract Class #
@@ -18,20 +19,20 @@ class Piece:
     @staticmethod #TODO make a static variable
     _ways_to_move = []
 
-
     @staticmethod #TODO make a static variable
-    PATH = 'Resources/Game_Pieces/' #TODO set based on path
+    
     @staticmethod #TODO make a static variable
     _sprites = [] #TODO set based on path
 
-    def __init__(self, position: (int, int), team: int, board: Board):
-        self.board = board
+    def __init__(self, position: (int, int), team: int, player: Player):
+        self.player = player
         self.sprite = _set_sprite(team)
         self.team = team
 
-        self.board_position = Location(position)
-        self.real_time_position = Location(position)
+        self.position_board = Location(position)
+        self.position_real_time = Location(position)
 
+        self.sprite = _set_sprite(team)
     
     def remove(self):
         '''Removes piece from the board.'''
@@ -42,7 +43,10 @@ class Piece:
         #TODO updates to team stats
 
 
-    def _set_sprite(team: int) -> str:
+    def _set_sprite(team: int):
         '''Returns a string containing the path to the correct png.'''
-        _sprites = 'Resources/Game_Pieces/'
+        if self.player.team == 0:
+            p = Path(CHESS_PIECES / 'White')
+        else:
+            p = Path(CHESS_PIECES / 'Black')
         return '' #TODO return [images in _sprites folder][team]
