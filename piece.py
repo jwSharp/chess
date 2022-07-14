@@ -32,14 +32,6 @@ class Piece:
         self.board_position = Location(position)
         self.real_time_position = Location(position)
 
-
-    def move(self, destination: (int, int)):
-        if not is_legal_move(self, Location(destination)):
-            #TODO illegal move
-            self.real_time_position = self.board_position
-        else:
-            #TODO if capture
-            #TODO 
     
     def remove(self):
         '''Removes piece from the board.'''
