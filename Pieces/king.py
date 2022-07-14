@@ -8,7 +8,7 @@ import piece.py
 class King(Piece):
 
     @staticmethod #TODO make a static variable
-        _ways_to_move = []
+    _ways_to_move = [('0', '1'), ('0', '-1'), ('1', '0'), ('-1', '0'), ('1', '1'), ('-1', '-1'), ('1', '-1'), ('-1', '1')]
 
     def __init__(self, position: (int, int), player: Player):
         self.player = player

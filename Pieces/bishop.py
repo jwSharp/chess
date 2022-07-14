@@ -8,7 +8,7 @@ import piece.py
 class Bishop(Piece):
 
     @staticmethod #TODO make a static variable
-        _ways_to_move = []
+    _ways_to_move = [('1|7', '1|7'), ('-1|-7', '-1|-7'), ('-1|-7', '1|7'), ('1|7', '-1|-7')]
 
     def __init__(self, position: (int, int), player: Player):
         self.player = player
