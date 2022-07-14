@@ -5,7 +5,6 @@ def main():
     pygame.init()
     pygame.display.set_caption('Chess')
     clock = pygame.time.Clock()
-    pygame.display.flip()
     while True:
         clock.tick(60)
         # drawing board, letters numbers arround the board, and pieces on the board
@@ -17,6 +16,5 @@ def main():
         for event in pygame.event.get():
             handle_events(event)
         pygame.display.update()
-        pygame.display.flip()
       
 main()
