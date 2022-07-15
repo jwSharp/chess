@@ -102,5 +102,114 @@ class Board:
         if holded_image != None:
             self.screen.blit(holded_image, (h_x, h_y))
     
+    ###################
+    #### Unchecked ####
+      #             #
+         #       #
+            # #
+             #
+
+             
+    def drag_piece(self, x, y):
+        x = (x / self.board_panel.width * 8) - (self.screen.get_width()) / self.board_panel.width - 1
+        y = (y / self.board_panel.height * 8) - (self.screen.get_height()) / self.board_panel.height - 1
+        for i in self.pieces:
+            if self.selected_block == i.current_pos and not self.holding_piece:
+                self.holding_piece = True
+                self.selected_piece = i
+                return
+        if self.selected_piece is not None:
+            self.pieces[self.pieces.index(self.selected_piece)].pos = (x, y)
     
+    def drop_piece(self, x, y):
+        # converts x, y to grid position
+        block_x = int(x / self.board_panel.width * 8) - int((self.screen.get_width()) / self.board_panel.width) - 1
+        block_y = int(y / self.board_panel.height * 8) - int((self.screen.get_height()) / self.board_panel.height) - 1
+        if self.selected_piece == None:
+            return
+        
+        piece_positions = [p.current_pos for p in self.pieces]
+        
+        if self.selected_piece.current_pos == self.pieces[self.pieces.index(self.selected_piece)].move_piece(block_x, block_y, self.pieces, self.current_turn) and self.selected_block != None:
+            self.pieces[self.pieces.index(self.selected_piece)].move_piece(self.selected_block[0], self.selected_block[1], self.pieces, self.current_turn)
+            return
+    
+        if (block_x, block_y) in self.capturables:
+            self.pieces[piece_positions.index((block_x, block_y))].destroy_piece()
+            self.movable_blocks = []
+            self.capturables = []
+            self.selected_piece = None
+            self.holding_piece = False
+            self.selected_block = None
+            self.next_turn()
+            
+        if (block_x, block_y) != self.selected_block:
+            self.selected_piece = None
+            self.holding_piece = False
+            self.selected_block = None
+            self.movable_blocks = []
+            self.capturables = []
+            self.next_turn()
+
+
+
+    def select_block(self, x: float, y: float):
+        piece_positions = [i.current_pos for i in self.pieces]
+        x = int(x / self.board_panel.width * 8) - int((self.screen.get_width()) / self.board_panel.width) - 1
+        y = int(y / self.board_panel.height * 8) - int((self.screen.get_height()) / self.board_panel.height) - 1
+        
+        if self.selected_block != None and self.selected_block in self.feedback_blocks:
+            self.feedback_blocks.pop(self.selected_block)
+        if self.selected_piece != None and (x, y) not in self.capturables and (x, y) not in self.movable_blocks:
+            self.selected_piece = None
+            self.holding_piece = False
+            self.selected_block = None
+            self.movable_blocks = []
+            self.capturables = []
+        if (x >= 0 and x <= 7) and (y >= 0) and (y <= 7):
+            self.selected_block = (x, y)
+            if self.selected_piece != None and self.selected_block in self.capturables:
+                self.pieces[self.pieces.index(self.selected_piece)].move_piece(x, y, self.pieces, self.current_turn)
+                self.pieces[piece_positions.index(self.selected_block)].destroy_piece()
+                self.selected_piece = None
+                self.holding_piece = False
+                self.selected_block = None
+                self.movable_blocks = []
+                self.capturables = []
+                self.next_turn()
+            elif self.selected_block in piece_positions:
+                if self.pieces[piece_positions.index(self.selected_block)].turn == self.current_turn:
+                    self.selected_piece = self.pieces[piece_positions.index(self.selected_block)]
+                    self.movable_blocks = self.selected_piece.get_movement(self.pieces)
+                    self.capturables = self.selected_piece.get_capturables(self.pieces)
+                else:
+                    self.draw_feedback(self.selected_block, (255, 0, 0, 230), True)
+        if self.selected_piece != None and (x, y) in self.movable_blocks:
+            self.pieces[self.pieces.index(self.selected_piece)].move_piece(x, y, self.pieces, self.current_turn)
+            self.selected_piece = None
+            self.holding_piece = False
+            self.selected_block = None
+            self.movable_blocks = []
+            self.capturables = []
+            self.next_turn()
+        return (x, y)
+    
+
+                
+    def next_turn(self):
+        max_turn = max([p.turn for p in self.pieces])
+        min_turn = min([p.turn for p in self.pieces])
+        if self.current_turn < max_turn:
+            self.current_turn += 1
+        else:
+            self.current_turn = min_turn
+    
+
+    
+    def draw_feedback(self, xy: (int, int), color, reset_feedbacks):
+        if reset_feedbacks:
+            self.feedback_blocks = {xy:color}
+        else:
+            self.feedback_blocks[xy] = color
+
 
