@@ -1,11 +1,11 @@
 import board.py
-import piece.py
+import Pieces/
 
 ##################
 # Abstract Class #
 ##################
 class Player:
-    def __init__(self, name: str, rating: int, board: Board, pieces = *Piece):
+    def __init__(self, name: str, rating: int, board: Board):
         self.name = name #! prompt for name
         self.rating = rating #! fetch rating
 
@@ -19,5 +19,8 @@ class Player:
         else:
             #TODO if capture
             #TODO 
-
+    
+    def set_pieces(self, *pieces: Piece):
+        self.pieces = pieces
+    
     #TODO Event Listeners Here

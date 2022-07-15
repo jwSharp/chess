@@ -5,6 +5,8 @@ import constants.py
 import player.py
 
 class Board:
+    # list with piece locations [][]
+
     def __init__(self, screen: pygame.surface, panel: pygame.Rect, *players: player.Player):
         self.screen = screen #? existing already?
         self.board_panel = panel #? .width?
@@ -30,6 +32,18 @@ class Board:
         self.selected_block = None
         self.selected_piece = None
         self.holding_piece = False
+
+        _add_sets()
+
+    def _add_sets(self, ref_piece: piece.Piece, positions: (str, str) = ('0|7', '6')):
+        piece_positions = [i.current_pos for i in self.pieces]
+        pos_x = [x for x in range(min([int(j) for j in positions[0].split('|')]), max([int(j) for j in positions[0].split('|')]) + 1)]
+        pos_y = [y for y in range(min([int(j) for j in positions[1].split('|')]), max([int(j) for j in positions[1].split('|')]) + 1)]
+        for l in range(max([len(pos_x), len(pos_y)])):
+            x = pos_x[-1] if pos_x.index(pos_x[-1]) < l else pos_x[l]
+            y = pos_y[-1] if pos_y.index(pos_y[-1]) < l else pos_y[l]
+            if (x, y) not in piece_positions:
+                self.pieces.append(piece.Piece(ref_piece.sprite, (x, y), ref_piece.piece_name, ref_piece.turn, ref_piece.piece_moves, ref_piece.different_attacks))
 
 
 
@@ -58,7 +72,7 @@ class Board:
                 if (x, y) in self.capturables:
                     pygame.draw.rect(self.screen, constants.SALMON, r, 3)
                 
-                #! if( there exists a piece on this square) then _draw_piece(self, piece)
+                #! if( there exists a piece on this square x,y) then _draw_piece(self, piece)
     
 
     def _draw_letters(self, text_color = (0, 0, 0, 255)):
