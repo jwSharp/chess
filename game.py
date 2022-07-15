@@ -1,7 +1,8 @@
 import pygame
-import board
-import piece
 from pathlib import Path
+
+import pieces.py
+import board.py
 
 SCREEN = pygame.display.set_mode((600, 600))
 

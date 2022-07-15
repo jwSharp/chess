@@ -1,5 +1,5 @@
 import board.py
-import Pieces/
+import pieces.py
 
 ##################
 # Abstract Class #
