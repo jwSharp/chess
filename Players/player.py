@@ -6,8 +6,8 @@ import piece.py
 ##################
 class Player:
     def __init__(self, name: str, rating: int, board: Board, pieces = *Piece):
-        self.name = name
-        self.rating = rating
+        self.name = name #! prompt for name
+        self.rating = rating #! fetch rating
 
         self.board = board
         self.team = team
