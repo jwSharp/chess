@@ -1,8 +1,8 @@
+import pathlib as pl
 #########
 # Paths #
 #########
-CHESS_PIECES = Path(__file__).parent.absolute().parent.absolute() + '/GUI/Pieces/Chess' #! check functionality
-
+CHESS_PIECES = str(pl.Path(__file__).parent.absolute()) + '/Assets/Pieces/Chess' #! check functionality
 
 ##########
 # Colors #
