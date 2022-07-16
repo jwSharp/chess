@@ -9,11 +9,13 @@ class Board:
 
     def __init__(self, screen: pygame.surface, panel: pygame.Rect, *players: player.Player):
         self.screen = screen #? existing already?
-        self.board_panel = panel #? .width?
+        self.board_panel = panel # Board panel is to manage boards width and height 
+        #! this is for render board on panel instead of on screen
 
         for player in players: #! random order functionality
             self.players.append(player)
-
+        
+        
         _new_game(self)
 
 
@@ -45,9 +47,6 @@ class Board:
             if (x, y) not in piece_positions:
                 self.pieces.append(piece.Piece(ref_piece.sprite, (x, y), ref_piece.piece_name, ref_piece.turn, ref_piece.piece_moves, ref_piece.different_attacks))
 
-
-
-
     def _draw_board(self):
         block_size = self.board_panel.width/8
         for x in range(8):
@@ -72,8 +71,9 @@ class Board:
                 if (x, y) in self.capturables:
                     pygame.draw.rect(self.screen, constants.SALMON, r, 3)
                 
-                #! if( there exists a piece on this square x,y) then _draw_piece(self, piece)
-    
+                if (x, y) in self.piece_positions:
+                    # piece_index = self.piece_positions.index(self.selected_block)
+                    pass # draw -> self.pieces[piece_index]
 
     def _draw_letters(self, text_color = (0, 0, 0, 255)):
         letters = ['A', 'B', 'C', 'D', 'E', 'F', 'G', 'H']

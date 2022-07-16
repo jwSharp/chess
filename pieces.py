@@ -19,7 +19,8 @@ class Piece:
             self.x, self.y = coordinates
 
     @staticmethod #TODO make a static variable
-    _ways_to_move = []
+    def _ways_to_move(ways_of_move: list) -> list:
+        return ways_of_move #! @staticmethod can only be used on functions
 
     def __init__(self, position: (int, int), player: Player):
         self.player = player
@@ -79,8 +80,7 @@ class Pawn(Piece):
 
 class Knight(Piece):
 
-    @staticmethod #TODO make a static variable
-    _ways_to_move = [('1', '2'), ('-1', '2'), ('2', '1'), ('-2', '1'), ('2', '-1'), ('-2', '-1'), ('1', '-2'), ('-1', '-2')]
+    ways_to_move = Piece._ways_to_move([('1', '2'), ('-1', '2'), ('2', '1'), ('-2', '1'), ('2', '-1'), ('-2', '-1'), ('1', '-2'), ('-1', '-2')]) 
 
     def __init__(self, position: (int, int), player: Player):
         self.player = player
@@ -106,8 +106,7 @@ class Knight(Piece):
 
 class Bishop(Piece):
 
-    @staticmethod #TODO make a static variable
-    _ways_to_move = [('1|7', '1|7'), ('-1|-7', '-1|-7'), ('-1|-7', '1|7'), ('1|7', '-1|-7')]
+    ways_to_move = Piece._ways_to_move([('1|7', '1|7'), ('-1|-7', '-1|-7'), ('-1|-7', '1|7'), ('1|7', '-1|-7')])
 
     def __init__(self, position: (int, int), player: Player):
         self.player = player
@@ -132,8 +131,7 @@ class Bishop(Piece):
 
 class Rook(Piece):
 
-    @staticmethod #TODO make a static variable
-    _ways_to_move = [('0', '1|8'), ('0', '-1|-8'), ('1|8', '0'), ('-1|-8', '0')]
+    ways_to_move = Piece._ways_to_move([('0', '1|8'), ('0', '-1|-8'), ('1|8', '0'), ('-1|-8', '0')])
 
     def __init__(self, position: (int, int), player: Player):
         self.player = player
@@ -158,8 +156,7 @@ class Rook(Piece):
 
 class Queen(Piece):
 
-    @staticmethod #TODO make a static variable
-    _ways_to_move = [('0', '1|8'), ('0', '-1|-8'), ('1|8', '0'), ('-1|-8', '0'), ('1|7', '1|7'), ('-1|-7', '-1|-7'), ('-1|-7', '1|7'), ('1|7', '-1|-7')]
+    ways_to_move = Piece._ways_to_move([('0', '1|8'), ('0', '-1|-8'), ('1|8', '0'), ('-1|-8', '0'), ('1|7', '1|7'), ('-1|-7', '-1|-7'), ('-1|-7', '1|7'), ('1|7', '-1|-7')])
 
     def __init__(self, position: (int, int), player: Player):
         self.player = player
@@ -180,10 +177,10 @@ class Queen(Piece):
         return pygame.image.load(piece_path)
 
 
+
 class King(Piece):
 
-    @staticmethod #TODO make a static variable
-    _ways_to_move = [('0', '1'), ('0', '-1'), ('1', '0'), ('-1', '0'), ('1', '1'), ('-1', '-1'), ('1', '-1'), ('-1', '1')]
+    ways_to_move = Piece._ways_to_move([('0', '1'), ('0', '-1'), ('1', '0'), ('-1', '0'), ('1', '1'), ('-1', '-1'), ('1', '-1'), ('-1', '1')])
 
     def __init__(self, position: (int, int), player: Player):
         self.player = player

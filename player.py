@@ -19,6 +19,7 @@ class Player:
         else:
             #TODO if capture
             #TODO 
+            pass
     
     def set_pieces(self, *pieces: Piece):
         self.pieces = pieces
