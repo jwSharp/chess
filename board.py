@@ -1,13 +1,13 @@
 import pygame
 import math
 
-import constants.py
-import player.py
+import constants
+#import player
 
 class Board:
     # list with piece locations [][]
 
-    def __init__(self, screen: pygame.surface, panel: pygame.Rect, *players: player.Player):
+    def __init__(self, screen: pygame.surface, panel: pygame.Rect):
         self.screen = screen #? existing already?
         self.board_panel = panel # Board panel is to manage boards width and height 
         #! this is for render board on panel instead of on screen
@@ -18,7 +18,7 @@ class Board:
         
         _new_game(self)
 
-
+    a = """
     def draw(self):
         '''Draws board, letters/numbers arround the board, and pieces on the board.'''
         _draw_board(self)
@@ -226,4 +226,4 @@ class Board:
         else:
             self.feedback_blocks[xy] = color
 
-
+    """
