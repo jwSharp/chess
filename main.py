@@ -14,16 +14,13 @@ def main():
 
     dims = pygame.display.get_desktop_sizes()[0]
     screen = pygame.display.set_mode((dims[0], dims[1]))
+    panel = pygame.Rect(screen.get_width() / 2 - 200, screen.get_height() / 2 - 200, 400, 400)
 
-    #! decide players
     players = set_players()
     
-
     #! decide game
-    chess = board.Board(screen)
-
+    chess = board.Board(screen, panel, players)
     
-    #board_panel = pygame.Rect(SCREEN.get_width() / 2 - 200, SCREEN.get_height() / 2 - 200, 400, 400)
     #file_path = Path(__file__).parent.absolute()
     #assets_path = str(file_path / 'Assets') + '/'
 
@@ -70,9 +67,11 @@ def handle_events(event):
 
 def set_players() -> [player.Player]:
     players = []
-    #! Loop for desired amount of players
-    name = input("Player name:")
-    players.append(player.Player(name))
+    respones = 'y'
+    while response[0].lower() == 'y':
+        name = input("Player name:")
+        players.append(player.Player(name))
+        response = input("add a player?")
     return players
 
       
