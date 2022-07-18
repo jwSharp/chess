@@ -1,51 +1,90 @@
 import pygame
 import math
 
-import constants.py
-import player.py
+import constants
+import player
+import pieces
 
 class Board:
     # list with piece locations [][]
 
     def __init__(self, screen: pygame.surface, panel: pygame.Rect, *players: player.Player):
-        self.screen = screen #? existing already?
-        self.board_panel = panel # Board panel is to manage boards width and height 
-        #! this is for render board on panel instead of on screen
+        self.screen = screen
+        self.panel = panel
 
         for player in players: #! random order functionality
             self.players.append(player)
-        
-        
+            #player.set_board(self) #? Circular Import
+
         _new_game(self)
 
-
-    def draw(self):
-        '''Draws board, letters/numbers arround the board, and pieces on the board.'''
-        _draw_board(self)
-        _draw_letters(self)
-        _draw_pieces(self)
-    
-
-
-    def _new_game(self): #? game.py? - contains movement, turns etc...
+    def _new_game(self): #? game.py
         '''Resets the pieces to their starting squares.'''
-        self.turn = 0
+        self.turn = 0 # uses players's indices to go through turns
         
         self.selected_block = None
         self.selected_piece = None
         self.holding_piece = False
 
-        _add_sets()
+        # reset pieces - destructors?
 
-    def _add_sets(self, ref_piece: piece.Piece, positions: (str, str) = ('0|7', '6')):
-        piece_positions = [i.current_pos for i in self.pieces]
-        pos_x = [x for x in range(min([int(j) for j in positions[0].split('|')]), max([int(j) for j in positions[0].split('|')]) + 1)]
-        pos_y = [y for y in range(min([int(j) for j in positions[1].split('|')]), max([int(j) for j in positions[1].split('|')]) + 1)]
-        for l in range(max([len(pos_x), len(pos_y)])):
-            x = pos_x[-1] if pos_x.index(pos_x[-1]) < l else pos_x[l]
-            y = pos_y[-1] if pos_y.index(pos_y[-1]) < l else pos_y[l]
-            if (x, y) not in piece_positions:
-                self.pieces.append(piece.Piece(ref_piece.sprite, (x, y), ref_piece.piece_name, ref_piece.turn, ref_piece.piece_moves, ref_piece.different_attacks))
+        # 2 Player
+        self.pieces = []
+        # Reset pieces
+        for i in num_of_players:
+            players[i].pieces = []
+        #! wish for loop to do following
+        players[0].pieces.append[piece.Pawn(piece.Pawn((0, 1), players[0]),
+            piece.Pawn((1, 1), players[0]),
+            piece.Pawn((2, 1), players[0]),
+            piece.Pawn((3, 1), players[0]),
+            piece.Pawn((4, 1), players[0]),
+            piece.Pawn((5, 1), players[0]),
+            piece.Pawn((6, 1), players[0]),
+            piece.Pawn((7, 1), players[0]),
+            piece.Knight((1, 0), players[0]),
+            piece.Knight((6, 0), players[0]),
+            piece.Bishop((2, 0), players[0]),
+            piece.Bishop((5, 0), players[0]),
+            piece.Rook((0, 0), players[0]),
+            piece.Rook((7, 0), players[0]),
+            piece.Queen((3, 0), players[0]),
+            piece.King((4, 0), players[0]))]
+        players[1].pieces.append[piece.Pawn(piece.Pawn((0, 6), players[0]),
+            piece.Pawn((1, 6), players[0]),
+            piece.Pawn((2, 6), players[0]),
+            piece.Pawn((3, 6), players[0]),
+            piece.Pawn((4, 6), players[0]),
+            piece.Pawn((5, 6), players[0]),
+            piece.Pawn((6, 6), players[0]),
+            piece.Pawn((7, 6), players[0]),
+            piece.Knight((1, 7), players[0]),
+            piece.Knight((6, 7), players[0]),
+            piece.Bishop((2, 7), players[0]),
+            piece.Bishop((5, 7), players[0]),
+            piece.Rook((0, 7), players[0]),
+            piece.Rook((7, 7), players[0]),
+            piece.Queen((3, 7), players[0]),
+            piece.King((4, 7), players[0]))]
+
+        alt = """
+        def _add_sets(self, ref_piece: piece.Piece, positions: (str, str) = ('0|7', '6')):
+            piece_positions = [i.current_pos for i in self.pieces]
+            pos_x = [x for x in range(min([int(j) for j in positions[0].split('|')]), max([int(j) for j in positions[0].split('|')]) + 1)]
+            pos_y = [y for y in range(min([int(j) for j in positions[1].split('|')]), max([int(j) for j in positions[1].split('|')]) + 1)]
+            for l in range(max([len(pos_x), len(pos_y)])):
+                x = pos_x[-1] if pos_x.index(pos_x[-1]) < l else pos_x[l]
+                y = pos_y[-1] if pos_y.index(pos_y[-1]) < l else pos_y[l]
+                if (x, y) not in piece_positions:
+                    self.pieces.append(piece.Piece(ref_piece.sprite, (x, y), ref_piece.piece_name, ref_piece.turn, ref_piece.piece_moves, ref_piece.different_attacks))
+        """
+
+    a = """
+    def draw(self):
+        '''Draws board, letters/numbers arround the board, and pieces on the board.'''
+        _draw_board(self)
+        _draw_letters(self)
+        _draw_pieces(self)
 
     def _draw_board(self):
         block_size = self.board_panel.width/8
@@ -226,4 +265,4 @@ class Board:
         else:
             self.feedback_blocks[xy] = color
 
-
+    """

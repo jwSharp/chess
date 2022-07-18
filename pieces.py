@@ -1,8 +1,8 @@
 import pygame
 from pathlib import Path
 
-import constants.py
-import player.py
+import constants
+import player
 
 ##################
 # Abstract Class #
@@ -21,6 +21,8 @@ class Piece:
     @staticmethod #TODO make a static variable
     def _ways_to_move(ways_of_move: list) -> list:
         return ways_of_move #! @staticmethod can only be used on functions
+
+    
 
     def __init__(self, position: (int, int), player: Player):
         self.player = player
@@ -42,10 +44,13 @@ class Piece:
     def _set_sprite(team: int) -> pygame.image:
         '''Returns a path to the correct png.'''
         if self.player.team == 0:
-            piece_path = Path(CHESS_PIECES / 'White')
+            piece_path = Path(CHESS_PIECES / 'White')#functionality to switch
         else:
             piece_path = Path(CHESS_PIECES / 'Black')
         return pygame.image.load(piece_path)
+
+    def __del__(self):
+        return #TODO Write
 
 
 
@@ -69,9 +74,9 @@ class Pawn(Piece):
     def _set_sprite(team: int) -> pygame.image:
         '''Returns a path to the correct png.'''
         if self.player.team == 0:
-            piece_path = Path(CHESS_PIECES / 'White/Pawn.png')
+            piece_path = Path(CHESS_PIECES / 'White/Top/Pawn.png')
         else:
-            piece_path = Path(CHESS_PIECES / 'Black/Pawn.png')
+            piece_path = Path(CHESS_PIECES / 'Black/Top/Pawn.png')
         return pygame.image.load(piece_path)
 
 
@@ -95,9 +100,9 @@ class Knight(Piece):
     def _set_sprite(team: int) -> pygame.image:
         '''Returns a path to the correct png.'''
         if self.player.team == 0:
-            piece_path = Path(CHESS_PIECES / 'White/Knight.png')
+            piece_path = Path(CHESS_PIECES / 'White/Top/Knight.png')
         else:
-            piece_path = Path(CHESS_PIECES / 'Black/Knight.png')
+            piece_path = Path(CHESS_PIECES / 'Black/Top/Knight.png')
         return pygame.image.load(piece_path)
 
 
@@ -121,9 +126,9 @@ class Bishop(Piece):
     def _set_sprite(team: int) -> pygame.image:
         '''Returns a path to the correct png.'''
         if self.player.team == 0:
-            piece_path = Path(CHESS_PIECES / 'White/Bishop.png')
+            piece_path = Path(CHESS_PIECES / 'White/Top/Bishop.png')
         else:
-            piece_path = Path(CHESS_PIECES / 'Black/Bishop.png')
+            piece_path = Path(CHESS_PIECES / 'Black/Top/Bishop.png')
         return pygame.image.load(piece_path)
     
 
@@ -146,9 +151,9 @@ class Rook(Piece):
     def _set_sprite(team: int) -> pygame.image:
         '''Returns a path to the correct png.'''
         if self.player.team == 0:
-            piece_path = Path(CHESS_PIECES / 'White/Rook.png')
+            piece_path = Path(CHESS_PIECES / 'White/Top/Rook.png')
         else:
-            piece_path = Path(CHESS_PIECES / 'Black/Rook.png')
+            piece_path = Path(CHESS_PIECES / 'Black/Top/Rook.png')
         return pygame.image.load(piece_path)
 
 
@@ -171,9 +176,9 @@ class Queen(Piece):
     def _set_sprite(team: int) -> pygame.image:
         '''Returns a path to the correct png.'''
         if self.player.team == 0:
-            piece_path = Path(CHESS_PIECES / 'White/Queen.png')
+            piece_path = Path(CHESS_PIECES / 'White/Top/Queen.png')
         else:
-            piece_path = Path(CHESS_PIECES / 'Black/Queen.png')
+            piece_path = Path(CHESS_PIECES / 'Black/Top/Queen.png')
         return pygame.image.load(piece_path)
 
 
@@ -195,7 +200,7 @@ class King(Piece):
     def _set_sprite(team: int) -> pygame.image:
         '''Returns a path to the correct png.'''
         if self.player.team == 0:
-            piece_path = Path(CHESS_PIECES / 'White/King.png')
+            piece_path = Path(CHESS_PIECES / 'White/Top/King.png')
         else:
-            piece_path = Path(CHESS_PIECES / 'Black/King.png')
+            piece_path = Path(CHESS_PIECES / 'Black/Top/King.png')
         return pygame.image.load(piece_path)
