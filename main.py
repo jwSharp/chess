@@ -1,5 +1,6 @@
 import pygame
-from game_setup import *
+from game import *
+from constants import *
 
 def main():
     pygame.init()
@@ -8,13 +9,16 @@ def main():
     while True:
         clock.tick(60)
         # drawing board, letters numbers arround the board, and pieces on the board
-        SCREEN.fill((0, 0, 0))
-        chess.draw_letters((255, 255, 255, 255))
+        SCREEN.fill(BLACK)
+        chess.draw_letters(WHITE)
         chess.draw_board()
         chess.draw_pieces()
         # event handling
         for event in pygame.event.get():
-            handle_events(event)
+            chess.handle_events(event)
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
         pygame.display.update()
       
 main()
