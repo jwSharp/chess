@@ -172,8 +172,7 @@ class Board:
     
     def flip_places(self):
         for piece in self.pieces:
-            x, y = piece.reflect_place()
-            piece.force_move(x, y)
+            piece.reflect_place()
     
     
     def draw_feedback(self, xy: (int, int), color, reset_feedbacks):

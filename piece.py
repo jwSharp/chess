@@ -14,7 +14,7 @@ class Piece:
         self.move_count = 0
         self.check_count = 0
         
-      
+    
     def move_piece(self, x, y, current_turn = 0, other_pieces = []) -> (int, int):
         if self.can_move(x, y, other_pieces) and self.turn == current_turn:
             self.current_pos = (x, y)
@@ -25,12 +25,14 @@ class Piece:
         return self.current_pos
     
     
-    def force_move(self, x, y, condition = True) -> (int, int):
+    def force_move(self, x, y, count_move = True, condition = True) -> (int, int):
         if condition:
             self.current_pos = (x, y)
             self.pos = (x, y)
-            self.move_count += 1
+            if count_move:
+                self.move_count += 1
         return self.current_pos
+    
     
     def can_move(self, target_x, target_y, other_pieces = []) -> bool:
         if target_x < 0 or target_x > 7 or target_y < 0 or target_y > 7:
@@ -38,6 +40,7 @@ class Piece:
         if (target_x, target_y) in self.get_movement(other_pieces):
             return True
         return (target_x, target_y) in self.get_capturables(other_pieces)
+    
     
     def get_movement(self, other_pieces) -> [(int, int)]:
         blocks = []
@@ -62,6 +65,7 @@ class Piece:
                 blocks += pos
         return blocks
 
+
     def get_capturables(self, other_pieces) -> [(int, int)]:
         if self.different_attacks == None:
             self.get_movement(other_pieces)
@@ -85,8 +89,10 @@ class Piece:
                     break
         return self.capturables
   
+  
     def get_movable_blocks(self, move: str):
         return [(self.current_pos[0] + j[0], self.current_pos[1] - j[1]) for j in self.movable_blocks(move)]
+    
     
     def movable_blocks(self, area) -> [(int, int)]:
         blocks = []
@@ -109,26 +115,32 @@ class Piece:
             blocks.append((x, y))
         return blocks
 
+
     def destroy_piece(self):
         self.current_pos = None
         self.pos = None
         self.captured = True
     
+    
     def set_movement(self, movement:[(str)]):
         self.piece_moves = movement
-      
+     
+     
     def add_movement(self, move_add:[(str)]):
         self.piece_moves += move_add
+    
     
     def reflect_place(self):
         if self.current_pos == None:
             return
         x = 7 - self.current_pos[0]
         y = 7 - self.current_pos[1]
+        self.force_move(x, y, False)
         self.piece_moves = self.get_reflected_move(self.piece_moves)
         if self.different_attacks != None:
             self.different_attacks = self.get_reflected_move(self.different_attacks)
         return (x, y)
+
 
     def get_reflected_move(self, old_move:[(str)]) -> [(str)]:
         new_move = []
