@@ -21,9 +21,9 @@ queen1 = piece.Piece(pygame.image.load(ASSETS_PATH + 'queen1.png'), (3, 0), 'que
 king1 = piece.Piece(pygame.image.load(ASSETS_PATH + 'king1.png'), (4, 0), 'king', 1, king.piece_moves)
 
 ## Chess ##
-board_panel = pygame.Rect(SCREEN.get_width() / 2 - 200, SCREEN.get_height() / 2 - 200, 400, 400)
+board_panel = pygame.Rect(SCREEN.get_width() / 2 - 300, SCREEN.get_height() / 2 - 300, 600, 600)
 # chess board creation and piece setup
-chess = board.Board(SCREEN, board_panel, pawn, rook, bishop, queen, king, knight, pawn1, rook1, bishop1, knight1, queen1, king1) 
+chess = board.Board(board_panel, pawn, rook, bishop, queen, king, knight, pawn1, rook1, bishop1, knight1, queen1, king1)
 chess.add_sets(pawn, ('0|7', '6'))
 chess.add_sets(rook, ('7|7', '7'))
 chess.add_sets(bishop, ('5|5', '7'))
