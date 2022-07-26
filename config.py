@@ -1,5 +1,5 @@
-from pathlib import Path
 import pygame
+from pathlib import Path
 
 ## Pygame ##
 WIDTH = 1280

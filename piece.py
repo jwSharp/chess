@@ -1,6 +1,6 @@
 import pygame
-from constants import *
 
+from config import *
 
 class Piece:
     def __init__(

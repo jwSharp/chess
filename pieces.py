@@ -1,7 +1,7 @@
 import pygame
 from pathlib import Path
 
-import constants
+import config
 import player
 
 ##################

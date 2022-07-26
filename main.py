@@ -1,6 +1,7 @@
 import pygame
+
+from config import *
 from game import *
-from constants import *
 from gui import *
 
 

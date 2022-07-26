@@ -1,8 +1,8 @@
 import pygame
-import piece
 import math
-from constants import *
 
+from config import *
+import piece
 
 class Board:
     def __init__(self, panel: pygame.Rect, *pieces: piece.Piece, starting_turn=0):
