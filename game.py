@@ -1,7 +1,8 @@
 import pygame
+
+from config import *
 import board
 import piece
-from constants import *
 
 ## Pieces ##
 # White

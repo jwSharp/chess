@@ -1,5 +1,6 @@
 import pygame
-from constants import *
+
+from config import *
 from game import *
 
 

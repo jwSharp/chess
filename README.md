@@ -1,5 +1,4 @@
-Chess
-
+# Chess
 As the first project for Talentsprint's Techwise, our group of five aims to create a functional and unique rendition of the classic chess game. The project begins on July 6 and ends in late August.
 
 ## Visuals
