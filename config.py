@@ -1,7 +1,3 @@
-# Updated config.py to include GET_FONT function and attributes
-# Update included new colors and images to config file
-
-
 import pygame
 from pathlib import Path
 
