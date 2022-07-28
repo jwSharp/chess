@@ -53,4 +53,4 @@ ORANGE = "#b68f40"
 ##########
 # Images #
 ##########
-BG = pygame.image.load(IMAGES_PATH + "brain_colorful.jpg")
+BACKGROUND = pygame.image.load(IMAGES_PATH + "brain_colorful.jpg")

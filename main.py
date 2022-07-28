@@ -1,5 +1,6 @@
 import pygame
 from scene import *
+from player import *
 
 def main():
     # create Window
@@ -7,8 +8,11 @@ def main():
     screen = pygame.display.set_mode((1280, 720), pygame.RESIZABLE)
     pygame.display.set_caption("Main Menu")
 
+    # create player
+    player = Player()
+
     # create scene manager
-    manager = SceneManager()
+    manager = SceneManager(player)
     main_menu = MainMenuScene(manager)
     manager.push(main_menu)
 

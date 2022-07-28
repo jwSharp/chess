@@ -104,7 +104,7 @@ class MainMenuScene(Scene):
 
     def draw(self, screen):
         pygame.display.set_caption("Main Menu")
-        screen.blit(BG, (0, 0))
+        screen.blit(BACKGROUND, (0, 0))
 
         screen.blit(self.text_shadow, self.text_shadow_rect)
         screen.blit(self.text, self.text_rect)
