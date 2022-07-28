@@ -54,7 +54,7 @@ class Scene:
         pass
 
     def enter(self):
-        self.draw()
+        pass
 
     def exit(self):
         pass
@@ -117,6 +117,20 @@ class MainMenuScene(Scene):
         self.quit.update(screen)
 
 
+class Play(Scene):
+    def __init__(self, manager):
+        self.manager = manager
+
+    def input(self, event):
+        mouse_pos = pygame.mouse.get_pos()
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            pass
+
+    def draw(self, sm):
+        pygame.display.set_caption("Society of Overthinker's Chess")
+
+
 class Options(Scene):
     def __init__(self, manager):
         self.manager = manager
@@ -158,17 +172,6 @@ class Options(Scene):
 
         self.credits.update(screen)
         self.back.update(screen)
-
-
-class Play(Scene):
-    def __init__(self, manager):
-        self.manager = manager
-
-    def input(self, sm):
-        pass
-
-    def draw(self, sm):
-        pass
 
 
 class Credits(Scene):

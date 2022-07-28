@@ -4,10 +4,8 @@ from scene import *
 def main():
     # create Window
     pygame.init()
-    screen = pygame.display.set_mode((1280, 720))
+    screen = pygame.display.set_mode((1280, 720), pygame.RESIZABLE)
     pygame.display.set_caption("Main Menu")
-
-    BG = pygame.image.load("assets/brainColorful2.jpg")
 
     # create scene manager
     manager = SceneManager()
