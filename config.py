@@ -11,12 +11,20 @@ pygame.init()
 ## Paths ##
 #! CHANGE ASSETS_PATH TO THE PATH OF THE ASSETS FOLDER
 FILE_PATH = Path(__file__).parent.absolute()
-ASSETS_PATH = str(FILE_PATH.parent.absolute().parent.absolute() / "assets") + "/"
-FONTS_PATH = str(FILE_PATH / "fonts") + "/"
+ASSETS_PATH = str(FILE_PATH / "assets") + "/"
+FONTS_PATH = ASSETS_PATH + "fonts" + "/"
 # add .parent.absolute() after file_path to go back at directory
 
 ## Fonts ##
-TIMER_F = pygame.font.Font(FONTS_PATH + "alarm_clock.ttf", 40)
+#SIZES = {'small' : 20, 'medium' : 40, 'large' : 60}
+def GET_FONT(name, size):
+    if name in SYS_FONTS:
+        return pygame.font.SysFont(name, size)
+    return pygame.font.Font(FONTS[name], size)
+FONTS = { 'Regular' : FONTS_PATH + "PressStart2P-Regular.ttf", 'Timer' : FONTS_PATH + "alarm_clock.ttf"}
+SYS_FONTS = pygame.font.get_fonts()
+
+TIMER_F = GET_FONT('Timer', 40)
 
 ## Colors ##
 BLACK = (0, 0, 0)
@@ -32,3 +40,7 @@ GOLD = "#E6CC39"
 GOLD_SHADOW = "#918A20"
 TAN = "#C9AD71"
 GREY = "#99958D"
+ORANGE = "#b68f40"
+
+##Images##
+BG = pygame.image.load("assets/brainColorful2.jpg")

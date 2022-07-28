@@ -1,29 +1,37 @@
+# Updated/Created main function that will create window, initialize pygame
+# call images, and create instance of scene manager
+
+
 import pygame
-
-from config import *
-from game import *
-from gui import *
-
+from scene import *
 
 def main():
+    # Create Window
     pygame.init()
-    pygame.display.set_caption("Chess")
-    
-    while True:
-        SCREEN.fill(BLACK)
-        make_chess_GUI()
-        chess.draw_letters(GOLD, 36, "elephant")
-        chess.draw_board()
-        chess.draw_pieces()
+    screen = pygame.display.set_mode((1280, 720))
+    pygame.display.set_caption("Main Menu")
 
+    BG = pygame.image.load("assets/brainColorful2.jpg")
+
+    # create scene manager
+    manager = SceneManager()
+    main_menu = MainMenuScene(manager)
+    manager.push(main_menu)
+
+    #game loop
+    running = True
+    while running:
         for event in pygame.event.get():
-            chess.handle_events(event)
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT or not manager.scenes:
                 pygame.quit()
-                quit()
-        
+                running = False
+            # handle events
+            manager.input(event)
+
+        manager.draw(screen)
         pygame.display.update()
 
-        CLOCK.tick(60)
 
 main()
+
+
