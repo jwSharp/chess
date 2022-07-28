@@ -9,11 +9,45 @@ from button import Button
 from config import *
 
 
+class SceneManager:
+    '''A stack of Scene objects that can pop/push next scene to top.'''
+    def __init__(self):
+        self.scenes = []
+
+    def enter(self):
+        pass
+
+    def exit(self):
+        pass
+
+    def input(self, event):
+        if self.scenes:
+            self.scenes[-1].input(event)
+
+    def draw(self, screen):
+        if self.scenes:
+            self.scenes[-1].draw(screen)
+
+    def push(self, scene):
+        # Exit Current Scene
+        if self.scenes:
+            self.scenes[-1].exit()
+
+        self.scenes.append(scene)
+        self.scenes[-1].enter()
+
+    def pop(self):
+        self.exit()
+        self.scenes.pop()
+        self.enter()
+
+    def set(self, scene):
+        self.scenes = [scene]
+
+
 ############
 # Abstract #
 ############
-
-
 class Scene:
     def __init__(self):
         pass
@@ -24,16 +58,18 @@ class Scene:
     def draw(self):
         pass
 
-    def onEnter(self):
+    def enter(self):
+        self.draw()
+
+    def exit(self):
         pass
 
-    def onExit(self):
-        pass
 
-
+##########
+# Scenes #
+##########
 class MainMenuScene(Scene):
     def __init__(self, manager):
-        pygame.display.set_caption("Main Menu")
         self.manager = manager
 
         self.text = GET_FONT('Regular', 100).render("MAIN MENU", True, ORANGE)
@@ -42,42 +78,37 @@ class MainMenuScene(Scene):
         self.text_shadow= GET_FONT('Regular', 100).render("MAIN MENU", True, WHITE)
         self.text_shadow_rect = self.text_shadow.get_rect(center=(644, 104))
 
-        self.play_button = Button(None, pos=(640, 275),
-                                  text_input="PLAY", font=GET_FONT('Regular', 75),
-                                  base_color=ORANGE, hovering_color=WHITE)
+        self.play = Button(None, (640, 275), "PLAY", GET_FONT('Regular', 75), ORANGE, WHITE)
         self.play_shadow = GET_FONT('Regular', 75).render("PLAY", True, WHITE)
         self.play_shadow_rect = self.play_shadow.get_rect(center=(644, 279))
 
-        self.options_button = Button(None, pos=(640, 440),
-                                     text_input="OPTIONS", font=GET_FONT('Regular', 75),
-                                     base_color=ORANGE, hovering_color=WHITE)
+        self.options = Button(None, (640, 440), "OPTIONS", GET_FONT('Regular', 75), ORANGE, WHITE)
         self.options_shadow = GET_FONT('Regular', 75).render("OPTIONS", True, WHITE)
         self.options_shadow_rect = self.options_shadow.get_rect(center=(644, 444))
 
-        self.quit_button = Button(None, pos=(640, 600),
-                                  text_input="QUIT", font=GET_FONT('Regular', 75),
-                                  base_color=ORANGE, hovering_color=WHITE)
+        self.quit = Button(None, (640, 600), "QUIT", GET_FONT('Regular', 75), ORANGE, WHITE)
         self.quit_shadow = GET_FONT('Regular', 75).render("QUIT", True, WHITE)
         self.quit_shadow_rect = self.quit_shadow.get_rect(center=(644, 604))
 
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.play_button.checkForInput(mouse_pos):
+            if self.play.input(mouse_pos):
                 scene = Play(self.manager)
                 self.manager.push(scene)
-            elif self.options_button.checkForInput(mouse_pos):
+            elif self.options.input(mouse_pos):
                 scene = Options(self.manager)
                 self.manager.push(scene)
-            elif self.quit_button.checkForInput(mouse_pos):
+            elif self.quit.input(mouse_pos):
                 pygame.quit()
                 sys.exit()
 
-        for button in [self.play_button, self.options_button, self.quit_button]:
-            button.changeColor(mouse_pos)
+        self.play.set_color(mouse_pos)
+        self.options.set_color(mouse_pos)
+        self.quit.set_color(mouse_pos)
 
     def draw(self, screen):
-        # print("Main Menu draw")
+        pygame.display.set_caption("Main Menu")
         screen.blit(BG, (0, 0))
 
         screen.blit(self.text_shadow, self.text_shadow_rect)
@@ -86,13 +117,13 @@ class MainMenuScene(Scene):
         screen.blit(self.options_shadow, self.options_shadow_rect)
         screen.blit(self.quit_shadow, self.quit_shadow_rect)
 
-        for button in [self.play_button, self.options_button, self.quit_button]:
-            button.update(screen)
+        self.play.update(screen)
+        self.options.update(screen)
+        self.quit.update(screen)
 
 
 class Options(Scene):
     def __init__(self, manager):
-        pygame.display.set_caption("Options")
         self.manager = manager
 
         self.text = GET_FONT('Regular', 100).render("OPTIONS", True, ORANGE)
@@ -100,15 +131,11 @@ class Options(Scene):
         self.text_shadow = GET_FONT('Regular', 100).render("OPTIONS", True, BLACK)
         self.text_shadow_rect = self.text_shadow.get_rect(center=(644, 164))
 
-        self.credits = Button(image=None, pos=(640, 400),
-                              text_input="CREDITS", font=GET_FONT('Regular', 75),
-                              base_color=ORANGE, hovering_color=BLACK)
+        self.credits = Button(None, (640, 400), "CREDITS", GET_FONT('Regular', 75), ORANGE, BLACK)
         self.credits_shadow = GET_FONT('Regular', 75).render("CREDITS", True, BLACK)
         self.credits_rect = self.credits_shadow.get_rect(center=(644, 404))
 
-        self.back = Button(image=None, pos=(640, 560),
-                           text_input="BACK", font=GET_FONT('Regular', 75),
-                           base_color=ORANGE, hovering_color=BLACK)
+        self.back = Button(None, (640, 560), "BACK", GET_FONT('Regular', 75), ORANGE, BLACK)
         self.back_shadow = GET_FONT('Regular', 75).render("BACK", True, BLACK)
         self.back_rect = self.back_shadow.get_rect(center=(644, 564))
 
@@ -116,17 +143,17 @@ class Options(Scene):
         mouse_pos = pygame.mouse.get_pos()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.credits.checkForInput(mouse_pos):
+            if self.credits.input(mouse_pos):
                 scene = Credits(self.manager)
                 self.manager.push(scene)
-            elif self.back.checkForInput(mouse_pos):
+            elif self.back.input(mouse_pos):
                 self.manager.pop()  # close options menu
 
-        self.credits.changeColor(mouse_pos)
-        self.back.changeColor(mouse_pos)
+        self.credits.set_color(mouse_pos)
+        self.back.set_color(mouse_pos)
 
     def draw(self, screen):
-        # print("Options draw")
+        pygame.display.set_caption("Options")
         screen.fill(WHITE)
 
         screen.blit(self.text_shadow, self.text_shadow_rect)
@@ -151,7 +178,6 @@ class Play(Scene):
 
 class Credits(Scene):
     def __init__(self, manager):
-        pygame.display.set_caption("Credits")
         self.manager = manager
 
         self.text = GET_FONT('Regular', 45).render("This game is presented by: ", True, BLACK)
@@ -170,22 +196,20 @@ class Credits(Scene):
         self.name_5 = GET_FONT('Regular', 40).render("Nabeyou Tadessa", True, BLACK)
         self.name_5_rect = self.name_2.get_rect(center=(640, 520))
 
-        self.back = Button(image=None, pos=(640, 640),
-                        text_input="BACK", font=GET_FONT('Regular', 50),
-                      base_color=BLACK, hovering_color=WHITE)
+        self.back = Button(None, (640, 640), "BACK", GET_FONT('Regular', 50), BLACK, WHITE)
         self.back_shadow = GET_FONT('Regular', 50).render("BACK", True, WHITE)
         self.back_rect = self.back_shadow.get_rect(center=(642, 642))
 
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.back.checkForInput(mouse_pos):
+            if self.back.input(mouse_pos):
                 self.manager.pop()  # close credits menu
 
-        self.back.changeColor(mouse_pos)
+        self.back.set_color(mouse_pos)
 
     def draw(self, screen):
-        # print("Credits draw")
+        pygame.display.set_caption("Credits")
         screen.fill(ORANGE)
 
         screen.blit(self.text_shadow, self.text_shadow_rect)
@@ -198,39 +222,3 @@ class Credits(Scene):
         screen.blit(self.back_shadow, self.back_rect)
 
         self.back.update(screen)
-
-
-class SceneManager:
-    # Will be a stack that can pop/push next scene to top
-    def __init__(self):
-        self.scenes = []
-
-    def enterScene(self):
-        pass
-
-    def exitScene(self):
-        pass
-
-    def input(self, event):
-        if self.scenes:
-            self.scenes[-1].input(event)
-
-    def draw(self, screen):
-        if self.scenes:
-            self.scenes[-1].draw(screen)
-
-    def push(self, scene):
-        # Exit Current Scene
-        if self.scenes:
-            self.scenes[-1].onExit()
-
-        self.scenes.append(scene)
-        self.scenes[-1].onEnter()
-
-    def pop(self):
-        self.exitScene()
-        self.scenes.pop()
-        self.enterScene()
-
-    def set(self, scene):
-        self.scenes = [scene]
