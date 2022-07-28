@@ -1,8 +1,3 @@
-# Updated/Created scene.py which includes Scene Parent Class and sub classes
-# MainMenuScene(Scene), Options(Scene), Play(Scene)* PLACEHOLDER, Credits(Scene),
-# and SceneManager
-
-
 import pygame
 import sys
 from button import Button
