@@ -1,5 +1,3 @@
-# Updated config file with 7/29 updates
-
 import pygame
 from pathlib import Path
 
@@ -56,6 +54,7 @@ ORANGE = "#b68f40"
 BACKGROUND = pygame.image.load(IMAGES_PATH + "brain_colorful.jpg")
 
 
+
+
 PLAYER_F = pygame.font.SysFont('brushscript', 62)
 # TIMER_F
-

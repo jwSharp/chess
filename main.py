@@ -1,10 +1,7 @@
-# Updated main.py to include 7/29 changes (if any)
-
 import pygame
 from scene import *
 from player import *
 from config import *
-
 
 def main():
     # create Window
@@ -27,14 +24,11 @@ def main():
             if event.type == pygame.QUIT or not manager.scenes:
                 pygame.quit()
                 running = False
-
+            
             # handle events
             manager.input(event)
 
         manager.draw(screen)
         pygame.display.update()
 
-
 main()
-
-
