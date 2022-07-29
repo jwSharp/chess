@@ -1,11 +1,8 @@
-# Updated board.py to include 7/29 updates (if any)
-
 import pygame
 import math
 
 from config import *
 import piece
-
 
 class Board:
     def __init__(self, window_surface, *pieces: piece.Piece):
@@ -26,18 +23,29 @@ class Board:
 
     ### Display ###
 
+    def input(self, event):
+        mouse_pos = pygame.mouse.get_pos()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if event.button == 1:
+                self.select_block(mouse_pos)
+        elif event.type == pygame.MOUSEBUTTONUP:
+            if event.button == 1:
+                self.drop_piece(mouse_pos)
+        elif pygame.mouse.get_pressed()[0]:
+            self.drag_piece(mouse_pos)
+
     def draw(self):
-        start_x = WIDTH / 5
+        start_x = WIDTH/5
         start_y = 11
         sq_width = 96
         sq_height = 98
-        for i in range(1, 9):
+        for i in range(1,9):
             if i % 2 == 1:
-                for j in range(0, 4):
-                    pygame.draw.rect(self.surface, TAN, ((start_x, start_y), (sq_width, sq_height)))
-                    start_x += sq_width
-                    pygame.draw.rect(self.surface, BROWN, ((start_x, start_y), (sq_width, sq_height)))
-                    start_x += sq_width
+                for j in range(0,4):
+                    pygame.draw.rect(self.surface,TAN,((start_x,start_y),(sq_width,sq_height)))
+                    start_x+=sq_width
+                    pygame.draw.rect(self.surface,BROWN,((start_x,start_y), (sq_width,sq_height)))
+                    start_x+=sq_width
             else:
                 for j in range(0, 4):
                     pygame.draw.rect(self.surface, BROWN, ((start_x, start_y), (sq_width, sq_height)))
@@ -46,13 +54,13 @@ class Board:
                     start_x += sq_width
             start_x = 256
             start_y += sq_height
-
+        
         for piece in self.pieces:
             piece.draw(self, window_surface)
 
-    def draw_pieces(self):  # belongs in piece classes
-        """Draws pieces on the board; calculates every piece position by the
-        (board_panels block size) * piece position.
+    def draw_pieces(self): # belongs in piece classes
+        """Draws pieces on the board; calculates every piece position by the 
+        (board_panels block size) * piece position. 
         Image gets scaled when the piece is holded."""
         image = None
         holded_image = None
@@ -70,8 +78,8 @@ class Board:
             # if piece.turn == self.current_turn:
             #     image = pygame.transform.rotate(image, 180)
             if (
-                    self.selected_piece == piece
-                    and self.selected_piece.pos != self.selected_piece.current_pos
+                self.selected_piece == piece
+                and self.selected_piece.pos != self.selected_piece.current_pos
             ):
                 holded_image = image
                 holded_image = pygame.transform.smoothscale(
@@ -85,7 +93,7 @@ class Board:
             SCREEN.blit(holded_image, (h_x, h_y))
 
     def draw_letters(
-            self, text_color=BLACK, font_size=18, font_name: pygame.font = "Arial"
+        self, text_color=BLACK, font_size=18, font_name: pygame.font = "Arial"
     ):
         letters = ["A", "B", "C", "D", "E", "F", "G", "H"]
         block_size = self.window_surface.width / 8
@@ -117,6 +125,7 @@ class Board:
                 (x_pos_right - number_label.get_width() / 2, self.window_surface.y + gap),
             )
 
+    
     ### Movement ###
 
     def drag_piece(self, x, y):
@@ -126,18 +135,18 @@ class Board:
         y = (y - self.window_surface.y) / block_size - 0.5
         for i in self.pieces:
             if (
-                    self.selected_block == i.current_pos
-                    and not self.holding_piece
-                    and not i.captured
+                self.selected_block == i.current_pos
+                and not self.holding_piece
+                and not i.captured
             ):
                 self.holding_piece = True
                 self.selected_piece = i
                 return
         if self.selected_piece is not None:
             self.pieces[self.pieces.index(self.selected_piece)].pos = (x, y)
-
+        
     def drop_piece(self, x, y):
-        """Calculates the grid point of the mouse position, after this method called
+        """Calculates the grid point of the mouse position, after this method called 
         it will snap the piece position to the grid point."""
         # converts x, y to grid position
         block_x, block_y = self._get_grid_position(x, y)
@@ -147,11 +156,11 @@ class Board:
         piece_positions = [p.current_pos for p in self.pieces]
 
         if (
-                self.selected_piece.current_pos
-                == self.pieces[self.pieces.index(self.selected_piece)].move_piece(
-            block_x, block_y, self.current_turn, self.pieces
-        )
-                and self.selected_block != None
+            self.selected_piece.current_pos
+            == self.pieces[self.pieces.index(self.selected_piece)].move_piece(
+                block_x, block_y, self.current_turn, self.pieces
+            )
+            and self.selected_block != None
         ):
             self.pieces[self.pieces.index(self.selected_piece)].move_piece(
                 self.selected_block[0],
@@ -174,6 +183,9 @@ class Board:
             return True
         self._reset_selected()
         return False
+    
+    def select_block(self, position):
+        select_block(self, position[0], position[1])
 
     def select_block(self, x: float, y: float):
         """Selects the block or the piece, if the block is selected it will be highlighted.
@@ -189,8 +201,8 @@ class Board:
             self.selected_block = (x, y)
             if self.selected_block in piece_positions:
                 if (
-                        self.pieces[piece_positions.index(self.selected_block)].turn
-                        == self.current_turn
+                    self.pieces[piece_positions.index(self.selected_block)].turn
+                    == self.current_turn
                 ):
                     self.selected_piece = self.pieces[
                         piece_positions.index(self.selected_block)
@@ -241,7 +253,7 @@ class Board:
         self._update_pieces(self.pieces)
         self.flip_places()
 
-    def flip_places(self):  # not chess accurate, maybe just rotate the board?
+    def flip_places(self): # not chess accurate, maybe just rotate the board?
         for piece in self.pieces:
             piece.reflect_place()
 
@@ -260,7 +272,7 @@ class Board:
         if not keep_feedback:
             self.feedback_blocks = {}
 
-    def _update_pieces(self, pieces):  # make sure these lists are updated when capture?
+    def _update_pieces(self, pieces): # make sure these lists are updated when capture?
         self.pieces = list(pieces)
         self.piece_images = [p.sprite for p in self.pieces]
         self.captured_pieces = [p for p in self.pieces if p.captured]
@@ -271,20 +283,3 @@ class Board:
         x = int((x - self.window_surface.x) / block_size)
         y = int((y - self.window_surface.y) / block_size)
         return x, y
-
-    ### Handle PyGame Events ###
-
-    def handle_events(self, event):
-        x, y = pygame.mouse.get_pos()
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if event.button == 1:  # left click to select a block
-                self.select_block(x, y)
-        elif event.type == pygame.MOUSEBUTTONUP:
-            if event.button == 1:  # release left click to drop the piece
-                self.drop_piece(x, y)
-        elif pygame.mouse.get_pressed()[0]:  # if dragging, move the piece
-            self.drag_piece(x, y)
-
-        def update(self):
-            pass
-

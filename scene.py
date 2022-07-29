@@ -26,7 +26,6 @@ class SceneManager:
             self.scenes[-1].draw(screen)
 
     def push(self, scene):
-        # Exit Current Scene
         if self.scenes:
             self.scenes[-1].exit()
 
@@ -273,17 +272,19 @@ class Options(Scene):
     def __init__(self, manager):
         self.manager = manager
 
-        self.text = GET_FONT('Regular', 100).render("OPTIONS", True, ORANGE)
+        font = GET_FONT('Regular', 100)
+        self.text = font.render("OPTIONS", True, ORANGE)
         self.text_rect = self.text.get_rect(center=(640, 160))
-        self.text_shadow = GET_FONT('Regular', 100).render("OPTIONS", True, BLACK)
+        self.text_shadow = font.render("OPTIONS", True, BLACK)
         self.text_shadow_rect = self.text_shadow.get_rect(center=(644, 164))
 
-        self.credits = Button(None, (640, 400), "CREDITS", GET_FONT('Regular', 75), ORANGE, BLACK)
-        self.credits_shadow = GET_FONT('Regular', 75).render("CREDITS", True, BLACK)
+        font = GET_FONT('Regular', 75)
+        self.credits = Button(None, (640, 400), "CREDITS", font, ORANGE, BLACK)
+        self.credits_shadow = font.render("CREDITS", True, BLACK)
         self.credits_rect = self.credits_shadow.get_rect(center=(644, 404))
 
-        self.back = Button(None, (640, 560), "BACK", GET_FONT('Regular', 75), ORANGE, BLACK)
-        self.back_shadow = GET_FONT('Regular', 75).render("BACK", True, BLACK)
+        self.back = Button(None, (640, 560), "BACK", font, ORANGE, BLACK)
+        self.back_shadow = font.render("BACK", True, BLACK)
         self.back_rect = self.back_shadow.get_rect(center=(644, 564))
 
     def input(self, event):
@@ -316,24 +317,27 @@ class Credits(Scene):
     def __init__(self, manager):
         self.manager = manager
 
-        self.text = GET_FONT('Regular', 45).render("This game is presented by: ", True, BLACK)
+        font = GET_FONT('Regular', 45)
+        self.text = font.render("This game is presented by: ", True, BLACK)
         self.text_rect = self.text.get_rect(center=(655, 100))
-        self.text_shadow = GET_FONT('Regular', 45).render("This game is presented by: ", True, WHITE)
+        self.text_shadow = font.render("This game is presented by: ", True, WHITE)
         self.text_shadow_rect = self.text_shadow.get_rect(center=(658, 102))
 
-        self.name_1 = GET_FONT('Regular', 40).render("Ashley Butela", True, BLACK)
+        font = GET_FONT('Regular', 40)
+        self.name_1 = font.render("Ashley Butela", True, BLACK)
         self.name_1_rect = self.name_1.get_rect(center=(640, 220))
-        self.name_2 = GET_FONT('Regular', 40).render("Amy Ciuffoletti", True, BLACK)
+        self.name_2 = font.render("Amy Ciuffoletti", True, BLACK)
         self.name_2_rect = self.name_2.get_rect(center=(640, 295))
-        self.name_3 = GET_FONT('Regular', 40).render("Mehmet Ozen", True, BLACK)
+        self.name_3 = font.render("Mehmet Ozen", True, BLACK)
         self.name_3_rect = self.name_2.get_rect(center=(700, 370))
-        self.name_4 = GET_FONT('Regular', 40).render("Jacob Sharp", True, BLACK)
+        self.name_4 = font.render("Jacob Sharp", True, BLACK)
         self.name_4_rect = self.name_2.get_rect(center=(700, 445))
-        self.name_5 = GET_FONT('Regular', 40).render("Nabeyou Tadessa", True, BLACK)
+        self.name_5 = font.render("Nabeyou Tadessa", True, BLACK)
         self.name_5_rect = self.name_2.get_rect(center=(640, 520))
 
-        self.back = Button(None, (640, 640), "BACK", GET_FONT('Regular', 50), BLACK, WHITE)
-        self.back_shadow = GET_FONT('Regular', 50).render("BACK", True, WHITE)
+        font = GET_FONT('Regular', 50)
+        self.back = Button(None, (640, 640), "BACK", font, BLACK, WHITE)
+        self.back_shadow = font.render("BACK", True, WHITE)
         self.back_rect = self.back_shadow.get_rect(center=(642, 642))
 
     def input(self, event):
@@ -367,21 +371,24 @@ class PlayerSelection(Scene):
     def __init__(self, manager):
        self.manager = manager
 
-       self.game_selection = GET_FONT('Regular', 85).render("PLAYER OPTIONS", True, ORANGE)
+       font = GET_FONT('Regular', 85)
+       self.game_selection = font.render("PLAYER OPTIONS", True, ORANGE)
        self.game_selection_rect = self.game_selection.get_rect(center=(640, 100))
-       self.game_selection_shadow = GET_FONT('Regular', 85).render("PLAYER OPTIONS", True, WHITE)
+       self.game_selection_shadow = font.render("PLAYER OPTIONS", True, WHITE)
        self.game_selection_shadow_rect = self.game_selection_shadow.get_rect(center=(644, 104))
 
-       self.one_player = Button(None, (640, 275), "One Player", GET_FONT('Regular', 75), ORANGE, WHITE)
-       self.one_player_shadow = GET_FONT('Regular', 75).render("One Player", True, WHITE)
+       font = GET_FONT('Regular', 75)
+       self.one_player = Button(None, (640, 275), "One Player", font, ORANGE, WHITE)
+       self.one_player_shadow = font.render("One Player", True, WHITE)
        self.one_player_rect = self.one_player_shadow.get_rect(center=(644, 279))
 
-       self.two_player = Button(None, (640, 450), "Two Player", GET_FONT('Regular', 75), ORANGE, WHITE)
-       self.two_player_shadow = GET_FONT('Regular', 75).render("Two Player", True, WHITE)
+       self.two_player = Button(None, (640, 450), "Two Player", font, ORANGE, WHITE)
+       self.two_player_shadow = font.render("Two Player", True, WHITE)
        self.two_player_rect = self.two_player_shadow.get_rect(center=(644, 454))
 
-       self.back = Button(None, (640, 660), "BACK", GET_FONT('Regular', 65), ORANGE, WHITE)
-       self.back_shadow = GET_FONT('Regular', 65).render("BACK", True, WHITE)
+       font = GET_FONT('Regular', 75)
+       self.back = Button(None, (640, 660), "BACK", font, ORANGE, WHITE)
+       self.back_shadow = font.render("BACK", True, WHITE)
        self.back_rect = self.back_shadow.get_rect(center=(644, 664))
 
     def input(self, event):
@@ -428,26 +435,27 @@ class TimeSelection(Scene):
         self.manager = manager
 
         # get w/h and check % initial WIDTH/HEIGHT
-        self.text = GET_FONT('Regular', 50).render("CHOOSE YOUR TIMER OPTION", True, ORANGE)
+        font = GET_FONT('Regular', 50)
+        self.text = font.render("CHOOSE YOUR TIMER OPTION", True, ORANGE)
         self.text_rect = self.text.get_rect(center=(640, 50))
-        self.text_shadow = GET_FONT('Regular', 50).render("CHOOSE YOUR TIMER OPTION", True, BLACK)
+        self.text_shadow = font.render("CHOOSE YOUR TIMER OPTION", True, BLACK)
         self.text_shadow_rect = self.text_shadow.get_rect(center=(644, 54))
 
-        time_1_0 = Button(None, (325, 150), "1 + 0", GET_FONT('Regular', 35), ORANGE, BLACK)
-        time_2_1 = Button(None, (640, 150), "2 + 1", GET_FONT('Regular', 35), ORANGE, BLACK)
-        time_3_0 = Button(None, (955, 150), "3 + 0", GET_FONT('Regular', 35), ORANGE, BLACK)
-        time_3_2 = Button(None, (325, 315), "3 + 0", GET_FONT('Regular', 35), ORANGE, BLACK)
-        time_5_0 = Button(None, (640, 315), "5 + 0", GET_FONT('Regular', 35), ORANGE, BLACK)
-        time_5_3 = Button(None, (955, 315), "5 + 3", GET_FONT('Regular', 35), ORANGE, BLACK)
-        time_10_0 = Button(None, (325, 500), "10 + 0", GET_FONT('Regular', 35), ORANGE, BLACK)
-        time_10_5 = Button(None, (640, 500), "10 + 5", GET_FONT('Regular', 35), ORANGE, BLACK)
-        time_15_10 = Button(None, (955, 500), "15 + 10", GET_FONT('Regular', 35), ORANGE, BLACK)
-
-        
+        font = GET_FONT('Regular', 35)
+        time_1_0 = Button(None, (325, 150), "1 + 0", font, ORANGE, BLACK)
+        time_2_1 = Button(None, (640, 150), "2 + 1", font, ORANGE, BLACK)
+        time_3_0 = Button(None, (955, 150), "3 + 0", font, ORANGE, BLACK)
+        time_3_2 = Button(None, (325, 315), "3 + 0", font, ORANGE, BLACK)
+        time_5_0 = Button(None, (640, 315), "5 + 0", font, ORANGE, BLACK)
+        time_5_3 = Button(None, (955, 315), "5 + 3", font, ORANGE, BLACK)
+        time_10_0 = Button(None, (325, 500), "10 + 0", font, ORANGE, BLACK)
+        time_10_5 = Button(None, (640, 500), "10 + 5", font, ORANGE, BLACK)
+        time_15_10 = Button(None, (955, 500), "15 + 10", font, ORANGE, BLACK)
         self.buttons = (time_1_0, time_2_1, time_3_0, time_3_2, time_5_0, time_5_3, time_10_0, time_10_5, time_15_10)
 
-        self.time_unlimited = Button(None, (644, 664), "Unlimited", GET_FONT('Regular', 50), ORANGE, BLACK)
-        self.time_unlimited_shadow = GET_FONT('Regular', 50).render("Unlimited", True, BLACK)
+        font = GET_FONT('Regular', 50)
+        self.time_unlimited = Button(None, (644, 664), "Unlimited", font, ORANGE, BLACK)
+        self.time_unlimited_shadow = font.render("Unlimited", True, BLACK)
         self.time_unlimited_rect = self.time_unlimited_shadow.get_rect(center=(640, 660))
 
         self.back = Button(None, (100, 664), "<=", GET_FONT('Regular', 50), ORANGE, BLACK)
@@ -461,10 +469,18 @@ class TimeSelection(Scene):
 
             for button in self.buttons:
                 if button.input(mouse_pos):
-                    scene = Game()
+                    time = self._parse_time(button.name)
+
+                    self.manager.pop() # TimeSelection
+                    self.manager.pop() # PlayerSelection
+                    scene = Game(time)
+                    self.manager.push(scene)
 
             if self.time_unlimited.input(mouse_pos):
-                print('that tickles')
+                self.manager.pop() # TimeSelection
+                self.manager.pop() # PlayerSelection
+                scene = Game()
+                self.manager.push(scene)
 
         for button in self.buttons:
             button.set_color(mouse_pos)
@@ -484,6 +500,14 @@ class TimeSelection(Scene):
         screen.blit(self.time_unlimited_shadow, self.time_unlimited_rect)
         self.back.update(screen)
 
+    def _parse_time(self, name: str) -> (int, int):
+        if len(name) == 5:
+            return (int(name[0]), int(name[-1]))
+        elif len(name) == 6:
+            return (int(name[:2]), int(name[-1]))
+        else:
+            return (int(name[:2]), int(name[-2:]))
+
 
 #############
 # Game Play #
@@ -491,6 +515,19 @@ class TimeSelection(Scene):
 class Game(Scene):
     def __init__(self, manager, time: (int, int)):
         self.manager = manager
+        self.time = time # for Timer
 
-        print(self.manager.players)
-        print(self.time)
+    def __init__(self, manager):
+        self.manager = manager
+        self.time = None
+
+    def input(self, event):
+        mouse_pos = pygame.mouse.get_pos()
+
+    def draw(self, screen):
+        pygame.display.set_caption("Retro|Modern Chess")
+        if self.time:
+            #make timer
+            pass
+
+
