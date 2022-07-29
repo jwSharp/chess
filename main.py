@@ -1,30 +1,33 @@
-# Updated/Created main function that will create window, initialize pygame
-# call images, and create instance of scene manager
-
+# Updated main.py to include 7/29 changes (if any)
 
 import pygame
 from scene import *
+from player import *
+from config import *
+
 
 def main():
-    # Create Window
+    # create Window
     pygame.init()
-    screen = pygame.display.set_mode((1280, 720))
+    screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
     pygame.display.set_caption("Main Menu")
 
-    BG = pygame.image.load("assets/brainColorful2.jpg")
+    # create player
+    players = [Human(), None, None, None]
 
     # create scene manager
-    manager = SceneManager()
+    manager = SceneManager(players)
     main_menu = MainMenuScene(manager)
     manager.push(main_menu)
 
-    #game loop
+    # game loop
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT or not manager.scenes:
                 pygame.quit()
                 running = False
+
             # handle events
             manager.input(event)
 
