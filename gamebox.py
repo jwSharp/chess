@@ -1,3 +1,5 @@
+# Updated gamebox.py to include 7/29 changes (if any)
+
 #from board import *
 
 ##################
@@ -34,3 +36,5 @@ class Computer(Player):
         self.name = 'CPU -' + str(rating)
         #self.rating = rating
         self.board = None
+
+
