@@ -1,18 +1,19 @@
 import pygame
 from scene import *
 from player import *
+from config import *
 
 def main():
     # create Window
     pygame.init()
-    screen = pygame.display.set_mode((1280, 720), pygame.RESIZABLE)
+    screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
     pygame.display.set_caption("Main Menu")
 
     # create player
-    player = Player()
+    players = [Human(), None, None, None]
 
     # create scene manager
-    manager = SceneManager(player)
+    manager = SceneManager(players)
     main_menu = MainMenuScene(manager)
     manager.push(main_menu)
 

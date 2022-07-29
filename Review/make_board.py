@@ -1,20 +1,6 @@
 import pygame, sys
 from pygame.locals import *
 
-#TODO: Make window width/height flexible
-
-# Set up some global stuff
-WIDTH = 1280
-HEIGHT = 800
-BLACK = ('#000000')
-WHITE = ('#FFFFFF')
-BROWN = ('#724E2F')
-GOLD_HIGHLIGHT = ('#F6F456')
-GOLD = ('#E6CC39')
-GOLD_SHADOW = ('#918A20')
-TAN = ('#C9AD71')
-GREY = ('#99958D')
-
 pygame.init()
 pygame.font.init()
 playersFont = pygame.font.SysFont('brushscript', 62)

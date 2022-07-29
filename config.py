@@ -29,8 +29,6 @@ def GET_FONT(name: str, size: int):
     if name in SYS_FONTS:
         return pygame.font.SysFont(name, size)
     return pygame.font.Font(FONTS[name], size)
-# TIMER_F
-# playersFont
 
 ##########
 # Colors #
@@ -54,3 +52,9 @@ ORANGE = "#b68f40"
 # Images #
 ##########
 BACKGROUND = pygame.image.load(IMAGES_PATH + "brain_colorful.jpg")
+
+
+
+
+PLAYER_F = pygame.font.SysFont('brushscript', 62)
+# TIMER_F
