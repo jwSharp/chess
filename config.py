@@ -1,24 +1,40 @@
+#Updated config to match 7/29 update
+
 import pygame
 from pathlib import Path
 
-## Pygame ##
+##########
+# Pygame #
+##########
 WIDTH = 1280
 HEIGHT = 800
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 CLOCK = pygame.time.Clock()
 pygame.init()
 
-## Paths ##
-#! CHANGE ASSETS_PATH TO THE PATH OF THE ASSETS FOLDER
+#########
+# Paths #
+#########
 FILE_PATH = Path(__file__).parent.absolute()
-ASSETS_PATH = str(FILE_PATH.parent.absolute().parent.absolute() / "assets") + "/"
-FONTS_PATH = str(FILE_PATH / "fonts") + "/"
-# add .parent.absolute() after file_path to go back at directory
+ASSETS_PATH = str(FILE_PATH / "Assets") + "/"
+IMAGES_PATH = ASSETS_PATH + "Images" + "/"
+FONTS_PATH = ASSETS_PATH + "Fonts" + "/"
 
-## Fonts ##
-TIMER_F = pygame.font.Font(FONTS_PATH + "alarm_clock.ttf", 40)
+#########
+# Fonts #
+#########
+#SIZES = {'small' : 20, 'medium' : 40, 'large' : 60}
+FONTS = { 'Regular' : FONTS_PATH + "PressStart2P-Regular.ttf", 'Timer' : FONTS_PATH + "alarm_clock.ttf"}
+SYS_FONTS = pygame.font.get_fonts()
+def GET_FONT(name: str, size: int):
+    '''Returns the @name pygame font of @size size.'''
+    if name in SYS_FONTS:
+        return pygame.font.SysFont(name, size)
+    return pygame.font.Font(FONTS[name], size)
 
-## Colors ##
+##########
+# Colors #
+##########
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
@@ -32,3 +48,14 @@ GOLD = "#E6CC39"
 GOLD_SHADOW = "#918A20"
 TAN = "#C9AD71"
 GREY = "#99958D"
+ORANGE = "#b68f40"
+
+##########
+# Images #
+##########
+BACKGROUND = pygame.image.load(IMAGES_PATH + "brain_colorful.jpg")
+
+
+PLAYER_F = pygame.font.SysFont('brushscript', 62)
+# TIMER_F
+

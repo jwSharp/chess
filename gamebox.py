@@ -1,6 +1,4 @@
-
-# Updated player to match 7/29 updates
-
+# Updated gamebox 7/29
 
 #from board import *
 

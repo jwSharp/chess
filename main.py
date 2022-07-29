@@ -1,29 +1,40 @@
-import pygame
+# Updated main 7/29
 
+import pygame
+from scene import *
+from player import *
 from config import *
-from game import *
-from gui import *
 
 
 def main():
+    # create Window
     pygame.init()
-    pygame.display.set_caption("Chess")
-    
-    while True:
-        SCREEN.fill(BLACK)
-        make_chess_GUI()
-        chess.draw_letters(GOLD, 36, "elephant")
-        chess.draw_board()
-        chess.draw_pieces()
+    screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
+    pygame.display.set_caption("Main Menu")
 
+    # create player
+    players = [Human(), None, None, None]
+
+    # create scene manager
+    manager = SceneManager(players)
+    main_menu = MainMenuScene(manager)
+    manager.push(main_menu)
+
+    # game loop
+    running = True
+    while running:
         for event in pygame.event.get():
-            chess.handle_events(event)
-            if event.type == pygame.QUIT:
+            if event.type == pygame.QUIT or not manager.scenes:
                 pygame.quit()
-                quit()
-        
+                running = False
+
+            # handle events
+            manager.input(event)
+
+        manager.draw(screen)
         pygame.display.update()
 
-        CLOCK.tick(60)
 
 main()
+
+
