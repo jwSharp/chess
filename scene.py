@@ -1,8 +1,9 @@
 import pygame
 import sys
-from button import *
 from config import *
+from accessories import *
 from player import *
+from board import *
 
 
 class SceneManager:
@@ -251,7 +252,7 @@ class PlayerSelection(Scene):
                     self.manager.players[2] = None
                     self.manager.players[3] = None
                 else:
-                    self.manager.players[1] = Human()
+                    self.manager.players[1] = Human('Player 2')
                     self.manager.players[2] = None
                     self.manager.players[3] = None
 
@@ -376,7 +377,7 @@ class Game(Scene):
             self.timer_2 = Timer(self.time)
 
         # Logo
-        font = GET_FONT("trattatello", 64) #previously ocr: DNE
+        font = GET_FONT("ocr", 64) #previously ocr: DNE
         self.retro_text = font.render("Retro", True, GOLD, BLACK)
         self.retro_text_rect = self.retro_text.get_rect(center=(WIDTH / 10, HEIGHT / 1.25))
 
@@ -387,7 +388,7 @@ class Game(Scene):
         self.chess_text_rect = self.chess_text.get_rect(center=(WIDTH / 10, HEIGHT / 1.08))
 
         # Menu Buttons
-        font = GET_FONT("alnile", 26) #previously elephant: DNE
+        font = GET_FONT("elephant", 26) #previously elephant: DNE
         self.menu_text = font.render("Menu", True, BLACK)
         self.menu_text_rect = self.menu_text.get_rect(center=(WIDTH / 1.19, HEIGHT / 1.3))
 
@@ -403,30 +404,33 @@ class Game(Scene):
         self.player_2_rect = self.player_2.get_rect(center=(WIDTH / 1.1, 49))
 
         # Board
-        #self.board = Board()
+        self.board = Board()
 
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
+        #self.board.input(event)
 
     def draw(self, screen):
         pygame.display.set_caption("Retro|Modern Chess")
+        screen.fill(BLACK)
+        width, height = screen.get_size()
 
         # Frame
-        pygame.draw.rect(screen, GOLD, ((0, 0), (WIDTH / 5, HEIGHT)), 10)
-        pygame.draw.rect(screen, GOLD, ((WIDTH / 1.25, 0), (WIDTH / 5, HEIGHT)), 10)
-        pygame.draw.rect(screen, GOLD, ((0, 0), (WIDTH, HEIGHT)), 10)
+        pygame.draw.rect(screen, GOLD, ((0, 0), (width / 5, height)), 10)
+        pygame.draw.rect(screen, GOLD, ((width / 1.25, 0), (width / 5, height)), 10)
+        pygame.draw.rect(screen, GOLD, ((0, 0), (width, height)), 10)
 
         # Shadows
-        pygame.draw.line(screen, GOLD_SHADOW, (8, 8), (WIDTH - 8, 8), 4)
-        pygame.draw.line(screen, GOLD_SHADOW, (8, 8), (8, HEIGHT - 8), 4)
-        pygame.draw.line(screen, GOLD_SHADOW, (WIDTH - 3, 3), (WIDTH - 3, HEIGHT - 5), 4)
-        pygame.draw.line(screen, GOLD_SHADOW, (0, HEIGHT - 3), (WIDTH, HEIGHT - 3), 4)
-        pygame.draw.line(screen, GOLD_SHADOW, (WIDTH / 5.05, 8), (WIDTH / 5.05, HEIGHT - 8), 4)
-        pygame.draw.line(screen, GOLD_SHADOW, (WIDTH / 1.24, 8), (WIDTH / 1.24, HEIGHT - 8), 4)
+        pygame.draw.line(screen, GOLD_SHADOW, (8, 8), (width - 8, 8), 4)
+        pygame.draw.line(screen, GOLD_SHADOW, (8, 8), (8, width - 8), 4)
+        pygame.draw.line(screen, GOLD_SHADOW, (width - 3, 3), (width - 3, height - 5), 4)
+        pygame.draw.line(screen, GOLD_SHADOW, (0, height - 3), (width, height - 3), 4)
+        pygame.draw.line(screen, GOLD_SHADOW, (width / 5.05, 8), (width / 5.05, height - 8), 4)
+        pygame.draw.line(screen, GOLD_SHADOW, (width / 1.24, 8), (width / 1.24, height - 8), 4)
 
         # Capture Area
-        pygame.draw.rect(screen, GOLD, ((20, HEIGHT / 4.5), (WIDTH / 5 - 40, HEIGHT / 2)), 5)
-        pygame.draw.rect(screen, GOLD, ((WIDTH / 1.225, HEIGHT / 4.5), (WIDTH / 5 - 40, HEIGHT / 2)), 5)
+        pygame.draw.rect(screen, GOLD, ((20, height / 4.5), (width / 5 - 40, height / 2)), 5)
+        pygame.draw.rect(screen, GOLD, ((width / 1.225, height / 4.5), (width / 5 - 40, height / 2)), 5)
         
         # Logo
         screen.blit(self.retro_text, self.retro_text_rect)
@@ -441,6 +445,17 @@ class Game(Scene):
         screen.blit(self.player_1, self.player_1_rect)
         screen.blit(self.player_2, self.player_2_rect)
 
+        # Timer
         if self.time:
-            pygame.draw.rect(screen, GOLD, ((20, HEIGHT / 9), (WIDTH / 5 - 40, HEIGHT / 11)), 5)
-            pygame.draw.rect(screen, GOLD, ((WIDTH / 1.225, HEIGHT / 9), (WIDTH / 5 - 40, HEIGHT / 11)), 5)
+            pygame.draw.rect(screen, GOLD, ((20, height / 9), (width / 5 - 40, height / 11)), 5)
+            pygame.draw.rect(screen, GOLD, ((width / 1.225, height / 9), (width / 5 - 40, height / 11)), 5)
+        #self.timer_1.draw()
+        #self.timer_2.draw()
+
+        # Board
+        self.board.draw(screen)
+
+
+
+
+
