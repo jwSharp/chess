@@ -4,6 +4,7 @@ from config import *
 from accessories import *
 from player import *
 from board import *
+from timer import Timer
 
 
 class SceneManager:
@@ -250,11 +251,11 @@ class PlayerSelection(Scene):
                 if self.one_player.input(mouse_pos):
                     self.manager.players[1] = Computer()
                     self.manager.players[2] = None
-                    self.manager.players[3] = None
+                    #self.manager.players[3] = None #!List index out of range
                 else:
                     self.manager.players[1] = Human('Player 2')
                     self.manager.players[2] = None
-                    self.manager.players[3] = None
+                    #self.manager.players[3] = None #!List index out of range
 
                 scene = TimeSelection(self.manager)
                 self.manager.push(scene)
@@ -369,12 +370,15 @@ class Game(Scene):
         self.manager = manager
         self.time = time
 
-        if self.time == (0,0): # Unlimited Time
-            self.timer_1 = None
-            self.timer_2 = None
-        else:
-            self.timer_1 = Timer(self.time)
-            self.timer_2 = Timer(self.time)
+        self.player_1_timer = Timer(self.time[0], self.time[1])
+        self.player_2_timer = Timer(self.time[0], self.time[1])
+
+        # if self.time == (0,0): # Unlimited Time
+        #     self.timer_1 = None
+        #     self.timer_2 = None
+        # else:
+        #     self.timer_1 = Timer(self.time)
+        #     self.timer_2 = Timer(self.time)
 
         # Logo
         font = GET_FONT("ocr", 64) #previously ocr: DNE
@@ -407,6 +411,11 @@ class Game(Scene):
         self.board = Board()
 
     def input(self, event):
+        if event.type == pygame.USEREVENT:
+            if self.board.current_turn == 0:
+                self.player_1_timer.update()
+            if self.board.current_turn == 1:
+                self.player_2_timer.update()
         mouse_pos = pygame.mouse.get_pos()
         #self.board.input(event)
 
@@ -447,8 +456,11 @@ class Game(Scene):
 
         # Timer
         if self.time:
-            pygame.draw.rect(screen, GOLD, ((20, height / 9), (width / 5 - 40, height / 11)), 5)
-            pygame.draw.rect(screen, GOLD, ((width / 1.225, height / 9), (width / 5 - 40, height / 11)), 5)
+            time_box_1 = pygame.draw.rect(screen, GOLD, ((20, height / 9), (width / 5 - 40, height / 11)), 5)
+            time_box_2 = pygame.draw.rect(screen, GOLD, ((width / 1.225, height / 9), (width / 5 - 40, height / 11)), 5)
+            self.player_1_timer.draw(time_box_1.center, 32, screen)
+            self.player_2_timer.draw(time_box_2.center, 32, screen)
+
         #self.timer_1.draw()
         #self.timer_2.draw()
 

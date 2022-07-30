@@ -6,7 +6,7 @@ from config import *
 
 class Board:
     def __init__(self):
-        pass
+        self.current_turn = 1
 
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
