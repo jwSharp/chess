@@ -417,6 +417,7 @@ class Game(Scene):
             if self.board.current_turn == 1:
                 self.player_2_timer.update()
         mouse_pos = pygame.mouse.get_pos()
+        self.board.input(event)
         #self.board.input(event)
 
     def draw(self, screen):
