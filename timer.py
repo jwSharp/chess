@@ -41,7 +41,7 @@ class Timer:
 
     def draw(self, pos, size, screen):
         font = GET_FONT("Timer", size)
-        timer = font.render(self.timer, True, (255, 255, 255))
+        timer = font.render(self.timer, True, (255, 215, 0))
         timer_rect = timer.get_rect()
         timer_rect.center = pos
         screen.blit(timer, timer_rect)
