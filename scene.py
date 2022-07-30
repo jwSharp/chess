@@ -461,11 +461,9 @@ class Game(Scene):
             self.player_1_timer.draw(time_box_1.center, 32, screen)
             self.player_2_timer.draw(time_box_2.center, 32, screen)
 
-        #self.timer_1.draw()
-        #self.timer_2.draw()
-
         # Board
-        self.board.draw(screen)
+        board_panel = pygame.Rect(screen.get_width() / 2 - 300, screen.get_height() / 2 - 300, 600, 600)
+        self.board.draw(screen, board_panel)
 
 
 

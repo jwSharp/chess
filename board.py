@@ -17,26 +17,18 @@ class Board:
         elif pygame.mouse.get_pressed()[0]:
             pass
 
-    def draw(self, screen):
-        start_x = WIDTH/5
-        start_y = 11
-        sq_width = 96
-        sq_height = 98
-        for i in range(1,9):
-            if i % 2 == 1:
-                for j in range(0,4):
-                    pygame.draw.rect(screen,TAN,((start_x,start_y),(sq_width,sq_height)))
-                    start_x+=sq_width
-                    pygame.draw.rect(screen,BROWN,((start_x,start_y), (sq_width,sq_height)))
-                    start_x+=sq_width
-            else:
-                for j in range(0, 4):
-                    pygame.draw.rect(screen, BROWN, ((start_x, start_y), (sq_width, sq_height)))
-                    start_x += sq_width
-                    pygame.draw.rect(screen, TAN, ((start_x, start_y), (sq_width, sq_height)))
-                    start_x += sq_width
-            start_x = 256
-            start_y += sq_height
+    def draw(self, screen, panel: pygame.Rect):
+        sq_width = panel.width/8
+        sq_height = panel.height/8
+        for i in range(0,8):
+            for j in range(0,8):
+                x_pos = i * sq_width + panel.x
+                y_pos = j * sq_height + panel.y
+                r = pygame.Rect(x_pos, y_pos, sq_width, sq_height)
+                if (i + j) % 2 == 0:
+                    pygame.draw.rect(screen, TAN, r)
+                else:
+                    pygame.draw.rect(screen, BROWN, r)
         
         #for piece in self.pieces:
         #    piece.draw(self, screen)
