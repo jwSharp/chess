@@ -323,13 +323,13 @@ class TimeSelection(Scene):
 
                     self.manager.pop() # TimeSelection
                     self.manager.pop() # PlayerSelection
-                    scene = Game(time)
+                    scene = Game(self.manager, time)
                     self.manager.push(scene)
 
             if self.time_unlimited.input(mouse_pos):
                 self.manager.pop() # TimeSelection
                 self.manager.pop() # PlayerSelection
-                scene = Game()
+                scene = Game(self.manager)
                 self.manager.push(scene)
 
         for button in self.buttons:
@@ -363,21 +363,84 @@ class TimeSelection(Scene):
 # Game Play #
 #############
 class Game(Scene):
-    def __init__(self, manager, time: (int, int)):
+    def __init__(self, manager, time=(0,0)):
+        '''For timed and untimed chess matches.'''
         self.manager = manager
-        self.time = time # for Timer
+        self.time = time
 
-    def __init__(self, manager):
-        self.manager = manager
-        self.time = None
+        if self.time == (0,0): # Unlimited Time
+            self.timer_1 = None
+            self.timer_2 = None
+        else:
+            self.timer_1 = Timer(self.time)
+            self.timer_2 = Timer(self.time)
+
+        # Logo
+        font = GET_FONT("trattatello", 64) #previously ocr: DNE
+        self.retro_text = font.render("Retro", True, GOLD, BLACK)
+        self.retro_text_rect = self.retro_text.get_rect(center=(WIDTH / 10, HEIGHT / 1.25))
+
+        self.modern_text = font.render("Modern", True, GOLD, BLACK)
+        self.modern_text_rect = self.modern_text.get_rect(center=(WIDTH / 10, HEIGHT / 1.16))
+
+        self.chess_text = font.render("Chess", True, GOLD, BLACK)
+        self.chess_text_rect = self.chess_text.get_rect(center=(WIDTH / 10, HEIGHT / 1.08))
+
+        # Menu Buttons
+        font = GET_FONT("alnile", 26) #previously elephant: DNE
+        self.menu_text = font.render("Menu", True, BLACK)
+        self.menu_text_rect = self.menu_text.get_rect(center=(WIDTH / 1.19, HEIGHT / 1.3))
+
+        self.exit_text = font.render("Exit", True, BLACK)
+        self.exit_text_rect = self.exit_text.get_rect(center=(WIDTH / 1.19, HEIGHT / 1.15))
+
+        # Players
+        font = GET_FONT("brushscript", 62)
+        self.player_1 = font.render(self.manager.players[0].name, True, GOLD, BLACK)
+        self.player_1_rect = self.player_1.get_rect(center=(WIDTH / 10, 49))
+
+        self.player_2 = font.render(self.manager.players[1].name, True, GOLD, BLACK)
+        self.player_2_rect = self.player_2.get_rect(center=(WIDTH / 1.1, 49))
+
+        # Board
+        #self.board = Board()
 
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
 
     def draw(self, screen):
         pygame.display.set_caption("Retro|Modern Chess")
+
+        # Frame
+        pygame.draw.rect(screen, GOLD, ((0, 0), (WIDTH / 5, HEIGHT)), 10)
+        pygame.draw.rect(screen, GOLD, ((WIDTH / 1.25, 0), (WIDTH / 5, HEIGHT)), 10)
+        pygame.draw.rect(screen, GOLD, ((0, 0), (WIDTH, HEIGHT)), 10)
+
+        # Shadows
+        pygame.draw.line(screen, GOLD_SHADOW, (8, 8), (WIDTH - 8, 8), 4)
+        pygame.draw.line(screen, GOLD_SHADOW, (8, 8), (8, HEIGHT - 8), 4)
+        pygame.draw.line(screen, GOLD_SHADOW, (WIDTH - 3, 3), (WIDTH - 3, HEIGHT - 5), 4)
+        pygame.draw.line(screen, GOLD_SHADOW, (0, HEIGHT - 3), (WIDTH, HEIGHT - 3), 4)
+        pygame.draw.line(screen, GOLD_SHADOW, (WIDTH / 5.05, 8), (WIDTH / 5.05, HEIGHT - 8), 4)
+        pygame.draw.line(screen, GOLD_SHADOW, (WIDTH / 1.24, 8), (WIDTH / 1.24, HEIGHT - 8), 4)
+
+        # Capture Area
+        pygame.draw.rect(screen, GOLD, ((20, HEIGHT / 4.5), (WIDTH / 5 - 40, HEIGHT / 2)), 5)
+        pygame.draw.rect(screen, GOLD, ((WIDTH / 1.225, HEIGHT / 4.5), (WIDTH / 5 - 40, HEIGHT / 2)), 5)
+        
+        # Logo
+        screen.blit(self.retro_text, self.retro_text_rect)
+        screen.blit(self.modern_text, self.modern_text_rect)
+        screen.blit(self.chess_text, self.chess_text_rect)
+
+        # Menu Buttons
+        screen.blit(self.menu_text, self.menu_text_rect)
+        screen.blit(self.exit_text, self.exit_text_rect)
+
+        # Players
+        screen.blit(self.player_1, self.player_1_rect)
+        screen.blit(self.player_2, self.player_2_rect)
+
         if self.time:
-            #make timer
-            pass
-
-
+            pygame.draw.rect(screen, GOLD, ((20, HEIGHT / 9), (WIDTH / 5 - 40, HEIGHT / 11)), 5)
+            pygame.draw.rect(screen, GOLD, ((WIDTH / 1.225, HEIGHT / 9), (WIDTH / 5 - 40, HEIGHT / 11)), 5)
