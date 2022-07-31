@@ -133,11 +133,18 @@ class Piece:
                 n1 = str(int(n1) - 1)
         return nums
 
+    def _set_sprite(self, turn, white_piece_name, black_piece_name):
+        if turn == 0:
+            self.sprite = pygame.image.load(WHITE_PIECES_PATH + white_piece_name)
+        else:
+            self.sprite = pygame.image.load(BLACK_PIECES_PATH + black_piece_name)
+
 class Pawn(Piece):
     def __init__(self, pos, turn):
         super().__init__(pos, turn)
         self.piece_moves = [('0', '1|2')]
         self.piece_attacks = [('-1', '1'), ('1', '1')]
+        self._set_sprite(turn, "white_pawn.png", "black_pawn.png")
     
     def update(self):
         if self.move_count > 0:
