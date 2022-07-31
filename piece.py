@@ -36,7 +36,7 @@ class Piece:
     def can_move(self, target_x, target_y, other_pieces=[]) -> bool:
         if target_x < 0 or target_x > 7 or target_y < 0 or target_y > 7:
             return False
-        return (target_x, target_y) in self.get_movement(other_pieces)
+        return (target_x, target_y) in self.get_movement(other_pieces) or (target_x, target_y) in self.get_capturables(other_pieces)
     
     def get_movement(self, other_pieces):
         blocks = []
@@ -69,6 +69,29 @@ class Piece:
                 blocks += pos
                 
         return blocks
+
+    def get_capturables(self, other_pieces):
+        if self.piece_attacks == self.piece_moves:
+            self.get_movement(other_pieces)
+            return self.capturables
+        if other_pieces != []:
+            piece_positions = [p.current_pos for p in other_pieces]
+        else:
+            piece_positions = []
+
+        self.capturables = []
+        attack_list = [list(attack) for attack in self.piece_attacks]
+        for attack in attack_list:
+            if self.current_pos == None:
+                continue
+            pos = self.get_movable_blocks(attack)
+            for p in pos:
+                if p in piece_positions:
+                    piece = other_pieces[piece_positions.index(p)]
+                    if piece.turn != self.turn:
+                        self.capturables.append(p)
+                    break
+        return self.capturables
 
     '''
         Return all possible blocks as a list
