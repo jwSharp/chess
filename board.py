@@ -6,7 +6,7 @@ from config import *
 
 class Board:
     def __init__(self):
-        self.current_turn = 1
+        self.current_turn = 0
         self.selected_block = None
 
     def input(self, event):

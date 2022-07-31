@@ -21,6 +21,7 @@ def main():
     # Game Loop
     running = True
     while running:
+        screen.fill((0, 0, 0))
         for event in pygame.event.get():
             if event.type == pygame.QUIT or not manager.scenes:
                 pygame.quit()
