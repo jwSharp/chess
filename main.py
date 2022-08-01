@@ -17,7 +17,6 @@ def main():
     main_menu = MainMenuScene(manager)
     manager.push(main_menu)
     
-    pygame.time.set_timer(pygame.USEREVENT, 1000)
     # Game Loop
     running = True
     while running:
