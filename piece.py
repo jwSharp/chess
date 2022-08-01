@@ -21,8 +21,9 @@ class Piece:
     def update(self):
         pass
     
-    def draw(self, screen):
+    def draw(self, screen, blit_size: (int, int)):
         if self.sprite != None and self.pos != None:
+            self.sprite = pygame.transform.smoothscale(self.sprite, blit_size)
             screen.blit(self.sprite, self.pos)
         
     def move_piece(self, x, y, current_turn=0, other_pieces=[]) -> (int, int):
@@ -144,8 +145,32 @@ class Pawn(Piece):
         super().__init__(pos, turn)
         self.piece_moves = [('0', '1|2')]
         self.piece_attacks = [('-1', '1'), ('1', '1')]
-        self._set_sprite(turn, "white_pawn.png", "black_pawn.png")
+        self._set_sprite(turn, "white_pawn_top.png", "black_pawn_top.png")
     
     def update(self):
         if self.move_count > 0:
             self.piece_moves = [('0', '1')]
+    
+class Bishop(Piece):
+    def __init__(self, pos, turn):
+        super().__init__(pos, turn)
+        self.piece_moves = [("1|7", "1|7"), ("-1|-7", "-1|-7"), ("-1|-7", "1|7"), ("1|7", "-1|-7")]
+        self._set_sprite(turn, "white_bishop_top.png", "black_bishop_top.png")
+
+class Knight(Piece):
+    def __init__(self, pos, turn):
+        super().__init__(pos, turn)
+        self.piece_moves = [("1", "3"), ("1", "-3"), ("-1", "3"), ("-1", "-3"), ("3", "1"), ("3", "-1"), ("-3", "-1"), ("-3", "1")]
+        self._set_sprite(turn, "white_knight_top.png", "black_knight_top.png")
+
+class Rook(Piece):
+    def __init__(self, pos, turn):
+        super().__init__(pos, turn)
+        self.piece_moves = [("-8|8", "0"), ("0", "-8|8")]
+        self._set_sprite(turn, "white_rook_top.png", "black_rook_top.png")
+
+class Queen(Piece):
+    def __init__(self, pos, turn):
+        super().__init__(pos, turn)
+        self.piece_moves = [("1|8", "1|8"), ("-1|-8", "-1|-8"), ("-1|-8", "1|8"), ("1|8", "-1|-8"), ("-8|8", "0"), ("0", "-8|8")]
+        self._set_sprite(turn, "white_queen_top.png", "black_queen_top.png")
