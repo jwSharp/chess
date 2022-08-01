@@ -251,11 +251,11 @@ class PlayerSelection(Scene):
                 if self.one_player.input(mouse_pos):
                     self.manager.players[1] = Computer()
                     self.manager.players[2] = None
-                    #self.manager.players[3] = None #!List index out of range
+                    self.manager.players[3] = None
                 else:
                     self.manager.players[1] = Human('Player 2')
                     self.manager.players[2] = None
-                    #self.manager.players[3] = None #!List index out of range
+                    self.manager.players[3] = None
 
                 scene = TimeSelection(self.manager)
                 self.manager.push(scene)
