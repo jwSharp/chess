@@ -87,7 +87,7 @@ class Board:
             square.top += square.height
 
     def add_texture(self, board, board_width, board_height):
-        texture = pygame.image.load("wood_grain.png")
+        texture = pygame.image.load("chess/Assets/Textures/wood_grain.png")
         texture = pygame.transform.scale(texture, (board_width, board_height))
         texture_rect = texture.get_rect()
         texture.set_alpha(80)
