@@ -2,34 +2,38 @@ import pygame
 from config import *
 
 class Piece:
-    def __init__(self, pos: (int, int), turn: int):
-        self.piece_name = None
+    def __init__(self, pos: (int, int), turn: int, piece_name: str = None):
+        self.piece_name = piece_name
         self.sprite = None
         self.piece_moves = None
-        self.piece_attacks = self.piece_moves
+        self.piece_attacks = None
 
         self.start_pos, self.pos, self.current_pos = pos, pos, pos
-        self.turn = 0
+        self.turn = turn
         
         self.captured = False
         self.move_count = 0
     
     def input(self, event: pygame.event):
-        x, y = pygame.mouse.get_pos()
-        pass # TODO: Add events to drag the piece and drop it
+        pass 
     
     def update(self):
         pass
     
-    def draw(self, screen, blit_size: (int, int)):
-        if self.sprite != None and self.pos != None:
-            self.sprite = pygame.transform.smoothscale(self.sprite, blit_size)
-            screen.blit(self.sprite, self.pos)
+    def draw(self, screen, blit_size: (int, int), panel):
+        if self.sprite == None or self.pos == None:
+            return
+        x, y = self.pos
+        x_pos = x * panel.width / 8 + (panel.x + 5)
+        y_pos = y * panel.height / 8 + (panel.y + 5)
+        self.sprite = pygame.transform.smoothscale(self.sprite, blit_size)
+        screen.blit(self.sprite, (x_pos, y_pos))
         
     def move_piece(self, x, y, current_turn=0, other_pieces=[]) -> (int, int):
         if self.can_move(x, y, other_pieces) and self.turn == current_turn:
             self.current_pos = (x, y)
             self.pos = (x, y)
+            self.move_count += 1
         else:
             self.pos = self.current_pos
         return self.current_pos
@@ -72,7 +76,7 @@ class Piece:
         return blocks
 
     def get_capturables(self, other_pieces):
-        if self.piece_attacks == self.piece_moves:
+        if self.piece_attacks == None:
             self.get_movement(other_pieces)
             return self.capturables
         if other_pieces != []:
@@ -94,44 +98,64 @@ class Piece:
                     break
         return self.capturables
 
-    '''
-        Return all possible blocks as a list
-    '''
+    def get_movable_blocks(self, move: str):
+        return [
+            (self.current_pos[0] + j[0], self.current_pos[1] - j[1])
+            for j in self.movable_blocks(move)
+        ]
+
     def movable_blocks(self, area: list) -> [(int, int)]:
+        '''
+            Return all possible blocks as a list
+        '''
         blocks = []
         pos_x = []
         pos_y = []
         if "|" in area[-2]:
-            pos_x = self._get_n2n(area[-2], "|")
+            pos_x = self._get_n2n(n2n=area[-2], seperator="|")
         else:
             pos_x = [int(area[-2])]
         
         if "|" in area[-1]:
-            pos_y = self._get_n2n(area[-1], "|")
+            pos_y = self._get_n2n(n2n=area[-1], seperator="|")
         else:
             pos_y = [int(area[-1])]
         
         for i in range(max([len(pos_x), len(pos_y)])):
+            # print(pos_y)
+            # print(self.piece_name)
+            if pos_x == [] or pos_y == []:
+                continue
             x = pos_x[-1] if pos_x.index(pos_x[-1]) < i else pos_x[i]
             y = pos_y[-1] if pos_y.index(pos_y[-1]) < i else pos_y[i]
             blocks.append((x, y))
         return blocks
+
+    def destroy_piece(self):
+        self.current_pos = None
+        self.pos = None
+        self.captured = True
     
-    '''
-        Returns List of numbers from n2n by seperating
-        with the seperator.
-        i.e: n2n = 1|5, seperator = '|' -> [1, 2, 3, 4, 5]
-    '''
     def _get_n2n(self, n2n: str, seperator: str):
-        '''Needs documentation.'''
+        '''
+            Returns List of numbers from n2n by seperating
+            with the seperator.
+            i.e: n2n = 1|5, seperator = '|' -> [1, 2, 3, 4, 5]
+        '''
         nums = []
         n1, n2 = n2n.split(seperator)[0:2]
+        if '-' in n2:
+            n2 = str(int(n2) - 1) # for the loop, we need to add 1 to the second number
+        else:
+            n2 = str(int(n2) + 1)
+            
         while n1 != n2:
             nums.append(int(n1))
             if int(n1) < int(n2):
                 n1 = str(int(n1) + 1)
             else:
                 n1 = str(int(n1) - 1)
+        
         return nums
 
     def _set_sprite(self, turn, white_piece_name, black_piece_name):
@@ -142,35 +166,41 @@ class Piece:
 
 class Pawn(Piece):
     def __init__(self, pos, turn):
-        super().__init__(pos, turn)
-        self.piece_moves = [('0', '1|2')]
-        self.piece_attacks = [('-1', '1'), ('1', '1')]
+        super().__init__(pos, turn, "pawn")
+        self.piece_moves = [('0', '1|2')] if turn == 0 else [('0', '-1|-2')]
+        self.piece_attacks = [('-1', '1'), ('1', '1')] if turn == 0 else [('-1', '-1'), ('1', '-1')]
         self._set_sprite(turn, "white_pawn_top.png", "black_pawn_top.png")
     
     def update(self):
         if self.move_count > 0:
-            self.piece_moves = [('0', '1')]
+            self.piece_moves = [('0', '1')] if self.turn == 0 else [('0', '-1')]
     
 class Bishop(Piece):
     def __init__(self, pos, turn):
-        super().__init__(pos, turn)
-        self.piece_moves = [("1|7", "1|7"), ("-1|-7", "-1|-7"), ("-1|-7", "1|7"), ("1|7", "-1|-7")]
+        super().__init__(pos, turn, "bishop")
+        self.piece_moves = [("1|8", "1|8"), ("-1|-8", "-1|-8"), ("-1|-8", "1|8"), ("1|8", "-1|-8")]
         self._set_sprite(turn, "white_bishop_top.png", "black_bishop_top.png")
 
 class Knight(Piece):
     def __init__(self, pos, turn):
-        super().__init__(pos, turn)
-        self.piece_moves = [("1", "3"), ("1", "-3"), ("-1", "3"), ("-1", "-3"), ("3", "1"), ("3", "-1"), ("-3", "-1"), ("-3", "1")]
+        super().__init__(pos, turn, "knight")
+        self.piece_moves = [("1", "2"), ("1", "-2"), ("-1", "2"), ("-1", "-2"), ("2", "1"), ("2", "-1"), ("-2", "-1"), ("-2", "1")]
         self._set_sprite(turn, "white_knight_top.png", "black_knight_top.png")
 
 class Rook(Piece):
     def __init__(self, pos, turn):
-        super().__init__(pos, turn)
-        self.piece_moves = [("-8|8", "0"), ("0", "-8|8")]
+        super().__init__(pos, turn, "rook")
+        self.piece_moves = [("1|8", "0"), ("0", "1|8"), ("-1|-8", "0"), ("0", "-1|-8")]
         self._set_sprite(turn, "white_rook_top.png", "black_rook_top.png")
 
 class Queen(Piece):
     def __init__(self, pos, turn):
-        super().__init__(pos, turn)
-        self.piece_moves = [("1|8", "1|8"), ("-1|-8", "-1|-8"), ("-1|-8", "1|8"), ("1|8", "-1|-8"), ("-8|8", "0"), ("0", "-8|8")]
+        super().__init__(pos, turn, "queen")
+        self.piece_moves = [("1|8", "0"), ("0", "1|8"), ("-1|-8", "0"), ("0", "-1|-8"), ("1|8", "1|8"), ("-1|-8", "-1|-8"), ("-1|-8", "1|8"), ("1|8", "-1|-8")]
         self._set_sprite(turn, "white_queen_top.png", "black_queen_top.png")
+        
+class King(Piece):
+    def __init__(self, pos, turn):
+        super().__init__(pos, turn, "king")
+        self.piece_moves = [("1", "1"), ("1", "-1"), ("-1", "1"), ("-1", "-1"), ("-1|1", "0"), ("0", "-1|1")]
+        self._set_sprite(turn, "white_king_top.png", "black_king_top.png")
