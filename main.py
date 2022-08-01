@@ -10,13 +10,14 @@ def main():
     pygame.display.set_caption("Main Menu")
 
     # Create Player
-    players = [Human('Player 1'), None, None]
+    players = [Human('Player 1'), None, None, None]
 
     # Create Scene Manager
     manager = SceneManager(players)
     main_menu = MainMenuScene(manager)
     manager.push(main_menu)
-
+    
+    pygame.time.set_timer(pygame.USEREVENT, 1000)
     # Game Loop
     running = True
     while running:
