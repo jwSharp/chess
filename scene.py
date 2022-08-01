@@ -4,7 +4,6 @@ from config import *
 from accessories import *
 from player import *
 from board import *
-from timer import Timer
 
 
 class SceneManager:
@@ -369,9 +368,10 @@ class Game(Scene):
         '''For timed and untimed chess matches.'''
         self.manager = manager
         self.time = time
+        pygame.time.set_timer(pygame.USEREVENT, 1000)
 
-        self.player_1_timer = Timer(self.time[0], self.time[1])
-        self.player_2_timer = Timer(self.time[0], self.time[1])
+        self.player_1_timer = Timer(self.time[0], self.time[1], self.manager)
+        self.player_2_timer = Timer(self.time[0], self.time[1], self.manager)
 
         # if self.time == (0,0): # Unlimited Time
         #     self.timer_1 = None
@@ -408,16 +408,16 @@ class Game(Scene):
         self.player_2_rect = self.player_2.get_rect(center=(WIDTH / 1.1, 49))
 
         # Board
-        self.board = Board()
+        self.board = Board(self.manager)
 
     def input(self, event):
+        mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.USEREVENT:
             if self.board.current_turn == 0:
                 self.player_1_timer.update()
             if self.board.current_turn == 1:
                 self.player_2_timer.update()
-        mouse_pos = pygame.mouse.get_pos()
-        self.board.input(event)
+        self.board.input(event, mouse_pos)
         #self.board.input(event)
 
     def draw(self, screen):
@@ -456,7 +456,7 @@ class Game(Scene):
         screen.blit(self.player_2, self.player_2_rect)
 
         # Timer
-        if self.time:
+        if self.time != (0, 0):
             time_box_1 = pygame.draw.rect(screen, GOLD, ((20, height / 9), (width / 5 - 40, height / 11)), 5)
             time_box_2 = pygame.draw.rect(screen, GOLD, ((width / 1.225, height / 9), (width / 5 - 40, height / 11)), 5)
             self.player_1_timer.draw(time_box_1.center, 32, screen)
