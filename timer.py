@@ -1,12 +1,27 @@
 from winsound import MB_ICONQUESTION
 import pygame
 from config import *
+<<<<<<< Updated upstream
 
 
 class Timer:
     def __init__(self, minute, second):
         self.minute = minute
         self.second = second
+=======
+import pygame
+import sys
+from config import *
+from accessories import *
+from player import *
+from board import *
+
+
+class Timer:
+    def __init__(self, minute, extra):
+        self.minute = minute
+        self.second = 0
+>>>>>>> Stashed changes
         self.format_time()
 
     def time_mechanics(self):
@@ -45,4 +60,8 @@ class Timer:
         timer_rect = timer.get_rect()
         timer_rect.center = pos
         screen.blit(timer, timer_rect)
+<<<<<<< Updated upstream
         
+=======
+        
+>>>>>>> Stashed changes

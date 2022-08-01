@@ -1,4 +1,9 @@
-#from board import *
+import pygame
+import sys
+from config import *
+from accessories import *
+from player import *
+from board import *
 
 ##################
 # Abstract Class #
