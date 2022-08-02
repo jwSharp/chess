@@ -9,8 +9,8 @@ from board import *
 class Board:
     def __init__(self):
         self.current_turn = 1
-        self.surface = surface
-        self.selected_block = None
+        #self.surface = surface
+        #self.selected_block = None
 
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
