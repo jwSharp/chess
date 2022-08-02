@@ -1,9 +1,9 @@
 import pygame
 import sys
 from config import *
-from accessories import *
-from player import *
 from board import *
+from accessory import *
+
 
 ##################
 # Abstract Class #

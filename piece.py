@@ -1,5 +1,7 @@
 import pygame
+
 from config import *
+
 
 class Piece:
     def __init__(self, pos: (int, int), turn: int, piece_name: str = None):
@@ -169,7 +171,7 @@ class Pawn(Piece):
         super().__init__(pos, turn, "pawn")
         self.piece_moves = [('0', '1|2')] if turn == 0 else [('0', '-1|-2')]
         self.piece_attacks = [('-1', '1'), ('1', '1')] if turn == 0 else [('-1', '-1'), ('1', '-1')]
-        self._set_sprite(turn, "white_pawn_top.png", "black_pawn_top.png")
+        self._set_sprite(turn, "pawn_top.png", "pawn_top.png")
     
     def update(self):
         if self.move_count > 0:
@@ -179,28 +181,28 @@ class Bishop(Piece):
     def __init__(self, pos, turn):
         super().__init__(pos, turn, "bishop")
         self.piece_moves = [("1|8", "1|8"), ("-1|-8", "-1|-8"), ("-1|-8", "1|8"), ("1|8", "-1|-8")]
-        self._set_sprite(turn, "white_bishop_top.png", "black_bishop_top.png")
+        self._set_sprite(turn, "bishop_top.png", "bishop_top.png")
 
 class Knight(Piece):
     def __init__(self, pos, turn):
         super().__init__(pos, turn, "knight")
         self.piece_moves = [("1", "2"), ("1", "-2"), ("-1", "2"), ("-1", "-2"), ("2", "1"), ("2", "-1"), ("-2", "-1"), ("-2", "1")]
-        self._set_sprite(turn, "white_knight_top.png", "black_knight_top.png")
+        self._set_sprite(turn, "knight_top.png", "knight_top.png")
 
 class Rook(Piece):
     def __init__(self, pos, turn):
         super().__init__(pos, turn, "rook")
         self.piece_moves = [("1|8", "0"), ("0", "1|8"), ("-1|-8", "0"), ("0", "-1|-8")]
-        self._set_sprite(turn, "white_rook_top.png", "black_rook_top.png")
+        self._set_sprite(turn, "rook_top.png", "rook_top.png")
 
 class Queen(Piece):
     def __init__(self, pos, turn):
         super().__init__(pos, turn, "queen")
         self.piece_moves = [("1|8", "0"), ("0", "1|8"), ("-1|-8", "0"), ("0", "-1|-8"), ("1|8", "1|8"), ("-1|-8", "-1|-8"), ("-1|-8", "1|8"), ("1|8", "-1|-8")]
-        self._set_sprite(turn, "white_queen_top.png", "black_queen_top.png")
+        self._set_sprite(turn, "queen_top.png", "queen_top.png")
         
 class King(Piece):
     def __init__(self, pos, turn):
         super().__init__(pos, turn, "king")
         self.piece_moves = [("1", "1"), ("1", "-1"), ("-1", "1"), ("-1", "-1"), ("-1|1", "0"), ("0", "-1|1")]
-        self._set_sprite(turn, "white_king_top.png", "black_king_top.png")
+        self._set_sprite(turn, "king_top.png", "king_top.png")

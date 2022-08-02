@@ -4,6 +4,7 @@ from config import *
 from scene import *
 from player import *
 
+
 def main():
     # Create Window
     pygame.init()

@@ -1,10 +1,10 @@
 import pygame
 import sys
+
 from config import *
-from accessories import *
 from player import *
 from board import *
-from timer import *
+from accessory import *
 
 
 class SceneManager:
@@ -638,7 +638,7 @@ class Game(Scene):
             if self.board.current_turn == 1:
                 self.timer_2.update()
         mouse_pos = pygame.mouse.get_pos()
-        #self.board.input(event)
+        self.board.input(event)
 
     def draw(self, screen):
         pygame.display.set_caption("Retro|Modern Chess")
@@ -664,11 +664,11 @@ class Game(Scene):
         self.add_menu_buttons(screen,right_wing)
         self.add_player_text(screen,left_wing, self.manager.players[0].name)
         self.add_player_text(screen,right_wing, self.manager.players[1].name)
+        
+        #self.board.draw(screen)
 
     def add_wing_shadows(self, screen,left_wing, right_wing):
-        '''
-            The add_wing_shadows function adds shadows to the decorative elements of the gamebox.
-        '''
+        '''Adds shadows to the decorative elements of the gamebox.'''
         left_shadow = pygame.Rect(0,0,(left_wing.width * .99), (left_wing.height * .994))
         right_shadow = pygame.Rect(0, 0, (right_wing.width * .99), (right_wing.height * .994))
         left_shadow.left = left_wing.left + 5
@@ -680,9 +680,7 @@ class Game(Scene):
         pygame.draw.rect(screen, GOLD_SHADOW, right_shadow, 3)
 
     def add_wing_highlights(self, screen,left_wing, right_wing):
-        '''
-            The add_highlights function adds highlights to the wing borders
-        '''
+        '''Adds highlights to the wing borders'''
         left_highlight = pygame.Rect(0,0,left_wing.width * .99, left_wing.height * .995)
         right_highlight = pygame.Rect(0,0,right_wing.width * .99, right_wing.height * .995)
         left_highlight.topleft = left_wing.topleft
@@ -692,9 +690,7 @@ class Game(Scene):
         pygame.draw.rect(screen, WHITE, right_highlight, 1)
         
     def add_graveyard(self, screen,left_wing, right_wing):
-        '''
-            The add_graveyard function adds blank rectangles to hold captured pieces.
-        '''
+        '''Adds blank rectangles to hold captured pieces.'''
         left_graveyard = pygame.Rect(0,0, left_wing.width * .75,left_wing.height * .5)
         right_graveyard = pygame.Rect(0,0, right_wing.width * .75, right_wing.height * .5)
         left_graveyard.center = left_wing.center
@@ -706,9 +702,7 @@ class Game(Scene):
         self.add_graveyard_shadows(screen,left_graveyard, right_graveyard)
 
     def add_graveyard_shadows(self, screen,left_graveyard, right_graveyard):
-        '''
-            The add_graveyard_shadows function adds simple shadows to the rectangle outlines.
-        '''
+        '''Adds simple shadows to the rectangle outlines.'''
         left_shadow = pygame.Rect(0,0,left_graveyard.width * .99, left_graveyard.height * .99)
         right_shadow = pygame.Rect(0,0,right_graveyard.width * .99, right_graveyard.height * .99)
         left_shadow.left = left_graveyard.left + 3
@@ -720,9 +714,7 @@ class Game(Scene):
         pygame.draw.rect(screen, GOLD_SHADOW, right_shadow, 2)
 
     def add_timer_rects(self, screen,left_wing, right_wing):
-        ''' 
-            The add_timer_rects function adds blank rectangles to hold the player timers.
-        '''
+        '''Adds blank rectangles to hold the player timers.'''
         l_timer_rect = pygame.Rect(0,0, left_wing.width * .75, left_wing.height * .09)
         r_timer_rect = pygame.Rect(0,0, right_wing.width * .75, right_wing.height * .09)
         l_timer_rect.centerx = left_wing.centerx
@@ -747,29 +739,21 @@ class Game(Scene):
         pygame.draw.rect(screen, GOLD_SHADOW, r_shadow, 2)
 
     def add_logo_text(self, screen, placement):
-        ''' 
-            The add_logo_text function adds the Retro|Modern Chess text in the lower left corner of the gamebox.
-        '''
+        '''Adds the Retro|Modern Chess text in the lower left corner of the gamebox.'''
         font = GET_FONT("elephant", 54)
-        self.add_retro(screen, font, placement)
-        self.add_modern(screen, font,placement)
-        self.add_chess(screen, font,placement)
-
-    def add_retro(self, screen, font, placement):
+        
         retroText = font.render("Retro", True, GOLD)
         retroTextRect = retroText.get_rect()
         retroTextRect.centerx = placement.centerx
         retroTextRect.centery = screen.get_height() * .81
         screen.blit(retroText, retroTextRect)
-
-    def add_modern(self, screen, font, placement):
+        
         modernText = font.render("Modern", True, GOLD)
         modernTextRect = modernText.get_rect()
         modernTextRect.centerx = placement.centerx
         modernTextRect.centery = screen.get_height() * .87
         screen.blit(modernText, modernTextRect)
-
-    def add_chess(self, screen, font, placement):
+        
         chessText = font.render("Chess", True, GOLD)
         chessTextRect = chessText.get_rect()
         chessTextRect.centerx = placement.centerx
@@ -777,9 +761,7 @@ class Game(Scene):
         screen.blit(chessText, chessTextRect)
 
     def add_menu_buttons(self, screen, placement):
-        ''' 
-            The add_menu_buttons function adds buttons to the lower right corner of the gamebox.
-        '''
+        '''Adds buttons to the lower right corner of the gamebox.'''
         font = GET_FONT("ocr", 58)
         menu_text = font.render("Menu", True, BLACK, GREY)
         menu_text_rect = menu_text.get_rect()
@@ -792,9 +774,7 @@ class Game(Scene):
         screen.blit(exit_text, exit_text_rect)
 
     def add_player_text(self, screen, placement, title):
-        ''' 
-            The add_player1_text function adds text, either "Player" or "Player 1", to the upper left corner of the gamebox.
-        '''
+        '''Adds text, either "Player" or "Player 1", to the upper left corner of the gamebox.'''
         playersFont = GET_FONT('brushscript', 62)
         player_text = playersFont.render(title, True, GOLD)
         player_text_rect = player_text.get_rect()

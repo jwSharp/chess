@@ -1,17 +1,17 @@
 import pygame
-import sys
+
 from config import *
-from accessories import *
+from accessory import *
 from player import *
-from board import *
 from piece import *
+
 
 class Board:
     def __init__(self, manager):
         self.manager = manager
         
         self.current_turn = 1
-        #self.selected_block = None
+        self.selected_block = None
 
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()

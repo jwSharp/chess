@@ -1,5 +1,7 @@
 import pygame
+
 from config import *
+
 
 class Button:
     def __init__(self, image, position: (int, int), name_text: str, font_type, base_color, hover_color):
