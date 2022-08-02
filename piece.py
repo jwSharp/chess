@@ -7,6 +7,7 @@ class Piece:
     def __init__(self, pos: (int, int), turn: int, piece_name: str = None):
         self.piece_name = piece_name
         self.sprite = None
+        self.image_path = None
         self.piece_moves = None
         self.piece_attacks = None
 
@@ -23,8 +24,9 @@ class Piece:
         pass
     
     def draw(self, screen, blit_size: (int, int), panel):
-        if self.sprite == None or self.pos == None:
+        if self.image_path == None or self.pos == None:
             return
+        self.sprite = pygame.image.load(self.image_path)
         x, y = self.pos
         x_pos = x * panel.width / 8 + (panel.x + 5)
         y_pos = y * panel.height / 8 + (panel.y + 5)
@@ -162,9 +164,9 @@ class Piece:
 
     def _set_sprite(self, turn, white_piece_name, black_piece_name):
         if turn == 0:
-            self.sprite = pygame.image.load(WHITE_PIECES_PATH + white_piece_name)
+            self.image_path = WHITE_PIECES_PATH + white_piece_name
         else:
-            self.sprite = pygame.image.load(BLACK_PIECES_PATH + black_piece_name)
+            self.image_path = BLACK_PIECES_PATH + black_piece_name
 
 class Pawn(Piece):
     def __init__(self, pos, turn):
