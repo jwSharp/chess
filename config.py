@@ -22,7 +22,7 @@ FONTS_PATH = ASSETS_PATH + "Fonts" + "/"
 # Fonts #
 #########
 #SIZES = {'small' : 20, 'medium' : 40, 'large' : 60}
-FONTS = { 'Regular' : FONTS_PATH + "PressStart2P-Regular.ttf", 'Timer' : FONTS_PATH + "alarm_clock.ttf"}
+FONTS = { 'Regular' : FONTS_PATH + "regular.ttf", 'Timer' : FONTS_PATH + "alarm_clock.ttf", 'elephant' : FONTS_PATH + "elephant.ttf", 'ocr' : FONTS_PATH + "ocr.ttf"}
 SYS_FONTS = pygame.font.get_fonts()
 def GET_FONT(name: str, size: int):
     '''Returns the @name pygame font of @size size.'''
@@ -53,9 +53,3 @@ ORANGE = ('#b68f40')
 # Images #
 ##########
 BACKGROUND = pygame.image.load(IMAGES_PATH + "brain_colorful.jpg")
-
-
-
-
-PLAYER_F = pygame.font.SysFont('brushscript', 62)
-# TIMER_F

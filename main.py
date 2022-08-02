@@ -4,20 +4,21 @@ from player import *
 from config import *
 
 def main():
-    # create Window
+    # Create Window
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
     pygame.display.set_caption("Main Menu")
 
-    # create player
-    players = [Human(), None, None, None]
+    # Create Player
+    players = [Human('Player 1'), None, None, None]
 
-    # create scene manager
+    # Create Scene Manager
     manager = SceneManager(players)
     main_menu = MainMenuScene(manager)
     manager.push(main_menu)
-
-    # game loop
+    
+    pygame.time.set_timer(pygame.USEREVENT, 1000)
+    # Game Loop
     running = True
     while running:
         for event in pygame.event.get():
