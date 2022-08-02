@@ -2,6 +2,11 @@ import pygame
 from scene import *
 from player import *
 from config import *
+import pygame
+import sys
+from config import *
+from accessories import *
+from board import *
 
 def main():
     # Create Window

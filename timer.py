@@ -1,11 +1,17 @@
 import pygame
 from config import *
+import pygame
+import sys
+from config import *
+from accessories import *
+from player import *
+from board import *
 
 
 class Timer:
-    def __init__(self, minute, second):
+    def __init__(self, minute, extra):
         self.minute = minute
-        self.second = second
+        self.second = 0
         self.format_time()
 
     def time_mechanics(self):
