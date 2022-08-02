@@ -17,10 +17,10 @@ def main():
     main_menu = MainMenuScene(manager)
     manager.push(main_menu)
     
-    pygame.time.set_timer(pygame.USEREVENT, 1000)
     # Game Loop
     running = True
     while running:
+        screen.fill((0, 0, 0))
         for event in pygame.event.get():
             if event.type == pygame.QUIT or not manager.scenes:
                 pygame.quit()

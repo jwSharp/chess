@@ -195,7 +195,6 @@ class PlayerSelection(Scene):
 
 
 class TimeSelection(Scene):
-
     def __init__(self, manager):
         self.manager = manager
 
@@ -619,9 +618,10 @@ class Game(Scene):
         '''For timed and untimed chess matches.'''
         self.manager = manager
         self.time = time
+        pygame.time.set_timer(pygame.USEREVENT, 1000)
 
-        self.player_1_timer = Timer(self.time[0], self.time[1])
-        self.player_2_timer = Timer(self.time[0], self.time[1])
+        self.player_1_timer = Timer(self.time[0], self.time[1], self.manager)
+        self.player_2_timer = Timer(self.time[0], self.time[1], self.manager)
 
         # if self.time == (0,0): # Unlimited Time
         #     self.timer_1 = None
@@ -635,15 +635,16 @@ class Game(Scene):
         self.player_2 = self.manager.players[1].name
 
         # Board
-        self.board = Board()
+        self.board = Board(self.manager)
 
     def input(self, event):
+        mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.USEREVENT:
             if self.board.current_turn == 0:
                 self.player_1_timer.update()
             if self.board.current_turn == 1:
                 self.player_2_timer.update()
-        mouse_pos = pygame.mouse.get_pos()
+        self.board.input(event, mouse_pos)
         #self.board.input(event)
 
     def draw(self, screen):

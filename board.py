@@ -2,7 +2,7 @@ import pygame
 import math
 
 from config import *
-#from piece import *
+from piece import *
 
 class Board:
     def __init__(self):
@@ -107,10 +107,3 @@ class Board:
         highlight.top = playing_field.top - 3
         highlight.left = playing_field.left - 3
         pygame.draw.rect(self.surface, WHITE, highlight, 1)
-
-
-    def update(self):
-        pass
-        
-        #for piece in self.pieces:
-        #    piece.draw(self, screen)
