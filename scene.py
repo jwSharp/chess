@@ -675,8 +675,8 @@ class Game(Scene):
         # Timer
         if self.time != (0, 0):
             self._add_timer_rects(screen, left_wing, right_wing)
-            self.timer_1.draw(screen, left_wing.center, 32)
-            self.timer_2.draw(screen, right_wing.center, 32)
+            self.timer_1.draw(screen, (left_wing.centerx, screen.get_height() * .19), 32)
+            self.timer_2.draw(screen, (right_wing.centerx, screen.get_height() * .19), 32)
 
         # Menu Buttons
         screen.blit(self.menu_text, self.menu_text.get_rect(center=(right_wing.centerx, right_wing.height * .82)))
