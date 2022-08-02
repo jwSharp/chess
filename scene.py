@@ -638,7 +638,6 @@ class Game(Scene):
         
         # Board
         self.board = Board(self.manager)
-        
 
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
@@ -673,10 +672,12 @@ class Game(Scene):
         screen.blit(self.modern_text, self.modern_text.get_rect(center=(left_wing.centerx, screen.get_height() * .87)))
         screen.blit(self.chess_text, self.chess_text.get_rect(center=(left_wing.centerx, screen.get_height() * .93)))
         
-        # Timers
-        self.timer_1.draw(screen, left_wing.center)
-        self.timer_2.draw(screen, right_wing.center)
-        
+        # Timer
+        if self.time != (0, 0):
+            self._add_timer_rects(screen, left_wing, right_wing)
+            self.timer_1.draw(screen, left_wing.center, 32)
+            self.timer_2.draw(screen, right_wing.center, 32)
+
         # Menu Buttons
         screen.blit(self.menu_text, self.menu_text.get_rect(center=(right_wing.centerx, right_wing.height * .82)))
         screen.blit(self.exit_text, self.exit_text.get_rect(center=(right_wing.centerx, right_wing.height * .92)))
@@ -691,7 +692,6 @@ class Game(Scene):
     def _draw_frame(self, screen, left_wing, right_wing):
         self._add_wings(screen, left_wing, right_wing)
         self._add_graveyard(screen, left_wing, right_wing)
-        self._add_timer_rects(screen, left_wing, right_wing)
 
     def _add_wings(self, screen,left_wing, right_wing):
         '''Adds shadows and highlights to the decorative elements of the gamebox.'''
