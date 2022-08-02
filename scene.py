@@ -251,19 +251,11 @@ class PlayerSelection(Scene):
                 if self.one_player.input(mouse_pos):
                     self.manager.players[1] = Computer()
                     self.manager.players[2] = None
-<<<<<<< Updated upstream
                     #self.manager.players[3] = None #!List index out of range
                 else:
                     self.manager.players[1] = Human('Player 2')
                     self.manager.players[2] = None
                     #self.manager.players[3] = None #!List index out of range
-=======
-                    #self.manager.players[3] = None
-                else:
-                    self.manager.players[1] = Human('Player 2')
-                    self.manager.players[2] = None
-                    #self.manager.players[3] = None
->>>>>>> Stashed changes
 
                 scene = TimeSelection(self.manager)
                 self.manager.push(scene)
@@ -382,8 +374,8 @@ class Game(Scene):
             self.timer_1 = None
             self.timer_2 = None
         else:
-            self.timer_1 = Timer(self.time)
-            self.timer_2 = Timer(self.time)
+            self.timer_1 = Timer(self.time[0], self.time[1])
+            self.timer_2 = Timer(self.time[0], self.time[1])
 
         # Board
         self.board = Board()
@@ -391,9 +383,9 @@ class Game(Scene):
     def input(self, event):
         if event.type == pygame.USEREVENT:
             if self.board.current_turn == 0:
-                self.player_1_timer.update()
+                self.timer_1.update()
             if self.board.current_turn == 1:
-                self.player_2_timer.update()
+                self.timer_2.update()
         mouse_pos = pygame.mouse.get_pos()
         #self.board.input(event)
 
