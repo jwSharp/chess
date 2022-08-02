@@ -46,9 +46,22 @@ class Timer:
         self.additional_seconds = additional
         self.second = 0
         
-        self.format_time()
+        font = GET_FONT("Timer", 30)
+        self.timer = font.render(self.minute + self.second, True, WHITE)
+        
+        self._format_time()
+        
+    def update(self):
+        self._time_mechanics()
+        self._add_additional()
+        self._format_time()
+    
+    def draw(self, screen, pos):
+        #TODO update size?
+        
+        screen.blit(self.timer, self.timer.get_rect(center=(pos)))
 
-    def time_mechanics(self):
+    def _time_mechanics(self):
         self.minute = int(self.minute)
         self.second = int(self.second)
         if self.minute > 0:
@@ -63,9 +76,9 @@ class Timer:
             return (self.minute, self.second)
         return (0, 0)
 
-    def format_time(self):
+    def _format_time(self):
         if (self.minute, self.second) == (0, 0):
-            self.timer = "Time's Up!"
+            #self.time = "Time's Up!"
             return
         if self.minute < 10:
             self.minute = str(0) + str(self.minute)
@@ -73,17 +86,6 @@ class Timer:
             self.second = str(0) + str(self.second)
         self.timer = f"{self.minute}:{self.second}"
 
-    def update(self):
-        self.time_mechanics()
-        self.format_time()
-
-    def add_additional(self):
+    def _add_additional(self):
         pass #TODO: Add additional seconds
-
-    def draw(self, pos, size, screen):
-        font = GET_FONT("Timer", size)
-        timer = font.render(self.timer, True, (255, 255, 255))
-        timer_rect = timer.get_rect()
-        timer_rect.center = pos
-        screen.blit(timer, timer_rect)
         
