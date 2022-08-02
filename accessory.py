@@ -39,11 +39,13 @@ class Button:
             self.text = self.font.render(self.name, True, self.base_color)
 
 class Timer:
-    def __init__(self, minute, additional, manager):
+    def __init__(self, manager, minute, additional):
+        self.manager = manager
+        
         self.minute = minute
         self.additional_seconds = additional
         self.second = 0
-        self.manager = manager
+        
         self.format_time()
 
     def time_mechanics(self):
