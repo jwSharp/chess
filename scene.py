@@ -624,9 +624,21 @@ class Game(Scene):
         else:
             self.timer_1 = Timer(self.manager, self.time[0], self.time[1])
             self.timer_2 = Timer(self.manager, self.time[0], self.time[1])
-
+        
+        # Logo Text
+        font = GET_FONT("elephant", 54)
+        self.retro_text = font.render("Retro", True, GOLD)
+        self.modern_text = font.render("Modern", True, GOLD)
+        self.chess_text = font.render("Chess", True, GOLD)
+        
+        # Menu Buttons
+        font = GET_FONT("ocr", 58)
+        self.menu_text = font.render("Menu", True, BLACK, GREY)
+        self.exit_text = font.render("Exit", True, BLACK, GREY)
+        
         # Board
         self.board = Board(self.manager)
+        
 
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
@@ -641,32 +653,45 @@ class Game(Scene):
     def draw(self, screen):
         pygame.display.set_caption("Retro|Modern Chess")
         screen.fill(BLACK)
-        width, height = screen.get_size()
 
         wing_width = screen.get_width() * .20
         wing_height = screen.get_height()
 
-        left_wing = pygame.Rect(0, 0,wing_width, wing_height)
-        right_wing = pygame.Rect(0, 0,wing_width, wing_height)
+        left_wing = pygame.Rect(0, 0, wing_width, wing_height)
+        right_wing = pygame.Rect(0, 0, wing_width, wing_height)
         left_wing.topleft = (0, 0)
         right_wing.right = screen.get_width()
 
         pygame.draw.rect(screen, GOLD, left_wing, 6)
-        pygame.draw.rect(screen, GOLD, right_wing,6)
+        pygame.draw.rect(screen, GOLD, right_wing, 6)
 
-        self.add_wing_shadows(screen, left_wing, right_wing)
-        self.add_wing_highlights(screen, left_wing, right_wing)
-        self.add_graveyard(screen, left_wing, right_wing)
-        self.add_timer_rects(screen, left_wing, right_wing)
-        self.add_logo_text(screen, left_wing)
-        self.add_menu_buttons(screen, right_wing)
+        # Game Frame
+        self.draw_frame(screen, left_wing, right_wing)
+        
+        # Retro|Modern Chess text
+        screen.blit(self.retro_text, self.retro_text.get_rect(center=(left_wing.centerx, screen.get_height() * .81)))
+        screen.blit(self.modern_text, self.modern_text.get_rect(center=(left_wing.centerx, screen.get_height() * .87)))
+        screen.blit(self.chess_text, self.chess_text.get_rect(center=(left_wing.centerx, screen.get_height() * .93)))
+        
+        # Menu Buttons
+        screen.blit(self.menu_text, self.menu_text.get_rect(center=(right_wing.centerx, right_wing.height * .82)))
+        screen.blit(self.exit_text, self.exit_text.get_rect(center=(right_wing.centerx, right_wing.height * .92)))
+        
+        # Player Names
         self.add_player_text(screen, left_wing, self.manager.players[0].name)
         self.add_player_text(screen, right_wing, self.manager.players[1].name)
         
+        # Board
         self.board.draw(screen)
+        
+    def draw_frame(self, screen, left_wing, right_wing):
+        self.add_wings(screen, left_wing, right_wing)
+        self.add_graveyard(screen, left_wing, right_wing)
+        self.add_timer_rects(screen, left_wing, right_wing)
 
-    def add_wing_shadows(self, screen,left_wing, right_wing):
-        '''Adds shadows to the decorative elements of the gamebox.'''
+    def add_wings(self, screen,left_wing, right_wing):
+        '''Adds shadows and highlights to the decorative elements of the gamebox.'''
+        # Shadows
         left_shadow = pygame.Rect(0, 0,(left_wing.width * .99), (left_wing.height * .994))
         right_shadow = pygame.Rect(0, 0, (right_wing.width * .99), (right_wing.height * .994))
         left_shadow.left = left_wing.left + 5
@@ -676,9 +701,8 @@ class Game(Scene):
 
         pygame.draw.rect(screen, GOLD_SHADOW, left_shadow, 3)
         pygame.draw.rect(screen, GOLD_SHADOW, right_shadow, 3)
-
-    def add_wing_highlights(self, screen,left_wing, right_wing):
-        '''Adds highlights to the wing borders'''
+        
+        # Highlight
         left_highlight = pygame.Rect(0, 0, left_wing.width * .99, left_wing.height * .995)
         right_highlight = pygame.Rect(0, 0, right_wing.width * .99, right_wing.height * .995)
         left_highlight.topleft = left_wing.topleft
@@ -688,7 +712,7 @@ class Game(Scene):
         pygame.draw.rect(screen, WHITE, right_highlight, 1)
         
     def add_graveyard(self, screen, left_wing, right_wing):
-        '''Adds blank rectangles to hold captured pieces.'''
+        '''Adds blank rectangles with shadows to hold captured pieces.'''
         left_graveyard = pygame.Rect(0, 0, left_wing.width * .75, left_wing.height * .5)
         right_graveyard = pygame.Rect(0, 0, right_wing.width * .75, right_wing.height * .5)
         left_graveyard.center = left_wing.center
@@ -696,11 +720,8 @@ class Game(Scene):
 
         pygame.draw.rect(screen, GOLD, left_graveyard, 4)
         pygame.draw.rect(screen, GOLD, right_graveyard, 4)
-
-        self.add_graveyard_shadows(screen, left_graveyard, right_graveyard)
-
-    def add_graveyard_shadows(self, screen, left_graveyard, right_graveyard):
-        '''Adds simple shadows to the rectangle outlines.'''
+        
+        # Shadows
         left_shadow = pygame.Rect(0, 0, left_graveyard.width * .99, left_graveyard.height * .99)
         right_shadow = pygame.Rect(0, 0, right_graveyard.width * .99, right_graveyard.height * .99)
         left_shadow.left = left_graveyard.left + 3
@@ -722,10 +743,8 @@ class Game(Scene):
 
         pygame.draw.rect(screen, GOLD, l_timer_rect, 4)
         pygame.draw.rect(screen, GOLD, r_timer_rect, 4)
-
-        self.add_timer_shadows(screen,l_timer_rect, r_timer_rect)
-
-    def add_timer_shadows(self, screen, l_timer_rect, r_timer_rect):
+        
+        # Shadows
         l_shadow = pygame.Rect(0, 0,l_timer_rect.width * .99, l_timer_rect.height * .99)
         r_shadow = pygame.Rect(0, 0,r_timer_rect.width * .99, r_timer_rect.height * .99)
         l_shadow.left = l_timer_rect.left+2
@@ -735,41 +754,6 @@ class Game(Scene):
 
         pygame.draw.rect(screen, GOLD_SHADOW, l_shadow, 2)
         pygame.draw.rect(screen, GOLD_SHADOW, r_shadow, 2)
-
-    def add_logo_text(self, screen, placement):
-        '''Adds the Retro|Modern Chess text in the lower left corner of the gamebox.'''
-        font = GET_FONT("elephant", 54)
-        
-        retroText = font.render("Retro", True, GOLD)
-        retroTextRect = retroText.get_rect()
-        retroTextRect.centerx = placement.centerx
-        retroTextRect.centery = screen.get_height() * .81
-        screen.blit(retroText, retroTextRect)
-        
-        modernText = font.render("Modern", True, GOLD)
-        modernTextRect = modernText.get_rect()
-        modernTextRect.centerx = placement.centerx
-        modernTextRect.centery = screen.get_height() * .87
-        screen.blit(modernText, modernTextRect)
-        
-        chessText = font.render("Chess", True, GOLD)
-        chessTextRect = chessText.get_rect()
-        chessTextRect.centerx = placement.centerx
-        chessTextRect.centery = screen.get_height() * .93
-        screen.blit(chessText, chessTextRect)
-
-    def add_menu_buttons(self, screen, placement):
-        '''Adds buttons to the lower right corner of the gamebox.'''
-        font = GET_FONT("ocr", 58)
-        menu_text = font.render("Menu", True, BLACK, GREY)
-        menu_text_rect = menu_text.get_rect()
-
-        exit_text = font.render("Exit", True, BLACK, GREY)
-        exit_text_rect = exit_text.get_rect()
-        menu_text_rect = menu_text.get_rect(center = (placement.centerx, placement.height * .82))
-        exit_text_rect = exit_text.get_rect(center = (placement.centerx, placement.height * .92))
-        screen.blit(menu_text, menu_text_rect)
-        screen.blit(exit_text, exit_text_rect)
 
     def add_player_text(self, screen, placement, title):
         '''Adds text, either "Player" or "Player 1", to the upper left corner of the gamebox.'''
