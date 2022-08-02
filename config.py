@@ -11,6 +11,15 @@ SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 CLOCK = pygame.time.Clock()
 pygame.init()
 
+## future implementation ASPECT-RATIO scale
+# ASPECT_RATIO = (16, 9)
+# def TO_ASPECT(width, height, aspect = ASPECT_RATIO):
+#     if width < height:
+#         width = abs(height / aspect[1]) * aspect[0] 
+#     else:
+#         height = abs(width / aspect[0]) * aspect[1]
+#     return width, height
+
 #########
 # Paths #
 #########
