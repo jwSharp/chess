@@ -1,40 +1,35 @@
-# Updated main.py to include 7/29 changes (if any)
-
 import pygame
 from scene import *
 from player import *
 from config import *
 
-
 def main():
-    # create Window
+    # Create Window
     pygame.init()
     screen = pygame.display.set_mode((WIDTH, HEIGHT), pygame.RESIZABLE)
     pygame.display.set_caption("Main Menu")
 
-    # create player
-    players = [Human(), None, None, None]
+    # Create Player
+    players = [Human('Player 1'), None, None, None]
 
-    # create scene manager
+    # Create Scene Manager
     manager = SceneManager(players)
     main_menu = MainMenuScene(manager)
     manager.push(main_menu)
-
-    # game loop
+    
+    pygame.time.set_timer(pygame.USEREVENT, 1000)
+    # Game Loop
     running = True
     while running:
         for event in pygame.event.get():
             if event.type == pygame.QUIT or not manager.scenes:
                 pygame.quit()
                 running = False
-
+            
             # handle events
             manager.input(event)
 
         manager.draw(screen)
         pygame.display.update()
 
-
 main()
-
-

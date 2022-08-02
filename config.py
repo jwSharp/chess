@@ -1,5 +1,3 @@
-# Updated config file with 7/29 updates
-
 import pygame
 from pathlib import Path
 
@@ -24,7 +22,7 @@ FONTS_PATH = ASSETS_PATH + "Fonts" + "/"
 # Fonts #
 #########
 #SIZES = {'small' : 20, 'medium' : 40, 'large' : 60}
-FONTS = { 'Regular' : FONTS_PATH + "PressStart2P-Regular.ttf", 'Timer' : FONTS_PATH + "alarm_clock.ttf"}
+FONTS = { 'Regular' : FONTS_PATH + "regular.ttf", 'Timer' : FONTS_PATH + "alarm_clock.ttf", 'elephant' : FONTS_PATH + "elephant.ttf", 'ocr' : FONTS_PATH + "ocr.ttf"}
 SYS_FONTS = pygame.font.get_fonts()
 def GET_FONT(name: str, size: int):
     '''Returns the @name pygame font of @size size.'''
@@ -40,22 +38,18 @@ WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 LIGHT_GREEN = (116, 252, 152, 230)
 RED = (244, 66, 66)
-DARK_RED = "#880015"
-LIGHT_BROWN = "#b97a57"
-BROWN = "#724E2F"
-GOLD_HIGHLIGHT = "#F6F456"
-GOLD = "#E6CC39"
-GOLD_SHADOW = "#918A20"
-TAN = "#C9AD71"
-GREY = "#99958D"
-ORANGE = "#b68f40"
+DARK_RED = ('#880015')
+LIGHT_BROWN = ('#b97a57')
+BROWN = ('#693F19')
+GOLD_HIGHLIGHT = ('#F6F456')
+GOLD = ('#FFD700')
+GOLD_SHADOW = ('#91792F')
+GREY = ('#99958D')
+OAK = ('#DBA16A')
+DARK_OAK = ('#341f0c')
+ORANGE = ('#b68f40')
 
 ##########
 # Images #
 ##########
 BACKGROUND = pygame.image.load(IMAGES_PATH + "brain_colorful.jpg")
-
-
-PLAYER_F = pygame.font.SysFont('brushscript', 62)
-# TIMER_F
-

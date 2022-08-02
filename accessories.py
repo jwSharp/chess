@@ -32,3 +32,7 @@ class Button:
             self.text = self.font.render(self.name, True, self.hovering_color)
         else:
             self.text = self.font.render(self.name, True, self.base_color)
+
+class Timer:
+    def __init__(self, time: (int, int)):
+        pass
