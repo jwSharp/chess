@@ -28,6 +28,14 @@ def main():
                 pygame.quit()
                 running = False
             
+            if event.type == pygame.VIDEORESIZE:
+                width, height = event.size
+                if width < 600:
+                    width = 600
+                if height < 400:
+                    height = 400
+                screen = pygame.display.set_mode((width,height), pygame.RESIZABLE)
+            
             # Events
             manager.input(event)
 
