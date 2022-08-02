@@ -1,6 +1,7 @@
 import pygame
 from pathlib import Path
 
+
 ##########
 # Pygame #
 ##########
@@ -16,6 +17,7 @@ pygame.init()
 FILE_PATH = Path(__file__).parent.absolute()
 ASSETS_PATH = str(FILE_PATH / "Assets") + "/"
 IMAGES_PATH = ASSETS_PATH + "Images/"
+TEXTURE_PATH = ASSETS_PATH + "Textures/"
 BLACK_PIECES_PATH = ASSETS_PATH + "Pieces/Black/Top/"
 WHITE_PIECES_PATH = ASSETS_PATH + "Pieces/White/Top/"
 FONTS_PATH = ASSETS_PATH + "Fonts" + "/"

@@ -9,9 +9,18 @@ Install pygame:
     python3 -m pip install -U pygame --user
 
 ## Roadmap
-Future:
+Next Turns:
+- Algorithms for CPU
+- Multiple languages
+- Accessibility Conformance (WCAG 3)
+- Real-time gameplay feedback
+
+Down the Road:
 - MinMax and Training for CPU
-- Themed pieces and board
+- Website integration for multiplayer
+- Themed boards
+- Anti-Chess
+- King of the Hill
 
 ## Authors and acknowledgment
 Authors: Jacob Sharp, Mehmet Özen, Amy Ciuffoletti, Ashley Butela, and Nabeyou Tadessa.
@@ -20,11 +29,7 @@ A special thank you to our project mentor Felipe. Thanks to the instructional te
 ## License
 None.
 
-
 ## Project status
 In Progress:
-- Transition from Functional to OO
-Near Future:
-- En passant, castling
-- Check detection, End of Game
-- Timed game options
+- Optimization of code
+- En Passant, Castling, Concept of Check(Mate)

@@ -1,12 +1,9 @@
 import pygame
+
+from config import *
 from scene import *
 from player import *
-from config import *
-import pygame
-import sys
-from config import *
-from accessories import *
-from board import *
+
 
 def main():
     # Create Window
@@ -25,15 +22,16 @@ def main():
     # Game Loop
     running = True
     while running:
-        screen.fill((0, 0, 0))
+        screen.fill(BLACK)
         for event in pygame.event.get():
             if event.type == pygame.QUIT or not manager.scenes:
                 pygame.quit()
                 running = False
             
-            # handle events
+            # Events
             manager.input(event)
 
+        # Screen
         manager.draw(screen)
         pygame.display.update()
 
