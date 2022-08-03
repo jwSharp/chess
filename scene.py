@@ -646,12 +646,15 @@ class Game(Scene):
                 self.timer_1.update()
             if self.board.current_turn == 1:
                 self.timer_2.update()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.manager.pop()
         mouse_pos = pygame.mouse.get_pos()
         self.board.input(event)
 
     def draw(self, screen):
         pygame.display.set_caption("Retro|Modern Chess")
-        screen.fill(BLACK)
+        # screen.fill(BLACK)
 
         wing_width = screen.get_width() * .20
         wing_height = screen.get_height()
