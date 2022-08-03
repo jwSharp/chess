@@ -641,7 +641,7 @@ class Game(Scene):
 
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
-        if event.type == pygame.USEREVENT:
+        if event.type == pygame.USEREVENT and self.timer_1 != None:
             if self.board.current_turn == 0:
                 self.timer_1.update()
             if self.board.current_turn == 1:
@@ -675,8 +675,8 @@ class Game(Scene):
         # Timer
         if self.time != (0, 0):
             self._add_timer_rects(screen, left_wing, right_wing)
-            self.timer_1.draw(screen, left_wing.center, 32)
-            self.timer_2.draw(screen, right_wing.center, 32)
+            self.timer_1.draw(screen, (left_wing.centerx, screen.get_height() * .19), 32)
+            self.timer_2.draw(screen, (right_wing.centerx, screen.get_height() * .19), 32)
 
         # Menu Buttons
         screen.blit(self.menu_text, self.menu_text.get_rect(center=(right_wing.centerx, right_wing.height * .82)))
