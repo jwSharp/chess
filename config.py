@@ -1,18 +1,18 @@
 import pygame
+import pyautogui
 from pathlib import Path
 
 
 ##########
 # Pygame #
 ##########
-WIDTH = 1200
-HEIGHT = 800
+ASPECT_RATIO = (16, 10)
+HEIGHT = pyautogui.size()[1] - 125
+WIDTH = abs(round(HEIGHT / ASPECT_RATIO[1])) * ASPECT_RATIO[0]
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 CLOCK = pygame.time.Clock()
 pygame.init()
 
-## future implementation ASPECT-RATIO scale
-ASPECT_RATIO = (16, 10)
 def PIXEL_TO_ASPECT(width, height, aspect = ASPECT_RATIO):
     if width < height:
         width = abs(round(height / aspect[1])) * aspect[0] 
@@ -59,7 +59,7 @@ def GET_FONT(name: str, size: int):
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
-LIGHT_GREEN = (116, 252, 152, 230)
+LIGHT_GREEN = (116, 252, 152, 50)
 RED = (244, 66, 66)
 DARK_RED = ('#880015')
 LIGHT_BROWN = ('#b97a57')
