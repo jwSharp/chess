@@ -41,6 +41,14 @@ class Piece:
         else:
             self.pos = self.current_pos
         return self.current_pos
+    
+    def force_move(self, x, y, count_move = True, condition = True) -> (int, int):
+        if condition:
+            self.current_pos = (x, y)
+            self.pos = (x, y)
+            if count_move:
+                self.move_count += 1
+        return self.current_pos
 
     def can_move(self, target_x, target_y, other_pieces=[]) -> bool:
         if target_x < 0 or target_x > 7 or target_y < 0 or target_y > 7:
@@ -107,6 +115,37 @@ class Piece:
             (self.current_pos[0] + j[0], self.current_pos[1] - j[1])
             for j in self.movable_blocks(move)
         ]
+        
+    def reflect_place(self):
+        '''
+            Mirrors the pieces position.
+        '''
+        if self.current_pos == None:
+            return
+        x = 7 - self.current_pos[0]
+        y = 7 - self.current_pos[1]
+        self.force_move(x, y, False)
+        self.piece_moves = self.get_reflected_move(self.piece_moves)
+        if self.piece_attacks != None:
+            self.piece_attacks = self.get_reflected_move(self.piece_attacks)
+        return (x, y)
+
+    def get_reflected_move(self, old_move:[(str)]) -> [(str)]:
+        '''
+            Returns reflected movement of a piece!
+        '''
+        new_move = []
+        for move in old_move:
+            new_points = []
+            for point in move:
+                temp = point
+                try:
+                    temp = str(int(temp) * -1)
+                except:
+                    temp = str(int(temp.split('|')[0]) * -1) + '|' + str(int(temp.split('|')[1]) * -1)
+                new_points.append(temp)
+            new_move.append(new_points)
+        return new_move
 
     def movable_blocks(self, area: list) -> [(int, int)]:
         '''
@@ -172,12 +211,12 @@ class Pawn(Piece):
     def __init__(self, pos, turn):
         super().__init__(pos, turn, "pawn")
         self.piece_moves = [('0', '1|2')] if turn == 0 else [('0', '-1|-2')]
-        self.piece_attacks = [('-1', '1'), ('1', '1')] if turn == 0 else [('-1', '-1'), ('1', '-1')]
+        self.piece_attacks = [('-1', '1'), ('1', '1')]
         self._set_sprite(turn, "pawn_top.png", "pawn_top.png")
     
     def update(self):
         if self.move_count > 0:
-            self.piece_moves = [('0', '1')] if self.turn == 0 else [('0', '-1')]
+            self.piece_moves = [('0', '1')]
     
 class Bishop(Piece):
     def __init__(self, pos, turn):
