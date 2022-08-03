@@ -75,6 +75,12 @@ class Board:
             img_width = self.board_panel.width / 8 - 10
             img_height = self.board_panel.height / 8 - 10
             piece.draw(screen, (img_width, img_height), self.board_panel)
+    
+    def draw_feedback(self, xy: (int, int), color, reset_feedbacks):
+        if reset_feedbacks:
+            self.feedback_blocks = {xy: color}
+        else:
+            self.feedback_blocks[xy] = color
 
     def add_letters(self, screen, square, playing_field):
         letters = ["A", "B", "C", "D", "E", "F", "G", "H"]
@@ -142,22 +148,6 @@ class Board:
                     self.draw_feedback(self.selected_block, RED, True)
                     self._reset_selected(True)
         return (x, y)
-    
-    def draw_feedback(self, xy: (int, int), color, reset_feedbacks):
-        if reset_feedbacks:
-            self.feedback_blocks = {xy: color}
-        else:
-            self.feedback_blocks[xy] = color
-            
-    def _update_board(self, board):
-        self.board_panel = board
-
-    def _get_grid_position(self, x: float, y: float):
-        block_size = self.board_panel.width / 8
-        if x > self.board_panel.x and y > self.board_panel.y:
-            x = int((x - self.board_panel.x) / block_size)
-            y = int((y - self.board_panel.y) / block_size)
-        return x, y
 
     def drag_piece(self, x, y):
         """
@@ -187,7 +177,8 @@ class Board:
         if self.selected_piece == None:
             return False
         piece_positions = [p.current_pos for p in self.pieces]
-        if (self.selected_piece.current_pos == self.pieces[self.pieces.index(self.selected_piece)].move_piece(block_x, block_y, self.current_turn, self.pieces) and self.selected_block != None):
+        
+        if (self.selected_piece.current_pos == self.selected_piece.move_piece(block_x, block_y, self.current_turn, self.pieces) and self.selected_block != None):
             self.pieces[self.pieces.index(self.selected_piece)].move_piece(
                 self.selected_block[0],
                 self.selected_block[1],
@@ -216,6 +207,21 @@ class Board:
             self.current_turn += 1
         else:
             self.current_turn = min(self.turns)
+        self.flip_places()  
+
+    def flip_places(self):
+        for piece in self.pieces:
+            piece.reflect_place()
+    
+    def _update_board(self, board):
+        self.board_panel = board
+
+    def _get_grid_position(self, x: float, y: float):
+        block_size = self.board_panel.width / 8
+        if x > self.board_panel.x and y > self.board_panel.y:
+            x = int((x - self.board_panel.x) / block_size)
+            y = int((y - self.board_panel.y) / block_size)
+        return x, y
     
     def _reset_selected(self, keep_feedback=False):
         self.selected_piece = None
