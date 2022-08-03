@@ -211,7 +211,7 @@ class Pawn(Piece):
     def __init__(self, pos, turn):
         super().__init__(pos, turn, "pawn")
         self.piece_moves = [('0', '1|2')] if turn == 0 else [('0', '-1|-2')]
-        self.piece_attacks = [('-1', '1'), ('1', '1')]
+        self.piece_attacks = [('-1', '1'), ('1', '1')] if turn == 0 else [('-1', '-1'), ('1', '-1')]
         self._set_sprite(turn, "pawn_top.png", "pawn_top.png")
     
     def update(self):
