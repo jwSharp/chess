@@ -5,21 +5,31 @@ from pathlib import Path
 ##########
 # Pygame #
 ##########
-WIDTH = 1280
+WIDTH = 1200
 HEIGHT = 800
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 CLOCK = pygame.time.Clock()
 pygame.init()
 
 ## future implementation ASPECT-RATIO scale
-# ASPECT_RATIO = (16, 9)
-# def TO_ASPECT(width, height, aspect = ASPECT_RATIO):
-#     if width < height:
-#         width = abs(height / aspect[1]) * aspect[0] 
-#     else:
-#         height = abs(width / aspect[0]) * aspect[1]
-#     return width, height
+ASPECT_RATIO = (16, 10)
+def PIXEL_TO_ASPECT(width, height, aspect = ASPECT_RATIO):
+    if width < height:
+        width = abs(round(height / aspect[1])) * aspect[0] 
+    else:
+        height = abs(round(width / aspect[0])) * aspect[1]
+    return width, height
 
+def FIXED_SCALE(width, height, limit_min: tuple, limit_max: tuple):
+    if width < limit_min[0]:
+        width = limit_min[0]
+    if height < limit_min[1]:
+        height = limit_min[1]
+    if width > limit_max[0]:
+        width = limit_max[0]
+    if height > limit_max[1]:
+        height = limit_max[1]
+    return width, height
 #########
 # Paths #
 #########
