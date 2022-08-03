@@ -27,7 +27,7 @@ class Board:
 
     def draw(self, screen):
         screen_center = (screen.get_width()/2, screen.get_height()/2)
-        board_width = (screen.get_width() * .6)
+        board_width = (screen.get_height())
         board_height = board_width
         playing_field_width = board_width/1.2
         playing_field_height = board_height/1.2
