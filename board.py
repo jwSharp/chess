@@ -60,21 +60,25 @@ class Board:
                 if (x, y) in self.feedback_blocks:
                     pygame.draw.rect(screen, self.feedback_blocks[(x, y)], sq, 5)
                 elif (x, y) == self.selected_block:
-                    pygame.draw.rect(screen, LIGHT_GREEN, sq)
+                    self.draw_rect(screen, LIGHT_GREEN, sq, 300)
                 if (x, y) in self.movable_blocks:
-                    pygame.draw.rect(screen, LIGHT_GREEN, sq, 6)
-                elif (x, y) in self.capturables:
+                    self.draw_rect(screen, LIGHT_GREEN, sq, 300)
+                if (x, y) in self.capturables:
                     pygame.draw.rect(screen, RED, sq, 3)
         
         self.add_letters(screen, square, playing_field)
         self.add_numbers(screen, square, playing_field)
     
     def draw_pieces(self, screen):
+        img_width = self.board_panel.width / 8 - 10
+        img_height = self.board_panel.height / 8 - 10
         for piece in self.pieces:
             piece.update()
-            img_width = self.board_panel.width / 8 - 10
-            img_height = self.board_panel.height / 8 - 10
+            if piece == self.selected_piece:
+                continue
             piece.draw(screen, (img_width, img_height), self.board_panel)
+        if self.selected_piece != None:
+            self.selected_piece.draw(screen, (img_width, img_height), self.board_panel)
     
     def draw_feedback(self, xy: (int, int), color, reset_feedbacks):
         if reset_feedbacks:
@@ -82,6 +86,12 @@ class Board:
         else:
             self.feedback_blocks[xy] = color
 
+    def draw_rect(self, screen, color, rect: pygame.Rect, opacity = 255):
+        s = pygame.Surface(rect.size) 
+        s.set_alpha(opacity)              
+        s.fill(color)         
+        screen.blit(s, (rect.x, rect.y))
+    
     def add_letters(self, screen, square, playing_field):
         letters = ["A", "B", "C", "D", "E", "F", "G", "H"]
         label_font = pygame.font.SysFont('arial', 36, bold = True)
@@ -234,6 +244,7 @@ class Board:
             
     def _reset_pieces(self):
         self.selected_block = None
+        self.stuck_indicator = None
         self.holding_piece = False
         self.selected_piece = None
         pawns1 = []
