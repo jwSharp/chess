@@ -1,14 +1,13 @@
 import pygame
-import pyautogui
 from pathlib import Path
 
 
 ##########
 # Pygame #
 ##########
-ASPECT_RATIO = (16, 10)
-HEIGHT = pyautogui.size()[1] - 125
-WIDTH = abs(round(HEIGHT / ASPECT_RATIO[1])) * ASPECT_RATIO[0]
+ASPECT_RATIO = (17, 10)
+HEIGHT = 800
+WIDTH = 1220
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 CLOCK = pygame.time.Clock()
 pygame.init()
