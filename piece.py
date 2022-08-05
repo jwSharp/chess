@@ -9,7 +9,9 @@ class Piece:
         self.sprite = None
         self.image_path = None
         self.piece_moves = None
+        self.limited_moves = None
         self.piece_attacks = None
+        self.locked = False
 
         self.start_pos, self.pos, self.current_pos = pos, pos, pos
         self.turn = turn
@@ -22,6 +24,24 @@ class Piece:
     
     def update(self):
         pass
+
+    def check_limit(self, check_state, pieces):
+        self.limited_moves = None
+        king = self.get_piece('king', pieces)
+        hold_pos = self.current_pos
+        
+        for i, move in enumerate(self.get_movement(pieces)):
+            self.force_move(move[0], move[1], False)
+            if not king.is_check(pieces, king.current_pos):
+                if self.limited_moves == None:
+                    self.limited_moves = [move]
+                else:
+                    self.limited_moves.append(move)
+            self.force_move(hold_pos[0], hold_pos[1], False)
+        
+        if king.turn == check_state and self.limited_moves == None:
+            self.limited_moves = []
+        return self.limited_moves
     
     def draw(self, screen, blit_size: (int, int), panel):
         if self.image_path == None or self.pos == None:
@@ -32,12 +52,19 @@ class Piece:
         y_pos = y * panel.height / 8 + (panel.y + 5)
         self.sprite = pygame.transform.smoothscale(self.sprite, blit_size)
         screen.blit(self.sprite, (x_pos, y_pos))
-        
+     
+    def get_piece(self, name, pieces):  
+        for piece in pieces:
+            if piece.piece_name == name and piece.turn == self.turn:
+                return piece
+        return None
+    
     def move_piece(self, x, y, current_turn=0, other_pieces=[]) -> (int, int):
-        if self.can_move(x, y, other_pieces) and self.turn == current_turn:
+        if self.can_move(x, y, other_pieces) and self.turn == current_turn and not self.locked:
             self.current_pos = (x, y)
             self.pos = (x, y)
             self.move_count += 1
+            self.limited_moves = None
         else:
             self.pos = self.current_pos
         return self.current_pos
@@ -165,8 +192,6 @@ class Piece:
             pos_y = [int(area[-1])]
         
         for i in range(max([len(pos_x), len(pos_y)])):
-            # print(pos_y)
-            # print(self.piece_name)
             if pos_x == [] or pos_y == []:
                 continue
             x = pos_x[-1] if pos_x.index(pos_x[-1]) < i else pos_x[i]
@@ -217,6 +242,7 @@ class Pawn(Piece):
     def update(self):
         if self.move_count > 0:
             self.piece_moves = [('0', '1')]
+        print(self.piece_moves)
     
 class Bishop(Piece):
     def __init__(self, pos, turn):
@@ -247,3 +273,12 @@ class King(Piece):
         super().__init__(pos, turn, "king")
         self.piece_moves = [("1", "1"), ("1", "-1"), ("-1", "1"), ("-1", "-1"), ("1", "0"), ("0", "1"), ("-1", "0"), ("0", "-1")]
         self._set_sprite(turn, "king_top.png", "king_top.png")
+        self.threads = []
+    
+    def is_check(self, pieces: Piece, pos) -> bool:
+        self.threads = []
+        oponent_pieces = [p for p in pieces if p.turn != self.turn]
+        for piece in oponent_pieces:
+            if pos in piece.get_capturables(pieces):
+                self.threads.append(piece)
+        return len(self.threads) > 0

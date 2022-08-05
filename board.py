@@ -11,6 +11,8 @@ class Board:
         self.manager = manager
         self.current_turn = 0
         self.board_panel = None
+        self.check_state = None
+        self.threads = []
         self._reset_selected()
         self._reset_pieces()
 
@@ -35,6 +37,7 @@ class Board:
         playing_field = pygame.Rect(0, 0, playing_field_width, playing_field_height)
         playing_field.center = board.center = screen_center
         self._update_board(playing_field)
+        print(self.threads)
 
         pygame.draw.rect(screen, BROWN, board)
         pygame.draw.rect(screen, OAK, playing_field)
@@ -141,24 +144,34 @@ class Board:
     def select_block(self, pos: tuple):
         x, y = pos
         piece_positions = [i.current_pos for i in self.pieces]
-        if self.drop_piece(x, y) == True:
+        if self.drop_piece(x, y) == True or self.board_panel == None:
             return
         x, y = self._get_grid_position(x, y)
         if (x, y) not in self.movable_blocks or (x, y) not in self.capturables:
             self._reset_selected()
         if (x >= 0 and x <= 7) and (y >= 0) and (y <= 7):
-            print(x, y)
             self.selected_block = (x, y)
             if self.selected_block in piece_positions:
                 if (self.pieces[piece_positions.index(self.selected_block)].turn == self.current_turn):
                     self.selected_piece = self.pieces[piece_positions.index(self.selected_block)]
-                    self.movable_blocks = self.selected_piece.get_movement(self.pieces)
-                    self.capturables = self.selected_piece.get_capturables(self.pieces)
+                    self.selected_piece.check_limit(self.check_state, self.pieces)
+                    self.movable_blocks = self.get_movable_blocks(self.selected_piece)
+                    self.capturables = self.get_capturable_blocks(self.selected_piece)
                 else:
                     self.draw_feedback(self.selected_block, RED, True)
                     self._reset_selected(True)
         return (x, y)
 
+    def get_movable_blocks(self, piece):
+        if piece.limited_moves == None:
+            return piece.get_movement(self.pieces)
+        return [i for i in piece.get_movement(self.pieces) if i in piece.limited_moves]
+    
+    def get_capturable_blocks(self, piece):
+        if self.threads == []:
+            return piece.get_capturables(self.pieces)
+        return [i.current_pos for i in self.threads if i.current_pos in piece.get_capturables(self.pieces)]
+    
     def drag_piece(self, x, y):
         """
         Since draw_pieces renders the piece by its position, drag_piece changes
@@ -166,6 +179,7 @@ class Board:
         """
         if self.board_panel == None:
             return
+        
         block_size = self.board_panel.width / 8
         x = (x - self.board_panel.x) / block_size - 0.5
         y = (y - self.board_panel.y) / block_size - 0.5
@@ -174,14 +188,17 @@ class Board:
                 self.holding_piece = True
                 self.selected_piece = i
                 return
+        
         if self.selected_piece is not None:
-            self.pieces[self.pieces.index(self.selected_piece)].pos = (x, y)
+            self.selected_piece.pos = (x, y)
             
     def drop_piece(self, x, y):
         """
         Calculates the grid point of the mouse position, after this method called
         it will set the piece position to the grid point. which will give the snap effect.
         """
+        if self.board_panel == None:
+            return False
         # converts x, y to grid position
         block_x, block_y = self._get_grid_position(x, y)
         if self.selected_piece == None:
@@ -213,6 +230,7 @@ class Board:
 
     def next_turn(self):
         self.turns = [p.turn for p in self.pieces]
+        self.handle_check()
         if self.current_turn < max(self.turns):
             self.current_turn += 1
         else:
@@ -263,3 +281,9 @@ class Board:
         self.manager.players[0].pieces = [rook1[0], rook2[0], knight1[0], knight2[0], bishop1[0], bishop2[0], queen[0], king[0]] + pawns1
         self.manager.players[1].pieces = [rook1[1], rook2[1], knight1[1], knight2[1], bishop1[1], bishop2[1], queen[1], king[1]] + pawns2
         self.pieces = self.manager.players[0].pieces + self.manager.players[1].pieces
+    
+    def handle_check(self):
+        for piece in self.pieces:
+            if piece.piece_name == 'king' and piece.is_check(self.pieces, piece.current_pos):
+                self.check_state = piece.turn
+                self.threads = piece.threads
