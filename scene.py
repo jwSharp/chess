@@ -667,6 +667,9 @@ class Game(Scene):
         pygame.draw.rect(screen, GOLD, left_wing, 6)
         pygame.draw.rect(screen, GOLD, right_wing, 6)
 
+        # Board
+        self.board.draw(screen)
+        
         # Game Frame
         self._draw_frame(screen, left_wing, right_wing)
         
@@ -689,8 +692,6 @@ class Game(Scene):
         self._add_player_text(screen, left_wing, self.manager.players[0].name)
         self._add_player_text(screen, right_wing, self.manager.players[1].name)
         
-        # Board
-        self.board.draw(screen)
         
     def _draw_frame(self, screen, left_wing, right_wing):
         self._add_wings(screen, left_wing, right_wing)
