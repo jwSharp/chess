@@ -1,4 +1,6 @@
+from curses import mouseinterval
 from distutils.log import info
+from multiprocessing import managers
 import pygame
 import sys
  
@@ -535,20 +537,20 @@ class Options(Scene):
    def __init__(self, manager):
        self.manager = manager
  
-       font = GET_FONT('Regular', 100)
+       font = GET_FONT('Regular', 90)
        self.text = font.render("OPTIONS", True, ORANGE)
-       self.text_rect = self.text.get_rect(center=(640, 160))
+       self.text_rect = self.text.get_rect(center=(640, 100))
        self.text_shadow = font.render("OPTIONS", True, BLACK)
-       self.text_shadow_rect = self.text_shadow.get_rect(center=(644, 164))
+       self.text_shadow_rect = self.text_shadow.get_rect(center=(644, 104))
  
        font = GET_FONT('Regular', 65)
-       self.options = Button(None, (640, 375), "GAME OPTIONS", font, ORANGE, BLACK)
+       self.options = Button(None, (640, 300), "GAME OPTIONS", font, ORANGE, BLACK)
        self.options_shadow = font.render("GAME OPTIONS", True, BLACK)
-       self.options_rect = self.options_shadow.get_rect(center=(644, 379))
+       self.options_rect = self.options_shadow.get_rect(center=(644, 304))
        
-       self.credits = Button(None, (640, 550), "CREDITS", font, ORANGE, BLACK)
+       self.credits = Button(None, (640, 475), "CREDITS", font, ORANGE, BLACK)
        self.credits_shadow = font.render("CREDITS", True, BLACK)
-       self.credits_rect = self.credits_shadow.get_rect(center=(644, 554))
+       self.credits_rect = self.credits_shadow.get_rect(center=(644, 479))
  
        font = GET_FONT('Regular', 55)
        self.back = Button(None, (640, 750), "BACK", font, ORANGE, BLACK)
@@ -651,17 +653,21 @@ class GameOptions(Scene):
        self.text_shadow_rect = self.text_shadow.get_rect(center=(644, 104))
        
        font = GET_FONT('Regular', 55) 
-       self.theme = Button(None, (640, 300), "THEME SELECTION", font, WHITE, ORANGE)
-       self.theme_shadow = font.render("THEME SELECTION", True, ORANGE)
-       self.theme_shadow_rect = self.theme_shadow.get_rect(center=(644, 304))
+       self.instruct = Button(None, (640, 250), "INSTRUCTIONS", font, WHITE, ORANGE)
+       self.instruct_shadow = font.render("INSTRUCTIONS", True, ORANGE)
+       self.instruct_shadow_rect = self.instruct_shadow.get_rect(center=(644, 254))
        
-       self.lang = Button(None, (640, 450), "LANGUAGE SELECTION", font, WHITE, ORANGE)
+       self.theme = Button(None, (640, 375), "THEME SELECTION", font, WHITE, ORANGE)
+       self.theme_shadow = font.render("THEME SELECTION", True, ORANGE)
+       self.theme_shadow_rect = self.theme_shadow.get_rect(center=(644, 379))
+       
+       self.lang = Button(None, (640, 500), "LANGUAGE SELECTION", font, WHITE, ORANGE)
        self.lang_shadow = font.render("LANGUAGE SELECTION", True, ORANGE)
-       self.lang_shadow_rect = self.lang_shadow.get_rect(center=(644, 454))
-
-       self.access = Button(None, (640, 600), "ACCESSIBILITY SETTINGS", font, WHITE, ORANGE)
+       self.lang_shadow_rect = self.lang_shadow.get_rect(center=(644, 504))
+       
+       self.access = Button(None, (640, 625), "ACCESSIBILITY SETTINGS", font, WHITE, ORANGE)
        self.access_shadow = font.render("ACCESSIBILITY SETTINGS", True, ORANGE)
-       self.access_shadow_rect = self.access_shadow.get_rect(center=(644, 604))
+       self.access_shadow_rect = self.access_shadow.get_rect(center=(644, 629))
        
        font = GET_FONT('Regular', 45)
        self.back = Button(None, (140, 750), "<=", font, WHITE, ORANGE)
@@ -678,6 +684,10 @@ class GameOptions(Scene):
            if self.back.input(mouse_pos):
                self.manager.pop()
 
+           elif self.instruct.input(mouse_pos):
+               scene = Instructions(self.manager)
+               self.manager.push(scene)
+               
            elif self.theme.input(mouse_pos):
                scene = ThemeSelection(self.manager)
                self.manager.push(scene)
@@ -689,14 +699,12 @@ class GameOptions(Scene):
            elif self.access.input(mouse_pos):
                scene = AccessSettings(self.manager)
                self.manager.push(scene)
-                      
-           elif self.back.input(mouse_pos):
-               self.manager.pop()
                
            elif self.quit.input(mouse_pos) or pygame.QUIT:
                pygame.quit()
                sys.exit()
  
+       self.instruct.set_color(mouse_pos)
        self.back.set_color(mouse_pos)
        self.theme.set_color(mouse_pos)
        self.lang.set_color(mouse_pos)
@@ -709,6 +717,8 @@ class GameOptions(Scene):
  
        screen.blit(self.text_shadow, self.text_shadow_rect)
        screen.blit(self.text, self.text_rect)
+       screen.blit(self.instruct_shadow, self.instruct_shadow_rect)
+       self.instruct.update(screen)
        screen.blit(self.theme_shadow, self.theme_shadow_rect)
        screen.blit(self.back_shadow, self.back_shadow_rect)
        self.back.update(screen)
@@ -813,10 +823,6 @@ class LanguageSelection(GameOptions):
        if event.type == pygame.MOUSEBUTTONDOWN:
            if self.back.input(mouse_pos):
                self.manager.pop()
- 
-                      
-           elif self.back.input(mouse_pos):
-               self.manager.pop()
                
            elif self.quit.input(mouse_pos) or pygame.QUIT:
                pygame.quit()
@@ -874,10 +880,6 @@ class AccessSettings(GameOptions):
        if event.type == pygame.MOUSEBUTTONDOWN:
            if self.back.input(mouse_pos):
                self.manager.pop()
- 
-                      
-           elif self.back.input(mouse_pos):
-               self.manager.pop()
                
            elif self.quit.input(mouse_pos) or pygame.QUIT:
                pygame.quit()
@@ -899,3 +901,252 @@ class AccessSettings(GameOptions):
        screen.blit(self.access_shadow, self.access_shadow_rect)
        screen.blit(self.quit_shadow, self.quit_rect)
        self.quit.update(screen)
+       
+       
+class InGameMenu(Scene):
+   def __init__(self, manager):
+       self.manager = manager
+ 
+       font = GET_FONT('Regular', 85)
+       self.text = font.render("PAUSE", True, ORANGE)
+       self.text_rect = self.text.get_rect(center=(640, 100))
+ 
+       self.text_shadow = font.render("PAUSE", True, WHITE)
+       self.text_shadow_rect = self.text_shadow.get_rect(center=(644, 104))
+       
+       
+       font = GET_FONT('Regular', 55) 
+       self.instruct = Button(None, (640, 250), "INSTRUCTIONS", font, WHITE, ORANGE)
+       self.instruct_shadow = font.render("INSTRUCTIONS", True, ORANGE)
+       self.instruct_shadow_rect = self.instruct_shadow.get_rect(center=(644, 254))
+       
+       self.theme = Button(None, (640, 325), "THEME SELECTION", font, WHITE, ORANGE)
+       self.theme_shadow = font.render("THEME SELECTION", True, ORANGE)
+       self.theme_shadow_rect = self.theme_shadow.get_rect(center=(644, 329))
+       
+       self.lang = Button(None, (640, 400), "LANGUAGE SELECTION", font, WHITE, ORANGE)
+       self.lang_shadow = font.render("LANGUAGE SELECTION", True, ORANGE)
+       self.lang_shadow_rect = self.lang_shadow.get_rect(center=(644, 404))
+       
+       self.access = Button(None, (640, 475), "ACCESSIBILITY SETTINGS", font, WHITE, ORANGE)
+       self.access_shadow = font.render("ACCESSIBILITY SETTINGS", True, ORANGE)
+       self.access_shadow_rect = self.access_shadow.get_rect(center=(644, 479))
+ 
+
+   def input(self, event):
+       mouse_pos = pygame.mouse.get_pos()
+       if event.type == pygame.MOUSEBUTTONDOWN:
+           if self.back.input(mouse_pos):
+               self.manager.pop()
+            
+           elif self.instruct.input(mouse_pos):
+               scene = Instructions(self.manager)
+               self.manager.push(scene)
+
+           elif self.theme.input(mouse_pos):
+               scene = ThemeSelection(self.manager)
+               self.manager.push(scene)
+            
+           elif self.lang.input(mouse_pos):
+               scene = LanguageSelection(self.manager)
+               self.manager.push(scene)
+            
+           elif self.access.input(mouse_pos):
+               scene = AccessSettings(self.manager)
+               self.manager.push(scene)
+               
+           elif self.quit.input(mouse_pos) or pygame.QUIT:
+               pygame.quit()
+               sys.exit()
+ 
+       self.back.set_color(mouse_pos)
+       self.instruct.set_color(mouse_pos)
+       self.theme.set_color(mouse_pos)
+       self.lang.set_color(mouse_pos)
+       self.access.set_color(mouse_pos)
+       self.quit.set_color(mouse_pos)
+ 
+   def draw(self, screen):
+       pygame.display.set_caption("Pause Menu")
+       screen.fill(BLACK)
+ 
+       screen.blit(self.text_shadow, self.text_shadow_rect)
+       screen.blit(self.text, self.text_rect)
+       screen.blit(self.theme_shadow, self.theme_shadow_rect)
+       screen.blit(self.back_shadow, self.back_shadow_rect)
+       self.back.update(screen)
+       screen.blit(self.instruct_shadow, self.instruct_shadow_rect)
+       self.instruct.update(screen)
+       screen.blit(self.theme_shadow, self.theme_shadow_rect)
+       self.theme.update(screen)
+       screen.blit(self.lang_shadow, self.lang_shadow_rect)
+       self.lang.update(screen)
+       screen.blit(self.access_shadow, self.access_shadow_rect)
+       self.access.update(screen)
+       screen.blit(self.quit_shadow, self.quit_rect)
+       self.quit.update(screen)
+
+class Instructions(GameOptions):
+    def __init__(self, manager):
+       self.manager = manager
+ 
+       font = GET_FONT('Regular', 55)
+       self.instruct = font.render("INSTRUCTIONS", True, BLACK)
+       self.instruct_rect = self.instruct.get_rect(center=(640, 100))
+       self.instruct_shadow = font.render("INSTRUCTIONS", True, ORANGE)
+       self.instruct_shadow_rect = self.instruct_shadow.get_rect(center=(643, 103))
+       
+        # text = """The goal of chess is to move your pieces to a checkmate \n
+        # - to be able to threaten the opponent’s king with no possible escape. \n
+        # A check is when the king is threatened, but can still escape on their turn. \n 
+        # As each player moves, pieces may be captured by the opponent. \n
+        # The captured pieces are removed from the board. \n
+        # The player with the white (or light-colored) pieces always goes first. \n
+        # Each player makes one move with one piece*, \n
+        # then the other player takes their turn.\n
+        # Each piece has a type of movement they can make per turn: """
+        
+       self.back = Button(None, (140, 750), "<=", font, BLACK, ORANGE)
+       self.back_shadow = font.render("<=", True, ORANGE)
+       self.back_shadow_rect = self.back_shadow.get_rect(center=(143, 753))
+ 
+       self.inst2 = Button(None, (1140, 750), "=>", font, BLACK, ORANGE)
+       self.inst2_shadow = font.render("=>", True, ORANGE)
+       self.inst2_rect = self.inst2_shadow.get_rect(center=(1143, 753))
+        
+       font = GET_FONT('Regular', 15)
+       self.text1 = font.render("The goal of chess is to move your pieces to a checkmate, ", True, BLACK)
+       self.text_rect1 = self.text1.get_rect(center=(640, 175))
+       self.text2 = font.render("to be able to threaten the opponent’s king with no possible escape.", True, BLACK)
+       self.text_rect2 = self.text2.get_rect(center=(640, 225))
+       self.text3 = font.render(" A check is when the king is threatened, but can still escape on their turn.", True, BLACK)
+       self.text_rect3 = self.text3.get_rect(center=(640, 275))
+       self.text4 = font.render("As each player moves, pieces may be captured by the opponent", True, BLACK)
+       self.text_rect4 = self.text4.get_rect(center=(640, 325))
+       self.text5 = font.render("The captured pieces are removed from the board.", True, BLACK)
+       self.text_rect5 = self.text5.get_rect(center=(640, 375))
+       self.text6 = font.render("The player with the white (or light-colored) pieces always goes first.", True, BLACK)
+       self.text_rect6 = self.text6.get_rect(center=(640, 425))
+       self.text7 = font.render(" Each player makes one move with one piece*,", True, BLACK)
+       self.text_rect7 = self.text7.get_rect(center=(640, 475))
+       self.text8 = font.render("then the other player takes their turn.", True, BLACK)
+       self.text_rect8 = self.text8.get_rect(center=(640, 525))
+       self.text9 = font.render("Each piece has a type of movement they can make per turn:", True, BLACK)
+       self.text_rect9 = self.text9.get_rect(center=(640, 575))
+
+       
+    def input(self, event):
+       mouse_pos = pygame.mouse.get_pos()
+       if event.type == pygame.MOUSEBUTTONDOWN:
+           if self.inst2.input(mouse_pos):
+               scene = Instructions2(self.manager)
+               self.manager.push(scene)
+               
+           elif self.back.input(mouse_pos):
+               self.manager.pop()
+               
+           elif pygame.QUIT:
+               pygame.quit()
+               sys.exit()
+
+       self.back.set_color(mouse_pos)
+       self.inst2.set_color(mouse_pos) 
+ 
+    def draw(self, screen):
+       pygame.display.set_caption("Instructions")
+       screen.fill(WHITE)
+ 
+       screen.blit(self.instruct_shadow, self.instruct_shadow_rect)
+       screen.blit(self.instruct, self.instruct_rect)
+       screen.blit(self.text1, self.text_rect1)
+       screen.blit(self.text2, self.text_rect2)
+       screen.blit(self.text3, self.text_rect3)
+       screen.blit(self.text4, self.text_rect4)
+       screen.blit(self.text5, self.text_rect5)
+       screen.blit(self.text6, self.text_rect6)
+       screen.blit(self.text7, self.text_rect7)
+       screen.blit(self.text8, self.text_rect8)
+       screen.blit(self.text9, self.text_rect9)
+       screen.blit(self.back_shadow, self.back_shadow_rect)
+       self.back.update(screen)
+       screen.blit(self.inst2_shadow, self.inst2_rect)
+       self.inst2.update(screen)
+
+       
+class Instructions2(GameOptions):
+    def __init__(self, manager):
+       self.manager = manager
+ 
+       font = GET_FONT('Regular', 55)
+       self.instruct = font.render("INSTRUCTIONS (cont)", True, BLACK)
+       self.instruct_rect = self.instruct.get_rect(center=(640, 100))
+       self.instruct_shadow = font.render("INSTRUCTIONS (cont)", True, ORANGE)
+       self.instruct_shadow_rect = self.instruct_shadow.get_rect(center=(644, 104))
+        
+       self.back = Button(None, (140, 750), "<=", font, BLACK, ORANGE)
+       self.back_shadow = font.render("<=", True, ORANGE)
+       self.back_shadow_rect = self.back_shadow.get_rect(center=(144, 754))
+ 
+       self.quit = Button(None, (1140, 750), "QUIT", font, BLACK, ORANGE)
+       self.quit_shadow = font.render("QUIT", True, ORANGE)
+       self.quit_rect = self.quit_shadow.get_rect(center=(1144, 754))
+        
+       font = GET_FONT('Regular', 12)
+       self.text1 = font.render("Pawn:  Can move two squares forward on its first move, or one square otherwise. ", True, BLACK)
+       self.text_rect1 = self.text1.get_rect(center=(640, 175))
+       self.text2 = font.render("However, the Pawn can move one square diagonally to capture an opponent’s piece. ", True, BLACK)
+       self.text_rect2 = self.text2.get_rect(center=(640, 225))
+       self.text3 = font.render("They can never move backward. It can turn into other pieces if it reaches the end of the board.", True, BLACK)
+       self.text_rect3 = self.text3.get_rect(center=(640, 275))
+       self.text4 = font.render("Rook (Castle): Can move any number of squares forward or backward, but cannot move diagonally.", True, BLACK)
+       self.text_rect4 = self.text4.get_rect(center=(640, 325))
+       self.text5 = font.render("Knight (Horse): Moves in an L-shape,1) two squares vertical and one square horizontal,", True, BLACK)
+       self.text_rect5 = self.text5.get_rect(center=(640, 375))
+       self.text6 = font.render("or 2) two squares horizontal and one square vertical. The Knight can jump over other pieces while moving.", True, BLACK)
+       self.text_rect6 = self.text6.get_rect(center=(640, 425))
+       self.text7 = font.render("Bishop:  Can move any number of squares diagonally.", True, BLACK)
+       self.text_rect7 = self.text7.get_rect(center=(640, 475))
+       self.text8 = font.render("King:  Can move one square in any direction, but it cannot move to a square if it would be captured.", True, BLACK)
+       self.text_rect8 = self.text8.get_rect(center=(640, 525))
+       self.text9 = font.render("Queen: The most powerful chess piece. Can move any number of squares in any direction.", True, BLACK)
+       self.text_rect9 = self.text9.get_rect(center=(640, 575))
+       
+    def input(self, event):
+       mouse_pos = pygame.mouse.get_pos()
+       if event.type == pygame.MOUSEBUTTONDOWN:
+           if self.back.input(mouse_pos):
+               self.manager.pop()
+            
+           elif self.inst2.input(mouse_pos):
+               scene = Instructions2(self.manager)
+               self.manager.push(scene)
+           
+           elif self.quit.input(mouse_pos) or pygame.QUIT:
+               pygame.quit()
+               sys.exit()
+
+
+       self.back.set_color(mouse_pos)
+       self.quit.set_color(mouse_pos)
+
+    def draw(self, screen):
+       pygame.display.set_caption("Instructions (cont)")
+       screen.fill(WHITE)
+ 
+       screen.blit(self.instruct_shadow, self.instruct_shadow_rect)
+       screen.blit(self.instruct, self.instruct_rect)
+       screen.blit(self.text1, self.text_rect1)
+       screen.blit(self.text2, self.text_rect2)
+       screen.blit(self.text3, self.text_rect3)
+       screen.blit(self.text4, self.text_rect4)
+       screen.blit(self.text5, self.text_rect5)
+       screen.blit(self.text6, self.text_rect6)
+       screen.blit(self.text7, self.text_rect7)
+       screen.blit(self.text8, self.text_rect8)
+       screen.blit(self.text9, self.text_rect9)
+       screen.blit(self.back_shadow, self.back_shadow_rect)
+       self.back.update(screen)
+       screen.blit(self.quit_shadow, self.quit_rect)
+       self.quit.update(screen)
+
+       
