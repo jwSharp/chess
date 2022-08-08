@@ -469,6 +469,8 @@ class TimerInfo(TimeSelection):
        if event.type == pygame.MOUSEBUTTONDOWN:
            if self.back.input(mouse_pos):
                self.manager.pop()
+               scene = TimeSelection(self.manager)
+               self.manager.push(scene)
             
            else:
                pass
