@@ -641,17 +641,20 @@ class Game(Scene):
 
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
-        if event.type == pygame.USEREVENT:
+        if event.type == pygame.USEREVENT and self.timer_1 != None:
             if self.board.current_turn == 0:
                 self.timer_1.update()
             if self.board.current_turn == 1:
                 self.timer_2.update()
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.manager.pop()
         mouse_pos = pygame.mouse.get_pos()
         self.board.input(event)
 
     def draw(self, screen):
         pygame.display.set_caption("Retro|Modern Chess")
-        screen.fill(BLACK)
+        # screen.fill(BLACK)
 
         wing_width = screen.get_width() * .20
         wing_height = screen.get_height()
@@ -664,6 +667,9 @@ class Game(Scene):
         pygame.draw.rect(screen, GOLD, left_wing, 6)
         pygame.draw.rect(screen, GOLD, right_wing, 6)
 
+        # Board
+        self.board.draw(screen)
+        
         # Game Frame
         self._draw_frame(screen, left_wing, right_wing)
         
@@ -675,8 +681,8 @@ class Game(Scene):
         # Timer
         if self.time != (0, 0):
             self._add_timer_rects(screen, left_wing, right_wing)
-            self.timer_1.draw(screen, left_wing.center, 32)
-            self.timer_2.draw(screen, right_wing.center, 32)
+            self.timer_1.draw(screen, (left_wing.centerx, screen.get_height() * .19), 32)
+            self.timer_2.draw(screen, (right_wing.centerx, screen.get_height() * .19), 32)
 
         # Menu Buttons
         screen.blit(self.menu_text, self.menu_text.get_rect(center=(right_wing.centerx, right_wing.height * .82)))
@@ -686,8 +692,6 @@ class Game(Scene):
         self._add_player_text(screen, left_wing, self.manager.players[0].name)
         self._add_player_text(screen, right_wing, self.manager.players[1].name)
         
-        # Board
-        self.board.draw(screen)
         
     def _draw_frame(self, screen, left_wing, right_wing):
         self._add_wings(screen, left_wing, right_wing)

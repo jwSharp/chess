@@ -5,12 +5,30 @@ from pathlib import Path
 ##########
 # Pygame #
 ##########
-WIDTH = 1280
+ASPECT_RATIO = (17, 10)
 HEIGHT = 800
+WIDTH = 1220
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 CLOCK = pygame.time.Clock()
 pygame.init()
 
+def PIXEL_TO_ASPECT(width, height, aspect = ASPECT_RATIO):
+    if width < height:
+        width = abs(round(height / aspect[1])) * aspect[0] 
+    else:
+        height = abs(round(width / aspect[0])) * aspect[1]
+    return width, height
+
+def FIXED_SCALE(width, height, limit_min: tuple, limit_max: tuple):
+    if width < limit_min[0]:
+        width = limit_min[0]
+    if height < limit_min[1]:
+        height = limit_min[1]
+    if width > limit_max[0]:
+        width = limit_max[0]
+    if height > limit_max[1]:
+        height = limit_max[1]
+    return width, height
 #########
 # Paths #
 #########
@@ -40,7 +58,7 @@ def GET_FONT(name: str, size: int):
 BLACK = (0, 0, 0)
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
-LIGHT_GREEN = (116, 252, 152, 230)
+LIGHT_GREEN = (116, 252, 152, 50)
 RED = (244, 66, 66)
 DARK_RED = ('#880015')
 LIGHT_BROWN = ('#b97a57')
