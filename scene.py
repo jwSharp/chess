@@ -1,3 +1,4 @@
+from ast import Or
 from curses import mouseinterval
 from distutils.log import info
 from multiprocessing import managers
@@ -164,13 +165,16 @@ class PlayerSelection(Scene):
                    self.manager.players[1] = Computer()
                    self.manager.players[2] = None
                    self.manager.players[3] = None
+                   
+                   scene = AI_Selection(self.manager)
+                   self.manager.push(scene)
                else:
                    self.manager.players[1] = Human('Player 2')
                    self.manager.players[2] = None
                    self.manager.players[3] = None
  
-               scene = TimeSelection(self.manager)
-               self.manager.push(scene)
+                   scene = TimeSelection(self.manager)
+                   self.manager.push(scene)
           
            elif self.back.input(mouse_pos):
                self.manager.pop()
@@ -202,6 +206,119 @@ class PlayerSelection(Scene):
        self.quit.update(screen)
        self.back.update(screen)
  
+ 
+class AI_Selection(Scene):
+   def __init__(self, manager):
+       self.manager = manager
+ 
+       # get w/h and check % initial WIDTH/HEIGHT
+       font = GET_FONT('Regular', 40)
+       self.text = font.render("CHOOSE YOUR DIFFICULTY LEVEL", True, ORANGE)
+       self.text_rect = self.text.get_rect(center=(640, 50))
+       self.text_shadow = font.render("CHOOSE YOUR DIFFICULTY LEVEL", True, BLACK)
+       self.text_shadow_rect = self.text_shadow.get_rect(center=(643, 53))
+        
+       font = GET_FONT('Regular', 30)
+       #pygame_menu.widgets.RangeSlider("Difficulty Level", None, 3, (1, 5), )
+       #self.range = font.render("EASY   MEDIUM   EXPERT   WORLD-CLASS", True, ORANGE)
+       #self.range_rect = self.range.get_rect(center=(640, 400))
+       #self.range_shadow = font.render("EASY   MEDIUM   EXPERT   WORLD-CLASS", True, BLACK)
+       #self.range_shadow_rect = self.range_shadow.get_rect(center=(643, 403))
+       
+       self.easy = Button(None, (175, 400), "EASY", font, ORANGE, BLACK)
+       self.easy_shadow = font.render("EASY", True, BLACK)
+       self.easy_shadow_rect = self.easy_shadow.get_rect(center=(178, 403))
+       
+       self.medium = Button(None, (350, 400), "MEDIUM", font, ORANGE, BLACK)
+       self.medium_shadow = font.render("MEDIUM", True, BLACK)
+       self.medium_shadow_rect = self.medium_shadow.get_rect(center=(353, 403))
+       
+       self.hard = Button(None, (535, 400), "HARD", font, ORANGE, BLACK)
+       self.hard_shadow = font.render("HARD", True, BLACK)
+       self.hard_shadow_rect = self.hard_shadow.get_rect(center=(538, 403))
+       
+       self.expert = Button(None, (725, 400), "EXPERT", font, ORANGE, BLACK)
+       self.expert_shadow = font.render("EXPERT", True, BLACK)
+       self.expert_shadow_rect = self.expert_shadow.get_rect(center=(728, 403))
+       
+       self.wc = Button(None, (1020, 400), "WORLD-CLASS", font, ORANGE, BLACK)
+       self.wc_shadow = font.render("WORLD-CLASS", True, BLACK)
+       self.wc_shadow_rect = self.wc_shadow.get_rect(center=(1023, 403))
+    
+       font = GET_FONT('Regular', 50)
+       self.back = Button(None, (100, 750), "<=", font, ORANGE, BLACK)
+       self.back_shadow = font.render("<=", True, BLACK)
+       self.back_shadow_rect = self.back_shadow.get_rect(center=(103, 753))
+ 
+       font = GET_FONT('Regular', 35) 
+       self.quit = Button(None, (1140, 750), "QUIT", font, ORANGE, BLACK)
+       self.quit_shadow = font.render("QUIT", True, BLACK)
+       self.quit_rect = self.quit_shadow.get_rect(center=(1144, 753))
+      
+   def input(self, event):
+       mouse_pos = pygame.mouse.get_pos()
+ 
+       if event.type == pygame.MOUSEBUTTONDOWN:
+        
+           if self.easy.input(mouse_pos):
+               pass
+           
+           elif self.medium.input(mouse_pos):
+               pass
+           
+           elif self.hard.input(mouse_pos):
+               pass
+           
+           elif self.expert.input(mouse_pos):
+               pass
+           
+           elif self.wc.input(mouse_pos):
+               pass
+          
+           elif self.back.input(mouse_pos):
+               self.manager.pop()
+              
+           elif self.quit.input(mouse_pos) or pygame.QUIT:
+               pygame.quit()
+               sys.exit()
+
+ 
+       self.easy.set_color(mouse_pos)
+       self.medium.set_color(mouse_pos)
+       self.hard.set_color(mouse_pos)
+       self.expert.set_color(mouse_pos)
+       self.wc.set_color(mouse_pos)
+       self.back.set_color(mouse_pos)
+       self.quit.set_color(mouse_pos)
+ 
+ 
+   def draw(self, screen):
+       pygame.display.set_caption("AI SELECTION")
+       screen.fill(WHITE)
+ 
+       screen.blit(self.text_shadow, self.text_shadow_rect)
+       screen.blit(self.text, self.text_rect)
+       
+       screen.blit(self.easy_shadow, self.easy_shadow_rect)
+       self.easy.update(screen)
+       
+       screen.blit(self.medium_shadow, self.medium_shadow_rect)
+       self.medium.update(screen)
+       
+       screen.blit(self.hard_shadow, self.hard_shadow_rect)
+       self.hard.update(screen)
+       
+       screen.blit(self.expert_shadow, self.expert_shadow_rect)
+       self.expert.update(screen)
+       
+       screen.blit(self.wc_shadow, self.wc_shadow_rect)
+       self.wc.update(screen)
+
+       screen.blit(self.back_shadow, self.back_shadow_rect)
+       self.back.update(screen)
+       screen.blit(self.quit_shadow, self.quit_rect)
+       self.quit.update(screen)
+
  
 class TimeSelection(Scene):
    def __init__(self, manager):
@@ -352,6 +469,9 @@ class TimerInfo(TimeSelection):
        if event.type == pygame.MOUSEBUTTONDOWN:
            if self.back.input(mouse_pos):
                self.manager.pop()
+            
+           else:
+               pass
  
  
        self.back.set_color(mouse_pos)
@@ -1149,4 +1269,4 @@ class Instructions2(GameOptions):
        screen.blit(self.quit_shadow, self.quit_rect)
        self.quit.update(screen)
 
-       
+    
