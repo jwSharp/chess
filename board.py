@@ -13,6 +13,8 @@ class Board:
         self.board_panel = None
         self.check_state = None
         self.threads = []
+        # self.turn_changes = False
+        # self.delay = 0.5
         self._reset_selected()
         self._reset_pieces()
 
@@ -26,6 +28,14 @@ class Board:
                 self.drop_piece(mouse_pos[0], mouse_pos[1])
         elif pygame.mouse.get_pressed()[0]:  # if dragging, move the piece
             self.drag_piece(mouse_pos[0], mouse_pos[1])
+        # if event.type == pygame.USEREVENT and self.turn_changes:
+        #     if self.delay > 0:
+        #         self.delay -= 1
+        #     else:
+        #         self.delay = 0
+        #         self.next_turn()
+        #         self.turn_changes = False
+        #         self.delay = 0.5
 
     def draw(self, screen):
         screen_center = (screen.get_width()/2, screen.get_height()/2)
@@ -37,7 +47,6 @@ class Board:
         playing_field = pygame.Rect(0, 0, playing_field_width, playing_field_height)
         playing_field.center = board.center = screen_center
         self._update_board(playing_field)
-        print(self.threads)
 
         pygame.draw.rect(screen, BROWN, board)
         pygame.draw.rect(screen, OAK, playing_field)
@@ -76,7 +85,7 @@ class Board:
         img_width = self.board_panel.width / 8 - 10
         img_height = self.board_panel.height / 8 - 10
         for piece in self.pieces:
-            piece.update()
+            piece.update(self.pieces)
             if piece == self.selected_piece:
                 continue
             piece.draw(screen, (img_width, img_height), self.board_panel)
@@ -90,9 +99,9 @@ class Board:
             self.feedback_blocks[xy] = color
 
     def draw_rect(self, screen, color, rect: pygame.Rect, opacity = 255):
-        s = pygame.Surface(rect.size) 
-        s.set_alpha(opacity)              
-        s.fill(color)         
+        s = pygame.Surface(rect.size)
+        s.set_alpha(opacity)        
+        s.fill(color)
         screen.blit(s, (rect.x, rect.y))
     
     def add_letters(self, screen, square, playing_field):
@@ -144,7 +153,7 @@ class Board:
     def select_block(self, pos: tuple):
         x, y = pos
         piece_positions = [i.current_pos for i in self.pieces]
-        if self.drop_piece(x, y) == True or self.board_panel == None:
+        if self.drop_piece(x, y) or self.board_panel == None:
             return
         x, y = self._get_grid_position(x, y)
         if (x, y) not in self.movable_blocks or (x, y) not in self.capturables:
@@ -154,23 +163,14 @@ class Board:
             if self.selected_block in piece_positions:
                 if (self.pieces[piece_positions.index(self.selected_block)].turn == self.current_turn):
                     self.selected_piece = self.pieces[piece_positions.index(self.selected_block)]
+                    self.selected_piece.limited_moves = None
                     self.selected_piece.check_limit(self.check_state, self.pieces)
-                    self.movable_blocks = self.get_movable_blocks(self.selected_piece)
-                    self.capturables = self.get_capturable_blocks(self.selected_piece)
+                    self.movable_blocks = self.selected_piece.get_movement(self.pieces)
+                    self.capturables = self.selected_piece.get_capturables(self.pieces)
                 else:
                     self.draw_feedback(self.selected_block, RED, True)
                     self._reset_selected(True)
         return (x, y)
-
-    def get_movable_blocks(self, piece):
-        if piece.limited_moves == None:
-            return piece.get_movement(self.pieces)
-        return [i for i in piece.get_movement(self.pieces) if i in piece.limited_moves]
-    
-    def get_capturable_blocks(self, piece):
-        if self.threads == []:
-            return piece.get_capturables(self.pieces)
-        return [i.current_pos for i in self.threads if i.current_pos in piece.get_capturables(self.pieces)]
     
     def drag_piece(self, x, y):
         """
@@ -187,6 +187,7 @@ class Board:
             if (self.selected_block == i.current_pos and not self.holding_piece and not i.captured):
                 self.holding_piece = True
                 self.selected_piece = i
+                self.selected_piece.check_limit(self.check_state, self.pieces)
                 return
         
         if self.selected_piece is not None:
@@ -201,27 +202,28 @@ class Board:
             return False
         # converts x, y to grid position
         block_x, block_y = self._get_grid_position(x, y)
+        
         if self.selected_piece == None:
             return False
-        piece_positions = [p.current_pos for p in self.pieces]
         
-        if (self.selected_piece.current_pos == self.selected_piece.move_piece(block_x, block_y, self.current_turn, self.pieces) and self.selected_block != None):
-            self.pieces[self.pieces.index(self.selected_piece)].move_piece(
-                self.selected_block[0],
-                self.selected_block[1],
-                self.current_turn,
-                self.pieces
-            )
+        piece_positions = [p.current_pos for p in self.pieces]
+        prev_pos = self.selected_piece.current_pos
+        
+        self.selected_piece.move_piece(block_x, block_y, self.current_turn, self.pieces)
+        
+        if self.selected_piece.current_pos == prev_pos:
             return False
 
         if (block_x, block_y) in self.capturables:
             self.pieces[piece_positions.index((block_x, block_y))].destroy_piece()
             self.next_turn()
+            # self.turn_changes = True
             self._reset_selected()
             return True
         
         if (block_x, block_y) != self.selected_block:
             self.next_turn()
+            # self.turn_changes = True
             self._reset_selected()
             return True
         
@@ -230,12 +232,12 @@ class Board:
 
     def next_turn(self):
         self.turns = [p.turn for p in self.pieces]
-        self.handle_check()
         if self.current_turn < max(self.turns):
             self.current_turn += 1
         else:
             self.current_turn = min(self.turns)
         self.flip_places()  
+        self.handle_check()
 
     def flip_places(self):
         for piece in self.pieces:
@@ -267,9 +269,9 @@ class Board:
         self.selected_piece = None
         pawns1 = []
         pawns2 = []
-        for i in range(8):
-            pawns1.append(Pawn((i, 6), 0))
-            pawns2.append(Pawn((i, 1), 1))
+        # for i in range(8):
+        #     pawns1.append(Pawn((i, 6), 0))
+        #     pawns2.append(Pawn((i, 1), 1))
         rook1 = [Rook((0, 7), 0), Rook((0, 0), 1)]
         rook2 = [Rook((7, 7), 0), Rook((7, 0), 1)]
         knight1 = [Knight((1, 7), 0), Knight((1, 0), 1)]
@@ -283,7 +285,20 @@ class Board:
         self.pieces = self.manager.players[0].pieces + self.manager.players[1].pieces
     
     def handle_check(self):
+        self.check_state = None
         for piece in self.pieces:
             if piece.piece_name == 'king' and piece.is_check(self.pieces, piece.current_pos):
                 self.check_state = piece.turn
-                self.threads = piece.threads
+                
+    def game_state(self, playing_text = 'Playing', check_text = 'Check', gameover_text = 'Check-Mate'):
+        '''
+            returns @playing_text if the game is still going
+            returns @check_text if its a check! 
+            returns @gameover_text if its a check-mate!
+        '''
+        if self.check_state == None:
+            return playing_text
+        for i, piece in enumerate(self.pieces):
+            if len(piece.get_movement(self.pieces)) > 0 or len(piece.get_capturables(self.pieces)) > 0:
+                return check_text
+        return gameover_text
