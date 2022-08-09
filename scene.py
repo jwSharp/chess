@@ -641,7 +641,7 @@ class Game(Scene):
 
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
-        if event.type == pygame.USEREVENT and self.timer_1 != None:
+        if event.type == pygame.USEREVENT and self.timer_1 != None and self.board.game_state() != 'Check-Mate':
             if self.board.current_turn == 0:
                 self.timer_1.update()
             if self.board.current_turn == 1:
@@ -670,6 +670,15 @@ class Game(Scene):
         # Board
         self.board.draw(screen)
         # Game State Text (for debug)
+        
+        if self.board.made_a_turn:
+            self.board.handle_check()
+            if self.board.current_turn == 1:
+                self.timer_1.add_additional(self.time[1])
+            else:
+                self.timer_2.add_additional(self.time[1])
+            self.board.made_a_turn = False
+            
         self.game_state_text = GET_FONT("elephant", 30).render(self.board.game_state(), True, OAK)
         screen.blit(self.game_state_text, self.game_state_text.get_rect(center=(self.board.board_panel.centerx, screen.get_height() - 30)))
         

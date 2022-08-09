@@ -82,6 +82,11 @@ class Timer:
             self.second = str(0) + str(self.second)
         self.timer = f"{self.minute}:{self.second}"
 
-    def add_additional(self):
-        pass #TODO: Add additional seconds
-
+    def add_additional(self, additional_seconds):
+        self.minute = int(self.minute)
+        self.second = int(self.second)
+        self.second += additional_seconds
+        if self.second > 59:
+            self.minute += 1
+            self.second = self.second - 59
+        self.format_time()
