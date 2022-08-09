@@ -9,7 +9,8 @@ class Piece:
         self.sprite = None
         self.image_path = None
         self.piece_moves = None
-        self.limited_moves = None
+        # self.limited_moves = None
+        self.disabled_moves = []
         self.piece_attacks = None
         self.locked = False
         self.protectors = []
@@ -27,31 +28,6 @@ class Piece:
     def update(self, pieces=[]):
         pass
 
-    def check_limit(self, check_state, pieces):
-        # self.limited_moves = None
-        king = self.get_piece('king', pieces)
-        king.is_check(pieces, king.current_pos)
-        hold_pos = self.current_pos
-        self.threads = king.threading_pieces
-        
-        for i, move in enumerate(self.get_movement(pieces)):
-            self.force_move(move[0], move[1], count_move=False)
-            if not king.is_check(pieces, king.current_pos):
-                if self.limited_moves == None:
-                    self.limited_moves = [move]
-                else:
-                    self.limited_moves.append(move)
-            else:
-                # print(f'King will get checked at {move}')
-                for thread in king.threading_pieces:
-                    if thread not in self.threads and thread.current_pos in self.capturables:
-                        self.threads.append(thread)
-            self.force_move(hold_pos[0], hold_pos[1], count_move=False)
-        
-        if king.turn == check_state and self.limited_moves == None:
-            self.limited_moves = []
-        return self.limited_moves
-    
     def draw(self, screen, blit_size: (int, int), panel):
         if self.image_path == None or self.pos == None:
             return
@@ -73,7 +49,7 @@ class Piece:
             self.current_pos = (x, y)
             self.pos = (x, y)
             self.move_count += 1
-            self.limited_moves = None
+            # self.limited_moves = None
             self.threads = []
         else:
             self.pos = self.current_pos
@@ -106,7 +82,7 @@ class Piece:
         for move in list(self.piece_moves):
             if self.current_pos == None:
                 continue
-            pos = self.get_movable_blocks(move)
+            pos = self.add_to_pos(move)
             
             for p in pos:
                 if p not in piece_positions:
@@ -118,9 +94,10 @@ class Piece:
             else:
                 blocks += pos
         # print(self.limited_moves)
-        if self.limited_moves == None:
-            return blocks
-        return [b for b in blocks if b in self.limited_moves]
+        if self.disabled_moves == []:
+            return [b for b in blocks if b[0] in range(0, 8) and b[1] in range(0, 8)]
+        self.capturables = [c for c in self.capturables if c not in self.disabled_moves]
+        return [b for b in blocks if b not in self.disabled_moves and b[0] in range(0, 8) and b[1] in range(0, 8)]
 
     def get_capturables(self, other_pieces):
         if self.piece_attacks == None:
@@ -134,31 +111,19 @@ class Piece:
             for attack in list(self.piece_attacks):
                 if self.current_pos == None:
                     continue
-                pos = self.get_movable_blocks(attack)
+                pos = self.add_to_pos(attack)
                 for p in pos:
-                    if p in piece_positions:
+                    if p in piece_positions and p not in self.disabled_moves:
                         piece = other_pieces[piece_positions.index(p)]
                         if piece.turn != self.turn:
                             self.capturables.append(p)
                         break
-    
-        if len(self.threads) > 1 or (self.limited_moves == [] and self.threads == []):
-            self.capturables = []
-        elif len(self.threads) == 1:
-            if self.threads[0].current_pos in self.capturables:
-                if self.piece_name != 'king': 
-                    self.capturables = [self.threads[0].current_pos]
-                elif not self.threads[0].is_protected(other_pieces): 
-                    # print(self.threads[0].protectors)
-                    self.capturables = [self.threads[0].current_pos]
-                else: 
-                    self.capturables = []
         return self.capturables
 
-    def get_movable_blocks(self, move: str):
+    def add_to_pos(self, move: str):
         return [
             (self.current_pos[0] + j[0], self.current_pos[1] - j[1])
-            for j in self.movable_blocks(move)
+            for j in self.decode_move(move)
         ]
         
     def reflect_place(self):
@@ -192,7 +157,7 @@ class Piece:
             new_move.append(new_points)
         return new_move
 
-    def movable_blocks(self, area: list) -> [(int, int)]:
+    def decode_move(self, area: list) -> [(int, int)]:
         '''
             Return all possible blocks as a list
         '''
@@ -309,10 +274,35 @@ class King(Piece):
         self.threading_pieces = []
         self.capturables = []
     
+    def set_disabled_moves(self, pieces):
+        openents = [p for p in pieces if p.turn != self.turn]
+        openents_positions = [p.current_pos for p in openents]
+        for piece in pieces:
+            piece.disabled_moves = []
+            hold_pos = piece.current_pos
+            destroyed_piece = None
+            if piece.turn != self.turn:
+                continue
+            for move in (piece.get_movement(pieces) + piece.get_capturables(pieces)):
+                piece.force_move(move[0], move[1], False)
+                if piece.current_pos in openents_positions:
+                    destroyed_piece = openents[openents_positions.index(move)]
+                    pieces.remove(destroyed_piece)
+                if self.is_check(pieces, self.current_pos):
+                    piece.disabled_moves.append(move)
+                if destroyed_piece != None:
+                    pieces.append(destroyed_piece)
+                    destroyed_piece = None
+                piece.force_move(hold_pos[0], hold_pos[1], False)
+            # if len(piece.disabled_moves) >= len(piece.get_movement(pieces) + piece.get_capturables(pieces)):
+            #     piece.locked = True
+            # else:
+            #     piece.locked = False
+            # print(piece.piece_name, piece.disabled_moves)
+    
     def is_check(self, pieces: Piece, pos) -> bool:
         self.threading_pieces = []
-        oponent_pieces = [p for p in pieces if p.turn != self.turn]
-        for piece in oponent_pieces:
-            if pos in piece.get_capturables(pieces):
+        for piece in pieces:
+            if piece.turn != self.turn and pos in piece.get_capturables(pieces):
                 self.threading_pieces.append(piece)
         return len(self.threading_pieces) > 0

@@ -13,6 +13,7 @@ class Board:
         self.board_panel = None
         self.check_state = None
         self.threads = []
+        self.made_a_turn = False
         # self.turn_changes = False
         # self.delay = 0.5
         self._reset_selected()
@@ -55,6 +56,7 @@ class Board:
         self.add_texture(screen, board)
         self.add_border(screen, playing_field)
         self.draw_pieces(screen)
+        
 
     def draw_squares(self,screen, playing_field):
         sq_width, sq_height = playing_field.width/8, playing_field.height/8
@@ -163,8 +165,8 @@ class Board:
             if self.selected_block in piece_positions:
                 if (self.pieces[piece_positions.index(self.selected_block)].turn == self.current_turn):
                     self.selected_piece = self.pieces[piece_positions.index(self.selected_block)]
-                    self.selected_piece.limited_moves = None
-                    self.selected_piece.check_limit(self.check_state, self.pieces)
+                    # print(self.selected_piece.get_movement(self.pieces))
+                    self.handle_check()
                     self.movable_blocks = self.selected_piece.get_movement(self.pieces)
                     self.capturables = self.selected_piece.get_capturables(self.pieces)
                 else:
@@ -187,7 +189,7 @@ class Board:
             if (self.selected_block == i.current_pos and not self.holding_piece and not i.captured):
                 self.holding_piece = True
                 self.selected_piece = i
-                self.selected_piece.check_limit(self.check_state, self.pieces)
+                # self.selected_piece.check_limit(self.check_state, self.pieces)
                 return
         
         if self.selected_piece is not None:
@@ -236,8 +238,9 @@ class Board:
             self.current_turn += 1
         else:
             self.current_turn = min(self.turns)
-        self.flip_places()  
+        self.flip_places()
         self.handle_check()
+        self.made_a_turn = True
 
     def flip_places(self):
         for piece in self.pieces:
@@ -269,9 +272,9 @@ class Board:
         self.selected_piece = None
         pawns1 = []
         pawns2 = []
-        # for i in range(8):
-        #     pawns1.append(Pawn((i, 6), 0))
-        #     pawns2.append(Pawn((i, 1), 1))
+        for i in range(8):
+            pawns1.append(Pawn((i, 6), 0))
+            pawns2.append(Pawn((i, 1), 1))
         rook1 = [Rook((0, 7), 0), Rook((0, 0), 1)]
         rook2 = [Rook((7, 7), 0), Rook((7, 0), 1)]
         knight1 = [Knight((1, 7), 0), Knight((1, 0), 1)]
@@ -280,15 +283,18 @@ class Board:
         bishop2 = [Bishop((5, 7), 0), Bishop((5, 0), 1)]
         queen = [Queen((3, 7), 0), Queen((3, 0), 1)]
         king = [King((4, 7), 0), King((4, 0), 1)]
-        self.manager.players[0].pieces = [rook1[0], rook2[0], knight1[0], knight2[0], bishop1[0], bishop2[0], queen[0], king[0]] + pawns1
-        self.manager.players[1].pieces = [rook1[1], rook2[1], knight1[1], knight2[1], bishop1[1], bishop2[1], queen[1], king[1]] + pawns2
+        self.manager.players[0].pieces = [rook1[0], rook2[0], bishop1[0], bishop2[0], knight1[0], knight2[0], queen[0], king[0]] + pawns1
+        self.manager.players[1].pieces = [rook1[1], rook2[1], bishop1[1], bishop2[1], knight1[1], knight2[1], queen[1], king[1]] + pawns2
         self.pieces = self.manager.players[0].pieces + self.manager.players[1].pieces
     
     def handle_check(self):
         self.check_state = None
         for piece in self.pieces:
-            if piece.piece_name == 'king' and piece.is_check(self.pieces, piece.current_pos):
-                self.check_state = piece.turn
+            if piece.piece_name == 'king':
+                if piece.turn == self.current_turn:
+                    piece.set_disabled_moves(self.pieces)
+                if piece.is_check(self.pieces, piece.current_pos):
+                    self.check_state = piece.turn
                 
     def game_state(self, playing_text = 'Playing', check_text = 'Check', gameover_text = 'Check-Mate'):
         '''
@@ -298,7 +304,8 @@ class Board:
         '''
         if self.check_state == None:
             return playing_text
-        for i, piece in enumerate(self.pieces):
-            if len(piece.get_movement(self.pieces)) > 0 or len(piece.get_capturables(self.pieces)) > 0:
+        turn_pieces = [p for p in self.pieces if p.turn == self.current_turn]
+        for piece in turn_pieces:
+            if len(piece.get_movement(self.pieces)) > 1 or len(piece.get_capturables(self.pieces)) > 1:
                 return check_text
         return gameover_text
