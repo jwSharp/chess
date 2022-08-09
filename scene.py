@@ -363,8 +363,8 @@ class Game(Scene):
     def __init__(self, manager, time: (int, int)):
         self.manager = manager
 
-        print(self.manager.players)
-        print(self.time)
+        # print(self.manager.players)
+        # print(self.time)
 
 
 class Options(Scene):
@@ -617,6 +617,9 @@ class Game(Scene):
         self.manager = manager
         self.time = time
         pygame.time.set_timer(pygame.USEREVENT, 1000)
+        
+        # Board
+        self.board = Board(self.manager)
 
         if self.time == (0, 0): # Unlimited Time
             self.timer_1 = None
@@ -635,9 +638,6 @@ class Game(Scene):
         font = GET_FONT("ocr", 58)
         self.menu_text = font.render("Menu", True, BLACK, GREY)
         self.exit_text = font.render("Exit", True, BLACK, GREY)
-        
-        # Board
-        self.board = Board(self.manager)
 
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
@@ -669,6 +669,9 @@ class Game(Scene):
 
         # Board
         self.board.draw(screen)
+        # Game State Text (for debug)
+        self.game_state_text = GET_FONT("elephant", 30).render(self.board.game_state(), True, OAK)
+        screen.blit(self.game_state_text, self.game_state_text.get_rect(center=(self.board.board_panel.centerx, screen.get_height() - 30)))
         
         # Game Frame
         self._draw_frame(screen, left_wing, right_wing)
