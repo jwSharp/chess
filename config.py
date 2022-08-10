@@ -7,7 +7,7 @@ from pathlib import Path
 ##########
 ASPECT_RATIO = (17, 10)
 HEIGHT = 800
-WIDTH = 1220
+WIDTH = 1280
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 CLOCK = pygame.time.Clock()
 pygame.init()
