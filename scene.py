@@ -616,6 +616,7 @@ class Game(Scene):
         '''For timed and untimed chess matches.'''
         self.manager = manager
         self.time = time
+        self.turn_count = 0
         pygame.time.set_timer(pygame.USEREVENT, 1000)
         
         # Board
@@ -641,11 +642,12 @@ class Game(Scene):
 
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
-        if event.type == pygame.USEREVENT and self.timer_1 != None and self.board.game_state() != 'Check-Mate':
-            if self.board.current_turn == 0:
-                self.timer_1.update()
-            if self.board.current_turn == 1:
-                self.timer_2.update()
+        if event.type == pygame.USEREVENT:
+            if self.board.game_state() != 'Check-Mate' and self.turn_count != 0:
+                if self.board.current_turn == 0 and self.timer_1 != None:
+                    self.timer_1.update()
+                if self.board.current_turn == 1 and self.timer_2 != None:
+                    self.timer_2.update()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 self.manager.pop()
@@ -673,10 +675,12 @@ class Game(Scene):
         
         if self.board.made_a_turn:
             self.board.handle_check()
-            if self.board.current_turn == 1:
-                self.timer_1.add_additional(self.time[1])
-            else:
-                self.timer_2.add_additional(self.time[1])
+            if self.turn_count != 0:
+                if self.board.current_turn == 1:
+                    self.timer_1.add_additional(self.time[1])
+                else:
+                    self.timer_2.add_additional(self.time[1])
+            self.turn_count += 1
             self.board.made_a_turn = False
             
         self.game_state_text = GET_FONT("elephant", 30).render(self.board.game_state(), True, OAK)
