@@ -10,9 +10,10 @@ from accessory import *
 
 class SceneManager:
     '''A stack of Scene objects that can pop/push next scene to top.'''
-    def __init__(self, players: [Player]):
+    def __init__(self, screen, players: [Player]):
         self.players = players
         self.scenes = []
+        self.screen = screen
 
     def enter(self):
         pass
@@ -70,7 +71,6 @@ class Scene:
 class MainMenuScene(Scene):
     def __init__(self, manager):
         self.manager = manager
-
         self.text = GET_FONT('Regular', 100).render("MAIN MENU", True, ORANGE)
         self.text_rect = self.text.get_rect(center=(640, 100))
 
@@ -616,6 +616,8 @@ class Game(Scene):
     def __init__(self, manager, time=(0, 0)):
         '''For timed and untimed chess matches.'''
         self.manager = manager
+        screen = self.manager.screen
+        #self.manager.screen = screen #not working -- work after MVP
         self.time = time
         pygame.time.set_timer(pygame.USEREVENT, 1000)
 
@@ -627,6 +629,24 @@ class Game(Scene):
         #! TODO: Change "flat" to view when menu button available
         self.board = Board(self.manager,"iso")
 
+        # Text no longer immediately responsive, but looks good if window is set before entering gameplay.
+        # Logo Text
+        font = GET_FONT("elephant", screen.get_width() // 23)
+        self.retro_text = font.render("Retro", True, GOLD)
+        self.modern_text = font.render("Modern", True, GOLD)
+        self.chess_text = font.render("Chess", True, GOLD)
+
+        # Player Text
+        font = GET_FONT('brushscript', screen.get_width() // 21)
+        self.player1_text = font.render(self.manager.players[0].name, True, GOLD)
+        self.player2_text = font.render(self.manager.players[1].name, True, GOLD)
+
+        # Menu Buttons
+
+        font = GET_FONT("ocr", screen.get_width() // 22)
+        self.menu_button = Button(None, (screen.get_width() * .9, screen.get_height() * .83), "Menu", font, WHITE, GOLD)
+        self.exit_button = Button(None, (screen.get_width() * .9, screen.get_height() * .92), "Exit", font, WHITE, GOLD)
+
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.USEREVENT:
@@ -636,6 +656,22 @@ class Game(Scene):
                 self.timer_2.update()
         mouse_pos = pygame.mouse.get_pos()
         self.board.input(event)
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.exit_button.input(mouse_pos):
+                pygame.quit()
+                sys.exit()
+        else:
+            pass
+
+            # if self.menu_button.input(mouse_pos):
+            #     self.manager.pop() # TimeSelection
+            #     scene = Game(self.manager)s
+            #     self.manager.push(scene)
+            #TODO: Add in-game options menu
+
+        self.menu_button.set_color(mouse_pos)
+        self.exit_button.set_color(mouse_pos)
 
     def draw(self, screen):
         '''
@@ -647,14 +683,16 @@ class Game(Scene):
         right_wing = self._draw_wings(screen)[1]
         self._add_graveyard(screen, left_wing, right_wing)
         self._add_timers(screen, left_wing, right_wing)
-        #!TODO Find out why these three lines are causing an Out of Memory error >:[ 
-        # self._add_logo_text(screen, "Retro", (left_wing.centerx, screen.get_height() * .81))
-        # self._add_logo_text(screen, "Modern", (left_wing.centerx, screen.get_height() * .87))
-        # self._add_logo_text(screen, "Chess", (left_wing.centerx, screen.get_height() * .93))
-        self._add_menu_buttons(screen, "Menu", (right_wing.centerx, right_wing.height * .82))
-        self._add_menu_buttons(screen, "Exit", (right_wing.centerx, right_wing.height * .92))
-        self._add_player_text(screen, left_wing, self.manager.players[0].name)
-        self._add_player_text(screen, right_wing, self.manager.players[1].name)
+        self._add_logo_text(screen, self.retro_text,(left_wing.centerx, screen.get_height() * .81))
+        self._add_logo_text(screen, self.modern_text, (left_wing.centerx, screen.get_height() * .87))
+        self._add_logo_text(screen, self.chess_text, (left_wing.centerx, screen.get_height() * .93))
+        # self._add_menu_buttons(screen, self.menu_text, (right_wing.centerx, right_wing.height * .82))
+        # self._add_menu_buttons(screen, self.exit_text, (right_wing.centerx, right_wing.height * .92))
+        self._add_player_text(screen, left_wing, self.player1_text)
+        self._add_player_text(screen, right_wing, self.player2_text)
+
+        self.menu_button.update(screen)
+        self.exit_button.update(screen)
         
         # Board
         self.board.draw(screen)  
@@ -751,26 +789,14 @@ class Game(Scene):
         pygame.draw.rect(screen, GOLD_SHADOW, left_shadow, 2)
         pygame.draw.rect(screen, GOLD_SHADOW, right_shadow, 2)
 
-    def _add_player_text(self, screen, placement, title):
+    def _add_player_text(self, screen, placement, player_text):
         '''Adds text, either "Player" or "Player 1", to the upper left corner of the gamebox.'''
-        playersFont = GET_FONT('brushscript', screen.get_width() // 20)
-        player_text = playersFont.render(title, True, GOLD)
-        player_text_rect = player_text.get_rect()
-        player_text_rect.centerx = placement.centerx
-        player_text_rect.centery = placement.height * .08
+        screen.blit(player_text, player_text.get_rect(centerx=placement.centerx, centery = placement.height * 0.07))
 
-        screen.blit(player_text, player_text_rect)
-
-    def _add_menu_buttons(self, screen, wording, placement):
-        # Menu Buttons
-        font = GET_FONT("ocr", screen.get_width() // 21)
-        button_text = font.render(wording, True, BLACK, GREY)
+    def _add_menu_buttons(self, screen, button_text, placement):
         screen.blit(button_text, button_text.get_rect(center=placement))
 
-    def _add_logo_text(self, screen, wording, placement):
-        font = pygame.font.SysFont('elephant', screen.get_width() * 24)
-        logo_text = font.render(wording, True, GOLD)
-
+    def _add_logo_text(self, screen, logo_text, placement):
         screen.blit(logo_text, logo_text.get_rect(centerx=placement[0], centery=placement[1]))
 
 
