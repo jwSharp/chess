@@ -93,11 +93,11 @@ class Piece:
                     break
             else:
                 blocks += pos
-        # print(self.limited_moves)
+        
         if self.disabled_moves == []:
-            return [b for b in blocks if b[0] in range(0, 8) and b[1] in range(0, 8)]
+            return blocks
         self.capturables = [c for c in self.capturables if c not in self.disabled_moves]
-        return [b for b in blocks if b not in self.disabled_moves and b[0] in range(0, 8) and b[1] in range(0, 8)]
+        return [b for b in blocks if b not in self.disabled_moves]
 
     def get_capturables(self, other_pieces):
         if self.piece_attacks == None:
@@ -123,7 +123,8 @@ class Piece:
     def add_to_pos(self, move: str):
         return [
             (self.current_pos[0] + j[0], self.current_pos[1] - j[1])
-            for j in self.decode_move(move)
+            for j in self.decode_move(move) 
+            if self.current_pos[0] + j[0] in range(0, 8) and self.current_pos[1] - j[1] in range(0, 8)
         ]
         
     def reflect_place(self):
