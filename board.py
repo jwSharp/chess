@@ -14,6 +14,8 @@ class Board:
         self.check_state = None
         self.threads = []
         self.made_a_turn = False
+        self.pause = False
+        self.needs_change = None
         # self.turn_changes = False
         # self.delay = 0.5
         self._reset_selected()
@@ -57,6 +59,8 @@ class Board:
         self.add_border(screen, playing_field)
         self.draw_pieces(screen)
         
+        # if self.needs_change != None:
+        #     self.draw_piece_selection(screen)
 
     def draw_squares(self,screen, playing_field):
         sq_width, sq_height = playing_field.width/8, playing_field.height/8
@@ -90,7 +94,10 @@ class Board:
             piece.update(self.pieces)
             if piece == self.selected_piece:
                 continue
-            piece.draw(screen, (img_width, img_height), self.board_panel)
+            if self.current_turn == 0:
+                piece.draw(screen, (img_width, img_height), self.board_panel, 180 if piece.turn == 0 else 0)
+            else:
+                piece.draw(screen, (img_width, img_height), self.board_panel, 0 if piece.turn == 0 else 180)
         if self.selected_piece != None:
             self.selected_piece.draw(screen, (img_width, img_height), self.board_panel)
     
@@ -105,6 +112,23 @@ class Board:
         s.set_alpha(opacity)        
         s.fill(color)
         screen.blit(s, (rect.x, rect.y))
+    
+    def pawn_at_end(self):
+        target_pos_y = 0 if self.current_turn == 0 else 7
+        for p in self.pieces:
+            if p.piece_name == 'pawn' and p.current_pos != None:
+                if p.turn == self.current_turn and p.current_pos[1] == target_pos_y:
+                    self.needs_change = p
+                    return True
+        return False
+                
+    def change_piece(self, piece):
+        if self.needs_change == None or self.needs_change not in self.pieces:
+            return
+        piece.current_pos = self.needs_change.current_pos
+        self.pieces.remove(self.needs_change)
+        self.pieces.append(piece)
+        self.needs_change = None
     
     def add_letters(self, screen, square, playing_field):
         letters = ["A", "B", "C", "D", "E", "F", "G", "H"]
@@ -155,6 +179,8 @@ class Board:
     def select_block(self, pos: tuple):
         x, y = pos
         piece_positions = [i.current_pos for i in self.pieces]
+        if self.pause:
+            return
         if self.drop_piece(x, y) or self.board_panel == None:
             return
         x, y = self._get_grid_position(x, y)
@@ -179,7 +205,7 @@ class Board:
         Since draw_pieces renders the piece by its position, drag_piece changes
         the position of the held piece to the mouse position until drop_piece runs.
         """
-        if self.board_panel == None:
+        if self.board_panel == None or self.pause:
             return
         
         block_size = self.board_panel.width / 8
@@ -233,6 +259,11 @@ class Board:
         return False
 
     def next_turn(self):
+        if self.pawn_at_end():
+            self.pause = True
+            return
+        self.pause = False
+        self.pawn_change = False
         self.turns = [p.turn for p in self.pieces]
         if self.current_turn < max(self.turns):
             self.current_turn += 1
@@ -306,6 +337,6 @@ class Board:
             return playing_text
         turn_pieces = [p for p in self.pieces if p.turn == self.current_turn]
         for piece in turn_pieces:
-            if len(piece.get_movement(self.pieces)) > 1 or len(piece.get_capturables(self.pieces)) > 1:
+            if len(piece.get_movement(self.pieces)) > 1 or len(piece.get_capturables(self.pieces)) > 0:
                 return check_text
         return gameover_text
