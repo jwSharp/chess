@@ -643,7 +643,7 @@ class Game(Scene):
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.USEREVENT:
-            if self.board.game_state() != 'Check-Mate' and self.turn_count != 0:
+            if self.board.game_state() != 'Check-Mate' and self.turn_count != 0 and not self.board.pause:
                 if self.board.current_turn == 0 and self.timer_1 != None:
                     self.timer_1.update()
                 if self.board.current_turn == 1 and self.timer_2 != None:
@@ -708,6 +708,11 @@ class Game(Scene):
         self._add_player_text(screen, left_wing, self.manager.players[0].name)
         self._add_player_text(screen, right_wing, self.manager.players[1].name)
         
+        if self.board.needs_change != None:
+            self.draw_piece_selection(screen)
+    
+    def draw_piece_selection(self, screen):
+        pass # TODO: draw piece selection popup.
         
     def _draw_frame(self, screen, left_wing, right_wing):
         self._add_wings(screen, left_wing, right_wing)
