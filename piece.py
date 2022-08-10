@@ -28,13 +28,14 @@ class Piece:
     def update(self, pieces=[]):
         pass
 
-    def draw(self, screen, blit_size: (int, int), panel):
+    def draw(self, screen, blit_size: (int, int), panel, rotate = 0):
         if self.image_path == None or self.pos == None:
             return
         self.sprite = pygame.image.load(self.image_path)
         x, y = self.pos
         x_pos = x * panel.width / 8 + (panel.x + 5)
         y_pos = y * panel.height / 8 + (panel.y + 5)
+        self.sprite = pygame.transform.rotate(self.sprite, rotate)
         self.sprite = pygame.transform.smoothscale(self.sprite, blit_size)
         screen.blit(self.sprite, (x_pos, y_pos))
      
