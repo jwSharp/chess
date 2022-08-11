@@ -38,12 +38,6 @@ class Piece:
         self.sprite = pygame.transform.rotate(self.sprite, rotate)
         self.sprite = pygame.transform.smoothscale(self.sprite, blit_size)
         screen.blit(self.sprite, (x_pos, y_pos))
-     
-    def get_piece(self, name, pieces):  
-        for piece in pieces:
-            if piece.piece_name == name and piece.turn == self.turn:
-                return piece
-        return None
     
     def move_piece(self, x, y, current_turn=0, other_pieces=[]) -> (int, int):
         if self.can_move(x, y, other_pieces) and self.turn == current_turn and not self.locked:
@@ -104,9 +98,7 @@ class Piece:
         if self.piece_attacks == None:
             self.get_movement(other_pieces)
         else:
-            piece_positions = []
-            for p in other_pieces:
-                piece_positions.append(p.current_pos)
+            piece_positions = [p.current_pos for p in other_pieces]
 
             self.capturables = []
             for attack in list(self.piece_attacks):
@@ -225,11 +217,8 @@ class Piece:
             self.turn = min(piece_turns)
 
     def is_protected(self, pieces) -> bool:
-        friends = [p for p in pieces if p.turn == self.turn]
         self._change_turn(pieces)
-        for piece in friends:
-            if self.current_pos in piece.get_capturables(pieces):
-                self.protectors.append(piece)
+        self.protectors = [p for p in pieces if p.turn == self.turn and self.current_pos in p.get_capturables(pieces)]
         self._change_turn(pieces)
         return len(self.protectors) > 0
 
@@ -296,15 +285,7 @@ class King(Piece):
                     pieces.append(destroyed_piece)
                     destroyed_piece = None
                 piece.force_move(hold_pos[0], hold_pos[1], False)
-            # if len(piece.disabled_moves) >= len(piece.get_movement(pieces) + piece.get_capturables(pieces)):
-            #     piece.locked = True
-            # else:
-            #     piece.locked = False
-            # print(piece.piece_name, piece.disabled_moves)
     
     def is_check(self, pieces: Piece, pos) -> bool:
-        self.threading_pieces = []
-        for piece in pieces:
-            if piece.turn != self.turn and pos in piece.get_capturables(pieces):
-                self.threading_pieces.append(piece)
+        self.threading_pieces = [piece for piece in pieces if piece.turn != self.turn and pos in piece.get_capturables(pieces)]
         return len(self.threading_pieces) > 0

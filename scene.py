@@ -661,6 +661,9 @@ class Game(Scene):
         wing_width = screen.get_width() * .20
         wing_height = screen.get_height()
 
+        # Board
+        self.board.draw(screen)
+        
         left_wing = pygame.Rect(0, 0, wing_width, wing_height)
         right_wing = pygame.Rect(0, 0, wing_width, wing_height)
         left_wing.topleft = (0, 0)
@@ -669,8 +672,6 @@ class Game(Scene):
         pygame.draw.rect(screen, GOLD, left_wing, 6)
         pygame.draw.rect(screen, GOLD, right_wing, 6)
 
-        # Board
-        self.board.draw(screen)
         # Game State Text (for debug)
         
         if self.board.made_a_turn:

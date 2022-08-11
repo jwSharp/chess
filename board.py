@@ -9,13 +9,12 @@ from piece import *
 class Board:
     def __init__(self, manager):
         self.manager = manager
+        self.blocks = [(x, y) for x in range(8) for y in range(8)]
         self.current_turn = 0
         self.board_panel = None
         self.check_state = None
-        self.threads = []
         self.made_a_turn = False
         self.pause = False
-        self.needs_change = None
         # self.turn_changes = False
         # self.delay = 0.5
         self._reset_selected()
@@ -31,6 +30,18 @@ class Board:
                 self.drop_piece(mouse_pos[0], mouse_pos[1])
         elif pygame.mouse.get_pressed()[0]:  # if dragging, move the piece
             self.drag_piece(mouse_pos[0], mouse_pos[1])
+        elif event.type == pygame.KEYDOWN:
+            if self.needs_change:
+                pos = self.needs_change.current_pos
+                turn = self.needs_change.turn
+                if event.key == pygame.K_1:
+                    self.change_piece(Queen(pos, turn), True)
+                elif event.key == pygame.K_2:
+                    self.change_piece(Bishop(pos, turn), True)
+                elif event.key == pygame.K_3:
+                    self.change_piece(Knight(pos, turn), True)
+                elif event.key == pygame.K_4:
+                    self.change_piece(Rook(pos, turn), True)
         # if event.type == pygame.USEREVENT and self.turn_changes:
         #     if self.delay > 0:
         #         self.delay -= 1
@@ -58,42 +69,47 @@ class Board:
         self.add_texture(screen, board)
         self.add_border(screen, playing_field)
         self.draw_pieces(screen)
+        if self.needs_change == None:
+            self.pause = False
+        else:
+            self.pause = True
         
         # if self.needs_change != None:
         #     self.draw_piece_selection(screen)
 
     def draw_squares(self,screen, playing_field):
         sq_width, sq_height = playing_field.width/8, playing_field.height/8
-        square = pygame.Rect(0, 0, sq_width, sq_height)
-        for x in range (0, 8):
-            for y in range(0, 8):
-                sq_left = x * sq_width + playing_field.x
-                sq_top = y * sq_height + playing_field.y
-                sq = pygame.Rect(sq_left, sq_top, sq_width, sq_height)
-                
-                if (x + y) % 2 == 0:
-                    pygame.draw.rect(screen, OAK, sq)
-                else:
-                    pygame.draw.rect(screen, BROWN, sq)
-                if (x, y) in self.feedback_blocks:
-                    pygame.draw.rect(screen, self.feedback_blocks[(x, y)], sq, 5)
-                elif (x, y) == self.selected_block:
-                    self.draw_rect(screen, LIGHT_GREEN, sq, 300)
-                if (x, y) in self.movable_blocks:
-                    self.draw_rect(screen, LIGHT_GREEN, sq, 300)
-                if (x, y) in self.capturables:
-                    pygame.draw.rect(screen, RED, sq, 3)
+        square = pygame.Rect(self.board_panel.left, self.board_panel.top, sq_width, sq_height)
+        for x, y in self.blocks:
+            sq_left = x * sq_width + playing_field.x
+            sq_top = y * sq_height + playing_field.y
+            sq = pygame.Rect(sq_left, sq_top, sq_width, sq_height)
+            
+            if (x + y) % 2 == 0:
+                pygame.draw.rect(screen, OAK, sq)
+            else:
+                pygame.draw.rect(screen, BROWN, sq)
+            if (x, y) in self.feedback_blocks:
+                pygame.draw.rect(screen, self.feedback_blocks[(x, y)], sq, 5)
+            elif (x, y) == self.selected_block:
+                self.draw_rect(screen, LIGHT_GREEN, sq, 300)
+            if (x, y) in self.movable_blocks:
+                self.draw_rect(screen, LIGHT_GREEN, sq, 300)
+            if (x, y) in self.capturables:
+                pygame.draw.rect(screen, RED, sq, 3)
         
-        self.add_letters(screen, square, playing_field)
-        self.add_numbers(screen, square, playing_field)
+        self.add_labels(screen, square, playing_field)
     
     def draw_pieces(self, screen):
         img_width = self.board_panel.width / 8 - 10
         img_height = self.board_panel.height / 8 - 10
         for piece in self.pieces:
             piece.update(self.pieces)
+            
             if piece == self.selected_piece:
                 continue
+            if self.made_a_turn:
+                piece.reflect_place()
             if self.current_turn == 0:
                 piece.draw(screen, (img_width, img_height), self.board_panel, 180 if piece.turn == 0 else 0)
             else:
@@ -113,46 +129,27 @@ class Board:
         s.fill(color)
         screen.blit(s, (rect.x, rect.y))
     
-    def pawn_at_end(self):
-        target_pos_y = 0 if self.current_turn == 0 else 7
-        for p in self.pieces:
-            if p.piece_name == 'pawn' and p.current_pos != None:
-                if p.turn == self.current_turn and p.current_pos[1] == target_pos_y:
-                    self.needs_change = p
-                    return True
-        return False
-                
-    def change_piece(self, piece):
-        if self.needs_change == None or self.needs_change not in self.pieces:
-            return
-        piece.current_pos = self.needs_change.current_pos
-        self.pieces.remove(self.needs_change)
-        self.pieces.append(piece)
-        self.needs_change = None
-    
-    def add_letters(self, screen, square, playing_field):
+    def add_labels(self, screen, square, playing_field):
         letters = ["A", "B", "C", "D", "E", "F", "G", "H"]
         label_font = pygame.font.SysFont('arial', 36, bold = True)
+        number_font = pygame.font.SysFont('arial', 40, bold = True)
 
         for i in range (0, 8):
             label_text = label_font.render(letters[i], True, DARK_OAK)
             label_rect = label_text.get_rect()
-            label_rect.centerx = square.centerx + self.board_panel.x
+            label_rect.centerx = square.centerx
             label_rect.centery = self.board_panel.top - square.height / 2
             screen.blit(label_text, label_rect)
             square.left += square.width
-        square.topleft = playing_field.topleft
-
-    def add_numbers(self, screen,square, playing_field):
-        label_font = pygame.font.SysFont('arial', 40, bold=True)
-
-        for i in range (1, 9):
-            number_text = label_font.render(str(i), True, DARK_OAK)
+            
+            number_text = number_font.render(str(i + 1), True, DARK_OAK)
             number_rect = number_text.get_rect()
             number_rect.centerx = playing_field.left - playing_field.width * 0.05
             number_rect.centery = square.centery
             screen.blit(number_text, number_rect)
             square.top += square.height
+        
+        square.topleft = playing_field.topleft
 
     def add_texture(self, screen, board):
         texture = pygame.image.load(TEXTURE_PATH + "wood_grain.png")
@@ -211,11 +208,11 @@ class Board:
         block_size = self.board_panel.width / 8
         x = (x - self.board_panel.x) / block_size - 0.5
         y = (y - self.board_panel.y) / block_size - 0.5
+        
         for i in self.pieces:
             if (self.selected_block == i.current_pos and not self.holding_piece and not i.captured):
                 self.holding_piece = True
                 self.selected_piece = i
-                # self.selected_piece.check_limit(self.check_state, self.pieces)
                 return
         
         if self.selected_piece is not None:
@@ -244,12 +241,14 @@ class Board:
 
         if (block_x, block_y) in self.capturables:
             self.pieces[piece_positions.index((block_x, block_y))].destroy_piece()
+            self.pawn_at_end(self.selected_piece)
             self.next_turn()
             # self.turn_changes = True
             self._reset_selected()
             return True
         
         if (block_x, block_y) != self.selected_block:
+            self.pawn_at_end(self.selected_piece)
             self.next_turn()
             # self.turn_changes = True
             self._reset_selected()
@@ -257,25 +256,33 @@ class Board:
         
         self._reset_selected()
         return False
+    
+    def pawn_at_end(self, piece):
+        target_pos_y = 0 if self.current_turn == 0 else 7
+        if piece.piece_name == 'pawn' and piece.current_pos != None and piece.turn == self.current_turn and piece.current_pos[1] == target_pos_y:
+            self.needs_change = piece
+            return True
+        return False
+                
+    def change_piece(self, piece, change_turn = False):
+        if self.needs_change == None or self.needs_change not in self.pieces:
+            return
+        piece.current_pos = self.needs_change.current_pos
+        self.pieces.remove(self.needs_change)
+        self.pieces.append(piece)
+        self.needs_change = None
+        self.pause = False
+        if change_turn: self.next_turn()
 
     def next_turn(self):
-        if self.pawn_at_end():
-            self.pause = True
+        if self.pause or self.needs_change != None:
             return
-        self.pause = False
-        self.pawn_change = False
-        self.turns = [p.turn for p in self.pieces]
         if self.current_turn < max(self.turns):
             self.current_turn += 1
         else:
             self.current_turn = min(self.turns)
-        self.flip_places()
-        self.handle_check()
+        self.check_state = None
         self.made_a_turn = True
-
-    def flip_places(self):
-        for piece in self.pieces:
-            piece.reflect_place()
     
     def _update_board(self, board):
         self.board_panel = board
@@ -301,11 +308,10 @@ class Board:
         self.stuck_indicator = None
         self.holding_piece = False
         self.selected_piece = None
-        pawns1 = []
-        pawns2 = []
-        for i in range(8):
-            pawns1.append(Pawn((i, 6), 0))
-            pawns2.append(Pawn((i, 1), 1))
+        self.needs_change = None
+        self.threads = []
+        pawns1 = [Pawn((i, 6), 0) for i in range(8)]
+        pawns2 = [Pawn((i, 1), 1) for i in range(8)]
         rook1 = [Rook((0, 7), 0), Rook((0, 0), 1)]
         rook2 = [Rook((7, 7), 0), Rook((7, 0), 1)]
         knight1 = [Knight((1, 7), 0), Knight((1, 0), 1)]
@@ -317,6 +323,7 @@ class Board:
         self.manager.players[0].pieces = [rook1[0], rook2[0], bishop1[0], bishop2[0], knight1[0], knight2[0], queen[0], king[0]] + pawns1
         self.manager.players[1].pieces = [rook1[1], rook2[1], bishop1[1], bishop2[1], knight1[1], knight2[1], queen[1], king[1]] + pawns2
         self.pieces = self.manager.players[0].pieces + self.manager.players[1].pieces
+        self.turns = [p.turn for p in self.pieces]
     
     def handle_check(self):
         self.check_state = None
@@ -335,8 +342,4 @@ class Board:
         '''
         if self.check_state == None:
             return playing_text
-        turn_pieces = [p for p in self.pieces if p.turn == self.current_turn]
-        for piece in turn_pieces:
-            if len(piece.get_movement(self.pieces)) > 1 or len(piece.get_capturables(self.pieces)) > 0:
-                return check_text
-        return gameover_text
+        return check_text if any([len(piece.get_movement(self.pieces)) > 1 or len(piece.get_capturables(self.pieces)) > 0 for piece in self.pieces if piece.turn == self.current_turn]) else gameover_text
