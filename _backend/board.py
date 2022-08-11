@@ -1,7 +1,7 @@
 import pygame
 
 from config import *
-from accessory import *
+from _backend.accessory import *
 from player import *
 from piece import *
 
