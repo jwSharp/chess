@@ -3,8 +3,8 @@ import sys
 
 from config import *
 from player import *
-from board import *
-from accessory import *
+from board import Board
+from accessory import Button, Timer
 
 
 class SceneManager:
