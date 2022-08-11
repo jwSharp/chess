@@ -1,9 +1,9 @@
 import pygame
 
 from config import *
-from accessory import *
-from player import *
-from piece import *
+from accessory import Button, Timer
+# from player import *
+from piece import King, Queen, Rook, Bishop, Knight, Pawn
 
 
 class Board:
@@ -108,8 +108,6 @@ class Board:
             
             if piece == self.selected_piece:
                 continue
-            if self.made_a_turn:
-                piece.reflect_place()
             if self.current_turn == 0:
                 piece.draw(screen, (img_width, img_height), self.board_panel, 180 if piece.turn == 0 else 0)
             else:
@@ -240,6 +238,7 @@ class Board:
             return False
 
         if (block_x, block_y) in self.capturables:
+            self.captured_pieces.append(self.pieces[piece_positions.index((block_x, block_y))])
             self.pieces[piece_positions.index((block_x, block_y))].destroy_piece()
             self.pawn_at_end(self.selected_piece)
             self.next_turn()
@@ -258,7 +257,8 @@ class Board:
         return False
     
     def pawn_at_end(self, piece):
-        target_pos_y = 0 if self.current_turn == 0 else 7
+        # if self.current_turn == 0 else 7 ## if board is not turning
+        target_pos_y = 0
         if piece.piece_name == 'pawn' and piece.current_pos != None and piece.turn == self.current_turn and piece.current_pos[1] == target_pos_y:
             self.needs_change = piece
             return True
@@ -281,8 +281,13 @@ class Board:
             self.current_turn += 1
         else:
             self.current_turn = min(self.turns)
-        self.check_state = None
+        self.flip_places()
+        self.handle_check()
         self.made_a_turn = True
+
+    def flip_places(self):
+        for piece in self.pieces:
+            piece.reflect_place()
     
     def _update_board(self, board):
         self.board_panel = board
@@ -310,6 +315,7 @@ class Board:
         self.selected_piece = None
         self.needs_change = None
         self.threads = []
+        self.captured_pieces = []
         pawns1 = [Pawn((i, 6), 0) for i in range(8)]
         pawns2 = [Pawn((i, 1), 1) for i in range(8)]
         rook1 = [Rook((0, 7), 0), Rook((0, 0), 1)]
