@@ -1,7 +1,7 @@
 import pygame
 
 from config import *
-from scene import *
+from scene import SceneManager, MainMenuScene
 from player import *
 
 
