@@ -70,6 +70,7 @@ GREY = ('#99958D')
 OAK = ('#DBA16A')
 DARK_OAK = ('#341f0c')
 ORANGE = ('#b68f40')
+PURPLE = ('#cc5ced')
 
 ##########
 # Images #
