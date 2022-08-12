@@ -264,6 +264,8 @@ class King(Piece):
         self._set_sprite(turn, "king_top.png", "king_top.png")
         self.threading_pieces = []
         self.capturables = []
+        self.castling_blocks = []
+        self.check_count = 0
     
     def set_disabled_moves(self, pieces):
         openents = [p for p in pieces if p.turn != self.turn]
@@ -288,4 +290,52 @@ class King(Piece):
     
     def is_check(self, pieces: Piece, pos) -> bool:
         self.threading_pieces = [piece for piece in pieces if piece.turn != self.turn and pos in piece.get_capturables(pieces)]
-        return len(self.threading_pieces) > 0
+        check = len(self.threading_pieces) > 0
+        if check: self.check_count += 1
+        return check
+    
+    def check_castling(self, pieces):
+        self.castling_blocks = []
+        self.rooks_can_castle = []
+        rooks = [piece for piece in pieces if piece.turn == self.turn and piece.piece_name == 'rook']
+        if self.move_count > 0 or self.check_count > 0 or all(rook.move_count > 0 for rook in rooks):
+            return False
+        for rook in rooks:
+            if rook.move_count == 0:
+                if rook.current_pos == (0, 7):
+                    self.piece_moves += [('-1|-4', '0')]
+                    if rook.can_move(2, 7, pieces) and self.can_move(1, 7, pieces):
+                        self.castling_blocks += [(1, 7)]
+                        self.piece_moves += [('-4', '0')]
+                        self.rooks_can_castle.append(rook)
+                    else:
+                        if ('-4', '0') in self.piece_moves:
+                            self.piece_moves.remove(('-4', '0'))
+                    self.piece_moves.remove(('-1|-4', '0'))
+                elif rook.current_pos == (7, 7):
+                    self.piece_moves += [('1|3', '0')]
+                    if rook.can_move(5, 7, pieces) and self.can_move(6, 7, pieces):
+                        self.castling_blocks += [(6, 7)]
+                        self.piece_moves += [('3', '0')]
+                        self.rooks_can_castle.append(rook)
+                    else:
+                        if ('3', '0') in self.piece_moves:
+                            self.piece_moves.remove(('3', '0'))
+                    self.piece_moves.remove(('1|3', '0'))
+        return len(self.castling_blocks) > 0
+
+    def do_castling(self, block):
+        print(self.castling_blocks)
+        if block not in self.castling_blocks:
+            return
+        for rook in self.rooks_can_castle:
+            if block[0] + 1 == rook.current_pos[0]:
+                rook.force_move(5, 7, False)
+                self.force_move(6, 7)
+                break
+            elif block[0] - 1 == rook.current_pos[0]:
+                rook.force_move(2, 7, False)
+                self.force_move(1, 7)
+                break
+        return
+                

@@ -15,8 +15,6 @@ class Board:
         self.check_state = None
         self.made_a_turn = False
         self.pause = False
-        # self.turn_changes = False
-        # self.delay = 0.5
         self._reset_selected()
         self._reset_pieces()
 
@@ -42,14 +40,6 @@ class Board:
                     self.change_piece(Knight(pos, turn), True)
                 elif event.key == pygame.K_4:
                     self.change_piece(Rook(pos, turn), True)
-        # if event.type == pygame.USEREVENT and self.turn_changes:
-        #     if self.delay > 0:
-        #         self.delay -= 1
-        #     else:
-        #         self.delay = 0
-        #         self.next_turn()
-        #         self.turn_changes = False
-        #         self.delay = 0.5
 
     def draw(self, screen):
         screen_center = (screen.get_width()/2, screen.get_height()/2)
@@ -90,7 +80,7 @@ class Board:
             else:
                 pygame.draw.rect(screen, BROWN, sq)
             if (x, y) in self.feedback_blocks:
-                pygame.draw.rect(screen, self.feedback_blocks[(x, y)], sq, 5)
+                pygame.draw.rect(screen, self.feedback_blocks[(x, y)], sq)
             elif (x, y) == self.selected_block:
                 self.draw_rect(screen, LIGHT_GREEN, sq, 300)
             if (x, y) in self.movable_blocks:
@@ -186,8 +176,13 @@ class Board:
             if self.selected_block in piece_positions:
                 if (self.pieces[piece_positions.index(self.selected_block)].turn == self.current_turn):
                     self.selected_piece = self.pieces[piece_positions.index(self.selected_block)]
-                    # print(self.selected_piece.get_movement(self.pieces))
                     self.handle_check()
+                    if self.selected_piece.piece_name == 'king':
+                        if self.selected_piece.check_castling(self.pieces):
+                            for block in self.selected_piece.castling_blocks:
+                                self.castling_blocks += [tuple(block)]
+                                self.draw_feedback(block, PURPLE, False)
+
                     self.movable_blocks = self.selected_piece.get_movement(self.pieces)
                     self.capturables = self.selected_piece.get_capturables(self.pieces)
                 else:
@@ -228,6 +223,12 @@ class Board:
         
         if self.selected_piece == None:
             return False
+        if (block_x, block_y) in self.castling_blocks:
+            self.selected_piece.do_castling((block_x, block_y))
+            self.pawn_at_end(self.selected_piece)
+            self.next_turn()
+            self._reset_selected()
+            return True
         
         piece_positions = [p.current_pos for p in self.pieces]
         prev_pos = self.selected_piece.current_pos
@@ -242,14 +243,12 @@ class Board:
             self.pieces[piece_positions.index((block_x, block_y))].destroy_piece()
             self.pawn_at_end(self.selected_piece)
             self.next_turn()
-            # self.turn_changes = True
             self._reset_selected()
             return True
         
         if (block_x, block_y) != self.selected_block:
             self.pawn_at_end(self.selected_piece)
             self.next_turn()
-            # self.turn_changes = True
             self._reset_selected()
             return True
         
@@ -305,6 +304,7 @@ class Board:
         self.selected_block = None
         self.movable_blocks = []
         self.capturables = []
+        self.castling_blocks = []
         if not keep_feedback:
             self.feedback_blocks = {}
             
