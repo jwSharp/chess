@@ -158,12 +158,8 @@ class PlayerSelection(Scene):
             if self.one_player.input(mouse_pos) or self.two_player.input(mouse_pos):
                 if self.one_player.input(mouse_pos):
                     self.manager.players[1] = Computer()
-                    self.manager.players[2] = None
-                    self.manager.players[3] = None
                 else:
                     self.manager.players[1] = Human()
-                    self.manager.players[2] = None
-                    self.manager.players[3] = None
 
                 scene = TimeSelection(self.manager)
                 self.manager.push(scene)
@@ -497,12 +493,8 @@ class PlayerSelection(Scene):
             if self.one_player.input(mouse_pos) or self.two_player.input(mouse_pos):
                 if self.one_player.input(mouse_pos):
                     self.manager.players[1] = Computer()
-                    self.manager.players[2] = None
-                    self.manager.players[3] = None
                 else:
                     self.manager.players[1] = Human('Player 2')
-                    self.manager.players[2] = None
-                    self.manager.players[3] = None
 
                 scene = TimeSelection(self.manager)
                 self.manager.push(scene)

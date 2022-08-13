@@ -2,13 +2,14 @@ import pygame
 
 from config import *
 from accessory import Button, Timer
-# from player import *
+from player import *
 from piece import King, Queen, Rook, Bishop, Knight, Pawn
 
 
 class Board:
     def __init__(self, manager):
         self.manager = manager
+        self.board_turns = all(type(player) is Human for player in self.manager.players)
         self.blocks = [(x, y) for x in range(8) for y in range(8)]
         self.current_turn = 0
         self.board_panel = None
@@ -94,14 +95,14 @@ class Board:
         img_width = self.board_panel.width / 8 - 10
         img_height = self.board_panel.height / 8 - 10
         for piece in self.pieces:
-            piece.update(self.pieces)
+            piece.update(self.pieces, self.board_turns)
             
             if piece == self.selected_piece:
                 continue
-            if self.current_turn == 0:
-                piece.draw(screen, (img_width, img_height), self.board_panel, 180 if piece.turn == 0 else 0)
-            else:
-                piece.draw(screen, (img_width, img_height), self.board_panel, 0 if piece.turn == 0 else 180)
+            # if type(piece) == Knight:
+            #     piece.draw(screen, (img_width, img_height), self.board_panel, 180 if piece.turn == 0 else 0)
+            #     continue ##Draw knights fliped
+            piece.draw(screen, (img_width, img_height), self.board_panel)
         if self.selected_piece != None:
             self.selected_piece.draw(screen, (img_width, img_height), self.board_panel)
     
@@ -119,6 +120,8 @@ class Board:
     
     def add_labels(self, screen, square, playing_field):
         letters = ["A", "B", "C", "D", "E", "F", "G", "H"]
+        if self.current_turn != 0 and self.board_turns:
+            letters.reverse()
         label_font = pygame.font.SysFont('arial', 36, bold = True)
         number_font = pygame.font.SysFont('arial', 40, bold = True)
 
@@ -130,7 +133,7 @@ class Board:
             screen.blit(label_text, label_rect)
             square.left += square.width
             
-            number_text = number_font.render(str(i + 1), True, DARK_OAK)
+            number_text = number_font.render(str(8 - i) if self.current_turn == 0 and self.board_turns else str(i + 1), True, DARK_OAK)
             number_rect = number_text.get_rect()
             number_rect.centerx = playing_field.left - playing_field.width * 0.05
             number_rect.centery = square.centery
@@ -256,8 +259,9 @@ class Board:
         return False
     
     def pawn_at_end(self, piece):
-        # if self.current_turn == 0 else 7 ## if board is not turning
         target_pos_y = 0
+        if not self.board_turns:
+            target_pos_y = 0 if self.current_turn == 0 else 7
         if piece.piece_name == 'pawn' and piece.current_pos != None and piece.turn == self.current_turn and piece.current_pos[1] == target_pos_y:
             self.needs_change = piece
             return True
@@ -280,7 +284,7 @@ class Board:
             self.current_turn += 1
         else:
             self.current_turn = min(self.turns)
-        self.flip_places()
+        if self.board_turns: self.flip_places()
         self.handle_check()
         self.made_a_turn = True
 
@@ -314,7 +318,7 @@ class Board:
         self.holding_piece = False
         self.selected_piece = None
         self.needs_change = None
-        self.threads = []
+        # self.threads = []
         self.captured_pieces = []
         pawns1 = [Pawn((i, 6), 0) for i in range(8)]
         pawns2 = [Pawn((i, 1), 1) for i in range(8)]
@@ -326,8 +330,8 @@ class Board:
         bishop2 = [Bishop((5, 7), 0), Bishop((5, 0), 1)]
         queen = [Queen((3, 7), 0), Queen((3, 0), 1)]
         king = [King((4, 7), 0), King((4, 0), 1)]
-        self.manager.players[0].pieces = [rook1[0], rook2[0], bishop1[0], bishop2[0], knight1[0], knight2[0], queen[0], king[0]] + pawns1
-        self.manager.players[1].pieces = [rook1[1], rook2[1], bishop1[1], bishop2[1], knight1[1], knight2[1], queen[1], king[1]] + pawns2
+        self.manager.players[0].pieces = [rook1[0], rook2[0], king[0]] + pawns1
+        self.manager.players[1].pieces = [rook1[1], rook2[1], king[1]] + pawns2
         self.pieces = self.manager.players[0].pieces + self.manager.players[1].pieces
         self.turns = [p.turn for p in self.pieces]
     

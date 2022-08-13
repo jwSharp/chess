@@ -12,7 +12,7 @@ def main():
     pygame.display.set_caption("Main Menu")
 
     # Create Player
-    players = [Human('Player 1'), None, None, None]
+    players = [Human('Player 1'), None]
 
     # Create Scene Manager
     manager = SceneManager(players)
