@@ -5,7 +5,7 @@ import sys
 from config import *
 from player import *
 from board import *
-from accessory import *
+from _backend.accessory import *
  
  
 class SceneManager:

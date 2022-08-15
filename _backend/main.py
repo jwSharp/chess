@@ -15,7 +15,7 @@ def main():
     players = [Human('Player 1'), None, None, None]
 
     # Create Scene Manager
-    manager = SceneManager(players)
+    manager = SceneManager(screen, players)
     main_menu = MainMenuScene(manager)
     manager.push(main_menu)
     
