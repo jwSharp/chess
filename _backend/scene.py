@@ -369,7 +369,7 @@ class TimeSelection(Scene):
           
            for button in self.buttons:
                if button.input(mouse_pos):
-                   time = self._parse_time(button.name)
+                   time = self._parse_time(button.name2)
  
                    self.manager.pop() # PlayerSelection
                    scene = Game(self.manager, time)
