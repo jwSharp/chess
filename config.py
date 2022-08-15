@@ -7,7 +7,7 @@ from pathlib import Path
 ##########
 ASPECT_RATIO = (17, 10)
 HEIGHT = 800
-WIDTH = 1220
+WIDTH = 1280
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
 CLOCK = pygame.time.Clock()
 pygame.init()
@@ -70,6 +70,7 @@ GREY = ('#99958D')
 OAK = ('#DBA16A')
 DARK_OAK = ('#341f0c')
 ORANGE = ('#b68f40')
+PURPLE = ('#cc5ced')
 
 ##########
 # Images #

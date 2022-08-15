@@ -8,10 +8,11 @@ class Piece:
         self.piece_name = piece_name
         self.sprite = None
         self.image_path = None
-        self.piece_moves = None
-        self.limited_moves = None
+        self.piece_moves = []
+        self.disabled_moves = []
         self.piece_attacks = None
-        self.locked = False
+        # self.stale_mate = False # TODO: No moves left
+        self.protectors = []
 
         self.start_pos, self.pos, self.current_pos = pos, pos, pos
         self.turn = turn
@@ -20,51 +21,28 @@ class Piece:
         self.move_count = 0
     
     def input(self, event: pygame.event):
-        pass 
+        if event.type == pygame.VIDEORESIZE:
+            self.sprite = pygame.image.load(self.image_path)
     
-    def update(self):
+    def update(self, pieces=[], board_turns=False):
         pass
 
-    def check_limit(self, check_state, pieces):
-        self.limited_moves = None
-        king = self.get_piece('king', pieces)
-        hold_pos = self.current_pos
-        
-        for i, move in enumerate(self.get_movement(pieces)):
-            self.force_move(move[0], move[1], False)
-            if not king.is_check(pieces, king.current_pos):
-                if self.limited_moves == None:
-                    self.limited_moves = [move]
-                else:
-                    self.limited_moves.append(move)
-            self.force_move(hold_pos[0], hold_pos[1], False)
-        
-        if king.turn == check_state and self.limited_moves == None:
-            self.limited_moves = []
-        return self.limited_moves
-    
-    def draw(self, screen, blit_size: (int, int), panel):
+    def draw(self, screen, blit_size: (int, int), panel, rotate = 0):
         if self.image_path == None or self.pos == None:
             return
         self.sprite = pygame.image.load(self.image_path)
         x, y = self.pos
         x_pos = x * panel.width / 8 + (panel.x + 5)
         y_pos = y * panel.height / 8 + (panel.y + 5)
+        self.sprite = pygame.transform.rotate(self.sprite, rotate)
         self.sprite = pygame.transform.smoothscale(self.sprite, blit_size)
         screen.blit(self.sprite, (x_pos, y_pos))
-     
-    def get_piece(self, name, pieces):  
-        for piece in pieces:
-            if piece.piece_name == name and piece.turn == self.turn:
-                return piece
-        return None
     
     def move_piece(self, x, y, current_turn=0, other_pieces=[]) -> (int, int):
-        if self.can_move(x, y, other_pieces) and self.turn == current_turn and not self.locked:
+        if self.is_valid_move(x, y, other_pieces) and self.turn == current_turn:
             self.current_pos = (x, y)
             self.pos = (x, y)
             self.move_count += 1
-            self.limited_moves = None
         else:
             self.pos = self.current_pos
         return self.current_pos
@@ -77,8 +55,8 @@ class Piece:
                 self.move_count += 1
         return self.current_pos
 
-    def can_move(self, target_x, target_y, other_pieces=[]) -> bool:
-        if target_x < 0 or target_x > 7 or target_y < 0 or target_y > 7:
+    def is_valid_move(self, target_x, target_y, other_pieces=[]) -> bool:
+        if target_x < 0 or target_x > 7 or target_y < 0 or target_y > 7 or (target_x, target_y) == self.current_pos:
             return False
         return (target_x, target_y) in self.get_movement(other_pieces) or (target_x, target_y) in self.get_capturables(other_pieces)
     
@@ -93,14 +71,10 @@ class Piece:
         if self.piece_moves == None:
             return blocks
         
-        list_moves = [list(move) for move in self.piece_moves]
-        for move in list_moves:
+        for move in list(self.piece_moves):
             if self.current_pos == None:
                 continue
-            pos = [
-                (self.current_pos[0] + movable_block[0], self.current_pos[1] - movable_block[1])
-                for movable_block in self.movable_blocks(move)
-            ]
+            pos = self.add_to_pos(move)
             
             for p in pos:
                 if p not in piece_positions:
@@ -111,36 +85,36 @@ class Piece:
                     break
             else:
                 blocks += pos
-                
-        return blocks
+        
+        if self.disabled_moves == []:
+            return blocks
+        self.capturables = [c for c in self.capturables if c not in self.disabled_moves]
+        return [b for b in blocks if b not in self.disabled_moves]
 
     def get_capturables(self, other_pieces):
         if self.piece_attacks == None:
             self.get_movement(other_pieces)
-            return self.capturables
-        if other_pieces != []:
-            piece_positions = [p.current_pos for p in other_pieces]
         else:
-            piece_positions = []
+            piece_positions = [p.current_pos for p in other_pieces]
 
-        self.capturables = []
-        attack_list = [list(attack) for attack in self.piece_attacks]
-        for attack in attack_list:
-            if self.current_pos == None:
-                continue
-            pos = self.get_movable_blocks(attack)
-            for p in pos:
-                if p in piece_positions:
-                    piece = other_pieces[piece_positions.index(p)]
-                    if piece.turn != self.turn:
-                        self.capturables.append(p)
-                    break
+            self.capturables = []
+            for attack in list(self.piece_attacks):
+                if self.current_pos == None:
+                    continue
+                pos = self.add_to_pos(attack)
+                for p in pos:
+                    if p in piece_positions and p not in self.disabled_moves:
+                        piece = other_pieces[piece_positions.index(p)]
+                        if piece.turn != self.turn:
+                            self.capturables.append(p)
+                        break
         return self.capturables
 
-    def get_movable_blocks(self, move: str):
+    def add_to_pos(self, move: str):
         return [
             (self.current_pos[0] + j[0], self.current_pos[1] - j[1])
-            for j in self.movable_blocks(move)
+            for j in self.decode_move(move) 
+            if self.current_pos[0] + j[0] in range(0, 8) and self.current_pos[1] - j[1] in range(0, 8)
         ]
         
     def reflect_place(self):
@@ -174,7 +148,7 @@ class Piece:
             new_move.append(new_points)
         return new_move
 
-    def movable_blocks(self, area: list) -> [(int, int)]:
+    def decode_move(self, area: list) -> [(int, int)]:
         '''
             Return all possible blocks as a list
         '''
@@ -231,6 +205,19 @@ class Piece:
             self.image_path = WHITE_PIECES_PATH + white_piece_name
         else:
             self.image_path = BLACK_PIECES_PATH + black_piece_name
+    
+    def _change_turn(self, pieces):
+        piece_turns = [p.turn for p in pieces]
+        if self.turn < max(piece_turns):
+            self.turn += 1
+        else:
+            self.turn = min(piece_turns)
+
+    def is_protected(self, pieces) -> bool:
+        self._change_turn(pieces)
+        self.protectors = [p for p in pieces if p.turn == self.turn and self.current_pos in p.get_capturables(pieces)]
+        self._change_turn(pieces)
+        return len(self.protectors) > 0
 
 class Pawn(Piece):
     def __init__(self, pos, turn):
@@ -239,10 +226,12 @@ class Pawn(Piece):
         self.piece_attacks = [('-1', '1'), ('1', '1')] if turn == 0 else [('-1', '-1'), ('1', '-1')]
         self._set_sprite(turn, "pawn_top.png", "pawn_top.png")
     
-    def update(self):
+    def update(self, pieces=[], board_turns=False):
         if self.move_count > 0:
-            self.piece_moves = [('0', '1')]
-        print(self.piece_moves)
+            if board_turns:
+                self.piece_moves = [('0', '1')]
+            else:
+                self.piece_moves = [('0', '1')] if self.turn == 0 else [('0', '-1')]
     
 class Bishop(Piece):
     def __init__(self, pos, turn):
@@ -273,12 +262,93 @@ class King(Piece):
         super().__init__(pos, turn, "king")
         self.piece_moves = [("1", "1"), ("1", "-1"), ("-1", "1"), ("-1", "-1"), ("1", "0"), ("0", "1"), ("-1", "0"), ("0", "-1")]
         self._set_sprite(turn, "king_top.png", "king_top.png")
-        self.threads = []
+        self.threats = []
+        self.capturables = []
+        self.castling_blocks = []
+        self.check_count = 0
+    
+    def update(self, pieces=[], board_turns=False):
+        self.board_turns = board_turns
+    
+    def move_piece(self, x, y, current_turn=0, other_pieces=[]) -> (int, int):
+        if self.is_valid_move(x, y, other_pieces) and self.turn == current_turn:
+            self.current_pos = (x, y)
+            self.pos = (x, y)
+            self.move_count += 1
+            self.threads = []
+        else:
+            self.pos = self.current_pos
+        return self.current_pos
+    
+    def set_disabled_moves(self, pieces):
+        openents = [p for p in pieces if p.turn != self.turn]
+        openents_positions = [p.current_pos for p in openents]
+        for piece in pieces:
+            piece.disabled_moves = []
+            hold_pos = piece.current_pos
+            destroyed_piece = None
+            if piece.turn != self.turn:
+                continue
+            for move in (piece.get_movement(pieces) + piece.get_capturables(pieces)):
+                piece.force_move(move[0], move[1], False)
+                if piece.current_pos in openents_positions:
+                    destroyed_piece = openents[openents_positions.index(move)]
+                    pieces.remove(destroyed_piece)
+                if self.is_check(pieces, self.current_pos):
+                    piece.disabled_moves.append(move)
+                if destroyed_piece != None:
+                    pieces.append(destroyed_piece)
+                    destroyed_piece = None
+                piece.force_move(hold_pos[0], hold_pos[1], False)
     
     def is_check(self, pieces: Piece, pos) -> bool:
-        self.threads = []
-        oponent_pieces = [p for p in pieces if p.turn != self.turn]
-        for piece in oponent_pieces:
-            if pos in piece.get_capturables(pieces):
-                self.threads.append(piece)
-        return len(self.threads) > 0
+        self.threats = [piece for piece in pieces if piece.turn != self.turn and pos in piece.get_capturables(pieces)]
+        check = len(self.threats) > 0
+        if check: self.check_count += 1
+        return check
+    
+    def check_castling(self, pieces):
+        self.castling_blocks = []
+        self.rooks_can_castle = []
+        self.piece_moves = [("1", "1"), ("1", "-1"), ("-1", "1"), ("-1", "-1"), ("1", "0"), ("0", "1"), ("-1", "0"), ("0", "-1")]
+        if self.move_count > 0 or self.check_count > 0:
+            return False
+        rooks = [piece for piece in pieces if piece.turn == self.turn and piece.piece_name == 'rook']
+        if all(rook.move_count > 0 for rook in rooks):
+            return False
+        change_x = (2, 6)
+        point_y = 7 
+        if not self.board_turns:
+            if self.turn != 0: point_y = 0
+        elif self.turn != 0:
+            change_x = (1, 5)
+        for rook in rooks:
+            if rook.move_count == 0:
+                if rook.current_pos == (0, point_y):
+                    self.piece_moves += [('-1|-3', '0')]
+                    if rook.is_valid_move(change_x[0] + 1, point_y, pieces) and self.is_valid_move(change_x[0], point_y, pieces):
+                        self.castling_blocks += [(change_x[0], point_y)]
+                        self.rooks_can_castle.append(rook)
+                    self.piece_moves.remove(('-1|-3', '0'))
+                elif rook.current_pos == (7, point_y):
+                    self.piece_moves += [('1|3', '0')]
+                    if rook.is_valid_move(change_x[1] - 1, point_y, pieces) and self.is_valid_move(change_x[1], point_y, pieces):
+                        self.castling_blocks += [(change_x[1], point_y)]
+                        self.rooks_can_castle.append(rook)
+                    self.piece_moves.remove(('1|3', '0'))
+        return len(self.castling_blocks) > 0
+
+    def do_castling(self, block):
+        if block not in self.castling_blocks:
+            return
+        self.force_move(block[0], block[1])
+        for rook in self.rooks_can_castle:
+            print(rook.current_pos)
+            if block[0] + 1 == rook.current_pos[0] or block[0] + 2 == rook.current_pos[0]:
+                rook.force_move(block[0] - 1, block[1], False)
+                break
+            elif block[0] - 2 == rook.current_pos[0] or block[0] - 1 == rook.current_pos[0]:
+                rook.force_move(block[0] + 1, block[1], False)
+                break
+        return
+                

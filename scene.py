@@ -3,8 +3,8 @@ import sys
 
 from config import *
 from player import *
-from board import *
-from accessory import *
+from board import Board
+from accessory import Button, Timer
 
 
 class SceneManager:
@@ -158,12 +158,8 @@ class PlayerSelection(Scene):
             if self.one_player.input(mouse_pos) or self.two_player.input(mouse_pos):
                 if self.one_player.input(mouse_pos):
                     self.manager.players[1] = Computer()
-                    self.manager.players[2] = None
-                    self.manager.players[3] = None
                 else:
                     self.manager.players[1] = Human()
-                    self.manager.players[2] = None
-                    self.manager.players[3] = None
 
                 scene = TimeSelection(self.manager)
                 self.manager.push(scene)
@@ -363,8 +359,8 @@ class Game(Scene):
     def __init__(self, manager, time: (int, int)):
         self.manager = manager
 
-        print(self.manager.players)
-        print(self.time)
+        # print(self.manager.players)
+        # print(self.time)
 
 
 class Options(Scene):
@@ -497,12 +493,8 @@ class PlayerSelection(Scene):
             if self.one_player.input(mouse_pos) or self.two_player.input(mouse_pos):
                 if self.one_player.input(mouse_pos):
                     self.manager.players[1] = Computer()
-                    self.manager.players[2] = None
-                    self.manager.players[3] = None
                 else:
                     self.manager.players[1] = Human('Player 2')
-                    self.manager.players[2] = None
-                    self.manager.players[3] = None
 
                 scene = TimeSelection(self.manager)
                 self.manager.push(scene)
@@ -616,7 +608,11 @@ class Game(Scene):
         '''For timed and untimed chess matches.'''
         self.manager = manager
         self.time = time
+        self.turn_count = 0
         pygame.time.set_timer(pygame.USEREVENT, 1000)
+        
+        # Board
+        self.board = Board(self.manager)
 
         if self.time == (0, 0): # Unlimited Time
             self.timer_1 = None
@@ -635,17 +631,15 @@ class Game(Scene):
         font = GET_FONT("ocr", 58)
         self.menu_text = font.render("Menu", True, BLACK, GREY)
         self.exit_text = font.render("Exit", True, BLACK, GREY)
-        
-        # Board
-        self.board = Board(self.manager)
 
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
-        if event.type == pygame.USEREVENT and self.timer_1 != None:
-            if self.board.current_turn == 0:
-                self.timer_1.update()
-            if self.board.current_turn == 1:
-                self.timer_2.update()
+        if event.type == pygame.USEREVENT:
+            if self.board.game_state() != 'Check-Mate' and self.turn_count != 0 and not self.board.pause:
+                if self.board.current_turn == 0 and self.timer_1 != None:
+                    self.timer_1.update()
+                if self.board.current_turn == 1 and self.timer_2 != None:
+                    self.timer_2.update()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
                 self.manager.pop()
@@ -659,6 +653,9 @@ class Game(Scene):
         wing_width = screen.get_width() * .20
         wing_height = screen.get_height()
 
+        # Board
+        self.board.draw(screen)
+        
         left_wing = pygame.Rect(0, 0, wing_width, wing_height)
         right_wing = pygame.Rect(0, 0, wing_width, wing_height)
         left_wing.topleft = (0, 0)
@@ -667,8 +664,20 @@ class Game(Scene):
         pygame.draw.rect(screen, GOLD, left_wing, 6)
         pygame.draw.rect(screen, GOLD, right_wing, 6)
 
-        # Board
-        self.board.draw(screen)
+        # Game State Text (for debug)
+        
+        if self.board.made_a_turn:
+            self.board.handle_check()
+            if self.turn_count != 0:
+                if self.board.current_turn == 1:
+                    self.timer_1.add_additional(self.time[1])
+                else:
+                    self.timer_2.add_additional(self.time[1])
+            self.turn_count += 1
+            self.board.made_a_turn = False
+            
+        self.game_state_text = GET_FONT("elephant", 30).render(self.board.game_state(), True, OAK)
+        screen.blit(self.game_state_text, self.game_state_text.get_rect(center=(self.board.board_panel.centerx, screen.get_height() - 30)))
         
         # Game Frame
         self._draw_frame(screen, left_wing, right_wing)
@@ -692,6 +701,11 @@ class Game(Scene):
         self._add_player_text(screen, left_wing, self.manager.players[0].name)
         self._add_player_text(screen, right_wing, self.manager.players[1].name)
         
+        if self.board.needs_change != None:
+            self.draw_piece_selection(screen)
+    
+    def draw_piece_selection(self, screen):
+        pass # TODO: draw piece selection popup.
         
     def _draw_frame(self, screen, left_wing, right_wing):
         self._add_wings(screen, left_wing, right_wing)

@@ -1,8 +1,8 @@
 import pygame
 import sys
 from config import *
-from board import *
-from accessory import *
+# from board import *
+# from accessory import *
 
 
 ##################
