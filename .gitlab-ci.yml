@@ -1,11 +1,13 @@
-pages: 
-script: 
-— mkdir .public
-— cp -r * .public
-— mv .public public
-artifacts: 
-   paths: 
-   — public
-only: 
-— master
+stages:
+   - build
 
+build-code-job:
+   stage: build
+   script:
+      — mkdir .public
+      — cp -r * .public
+      — mv .public public
+      - rake
+
+only:
+   — main
