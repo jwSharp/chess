@@ -1,14 +1,10 @@
-from ast import Or
-from curses import mouseinterval
-from distutils.log import info
-from multiprocessing import managers
 import pygame
 import sys
  
 from config import *
 from player import *
 from board import *
-from _backend.accessory import *
+from accessory import *
  
  
 class SceneManager:
@@ -45,8 +41,8 @@ class SceneManager:
  
    def set(self, scene):
        self.scenes = [scene]
- 
- 
+
+
 ############
 # Abstract #
 ############
@@ -65,8 +61,8 @@ class Scene:
  
    def exit(self):
        pass
- 
- 
+
+
 #############
 # Main Menu #
 #############
@@ -96,20 +92,20 @@ class MainMenuScene(Scene):
  
  
    def input(self, event):
-       mouse_pos = pygame.mouse.get_pos()
-       if event.type == pygame.MOUSEBUTTONDOWN:
-           if self.play.input(mouse_pos):
-               scene = PlayerSelection(self.manager)
-               self.manager.push(scene)
-           elif self.options.input(mouse_pos):
-               scene = Options(self.manager)
-               self.manager.push(scene)
-           elif self.quit.input(mouse_pos) or pygame.QUIT:
-               pygame.quit()
-               sys.exit()
-       self.play.set_color(mouse_pos)
-       self.options.set_color(mouse_pos)
-       self.quit.set_color(mouse_pos)
+        mouse_pos = pygame.mouse.get_pos()
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.play.input(mouse_pos):
+                scene = PlayerSelection(self.manager)
+                self.manager.push(scene)
+            elif self.options.input(mouse_pos):
+                scene = Options(self.manager)
+                self.manager.push(scene)
+            elif self.quit.input(mouse_pos):
+                pygame.quit()
+                sys.exit()
+        self.play.set_color(mouse_pos)
+        self.options.set_color(mouse_pos)
+        self.quit.set_color(mouse_pos)
  
    def draw(self, screen):
        pygame.display.set_caption("Main Menu")
@@ -124,7 +120,8 @@ class MainMenuScene(Scene):
        self.play.update(screen)
        self.options.update(screen)
        self.quit.update(screen)
- 
+
+
 #############
 # Selection #
 #############
@@ -179,7 +176,7 @@ class PlayerSelection(Scene):
            elif self.back.input(mouse_pos):
                self.manager.pop()
               
-           elif self.quit.input(mouse_pos) or pygame.QUIT:
+           elif self.quit.input(mouse_pos):
                pygame.quit()
                sys.exit()
           
@@ -278,7 +275,7 @@ class AI_Selection(Scene):
            elif self.back.input(mouse_pos):
                self.manager.pop()
               
-           elif self.quit.input(mouse_pos) or pygame.QUIT:
+           elif self.quit.input(mouse_pos):
                pygame.quit()
                sys.exit()
 
@@ -319,7 +316,7 @@ class AI_Selection(Scene):
        screen.blit(self.quit_shadow, self.quit_rect)
        self.quit.update(screen)
 
- 
+
 class TimeSelection(Scene):
    def __init__(self, manager):
        self.manager = manager
@@ -388,7 +385,7 @@ class TimeSelection(Scene):
                scene = TimerInfo(self.manager)
                self.manager.push(scene)  
               
-           elif self.quit.input(mouse_pos) or pygame.QUIT:
+           elif self.quit.input(mouse_pos):
                pygame.quit()
                sys.exit()
  
@@ -428,9 +425,8 @@ class TimeSelection(Scene):
            return (int(name[:2]), int(name[-1]))
        else:
            return (int(name[:2]), int(name[-2:]))
- 
- 
- 
+
+
 class TimerInfo(TimeSelection):
    def __init__(self, manager):
        self.manager = manager
@@ -491,8 +487,8 @@ class TimerInfo(TimeSelection):
        screen.blit(self.rapid, self.rapid_rect)
        screen.blit(self.back_shadow, self.back_shadow_rect)
        self.back.update(screen)
- 
- 
+
+
 #############
 # Game Play #
 #############
@@ -653,8 +649,8 @@ class Game(Scene):
        player_text_rect.centery = placement.height * .08
  
        screen.blit(player_text, player_text_rect)
- 
- 
+
+
 class Options(Scene):
    def __init__(self, manager):
        self.manager = manager
@@ -711,8 +707,8 @@ class Options(Scene):
        self.options.update(screen)
        self.credits.update(screen)
        self.back.update(screen)
- 
- 
+
+
 class Credits(Scene):
    def __init__(self, manager):
        self.manager = manager
@@ -822,7 +818,7 @@ class GameOptions(Scene):
                scene = AccessSettings(self.manager)
                self.manager.push(scene)
                
-           elif self.quit.input(mouse_pos) or pygame.QUIT:
+           elif self.quit.input(mouse_pos):
                pygame.quit()
                sys.exit()
  
@@ -851,7 +847,6 @@ class GameOptions(Scene):
        self.access.update(screen)
        screen.blit(self.quit_shadow, self.quit_rect)
        self.quit.update(screen)
-
 
 
 class ThemeSelection(GameOptions):
@@ -889,7 +884,7 @@ class ThemeSelection(GameOptions):
            if self.back.input(mouse_pos):
                self.manager.pop()
                
-           elif self.quit.input(mouse_pos) or pygame.QUIT:
+           elif self.quit.input(mouse_pos):
                pygame.quit()
                sys.exit()
  
@@ -909,8 +904,8 @@ class ThemeSelection(GameOptions):
        screen.blit(self.access_shadow, self.access_shadow_rect)
        screen.blit(self.quit_shadow, self.quit_rect)
        self.quit.update(screen)
- 
- 
+
+
 class LanguageSelection(GameOptions):
     def __init__(self, manager):
        self.manager = manager
@@ -946,7 +941,7 @@ class LanguageSelection(GameOptions):
            if self.back.input(mouse_pos):
                self.manager.pop()
                
-           elif self.quit.input(mouse_pos) or pygame.QUIT:
+           elif self.quit.input(mouse_pos):
                pygame.quit()
                sys.exit()
  
@@ -966,8 +961,8 @@ class LanguageSelection(GameOptions):
        screen.blit(self.access_shadow, self.access_shadow_rect)
        screen.blit(self.quit_shadow, self.quit_rect)
        self.quit.update(screen)
-       
-       
+
+
 class AccessSettings(GameOptions):
     def __init__(self, manager):
        self.manager = manager
@@ -1003,7 +998,7 @@ class AccessSettings(GameOptions):
            if self.back.input(mouse_pos):
                self.manager.pop()
                
-           elif self.quit.input(mouse_pos) or pygame.QUIT:
+           elif self.quit.input(mouse_pos):
                pygame.quit()
                sys.exit()
  
@@ -1023,8 +1018,8 @@ class AccessSettings(GameOptions):
        screen.blit(self.access_shadow, self.access_shadow_rect)
        screen.blit(self.quit_shadow, self.quit_rect)
        self.quit.update(screen)
-       
-       
+
+
 class InGameMenu(Scene):
    def __init__(self, manager):
        self.manager = manager
@@ -1077,7 +1072,7 @@ class InGameMenu(Scene):
                scene = AccessSettings(self.manager)
                self.manager.push(scene)
                
-           elif self.quit.input(mouse_pos) or pygame.QUIT:
+           elif self.quit.input(mouse_pos):
                pygame.quit()
                sys.exit()
  
@@ -1107,6 +1102,7 @@ class InGameMenu(Scene):
        self.access.update(screen)
        screen.blit(self.quit_shadow, self.quit_rect)
        self.quit.update(screen)
+
 
 class Instructions(GameOptions):
     def __init__(self, manager):
@@ -1194,7 +1190,7 @@ class Instructions(GameOptions):
        screen.blit(self.inst2_shadow, self.inst2_rect)
        self.inst2.update(screen)
 
-       
+
 class Instructions2(GameOptions):
     def __init__(self, manager):
        self.manager = manager
@@ -1243,7 +1239,7 @@ class Instructions2(GameOptions):
                scene = Instructions2(self.manager)
                self.manager.push(scene)
            
-           elif self.quit.input(mouse_pos) or pygame.QUIT:
+           elif self.quit.input(mouse_pos):
                pygame.quit()
                sys.exit()
 
@@ -1270,5 +1266,3 @@ class Instructions2(GameOptions):
        self.back.update(screen)
        screen.blit(self.quit_shadow, self.quit_rect)
        self.quit.update(screen)
-
-    

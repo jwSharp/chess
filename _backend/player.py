@@ -1,8 +1,6 @@
-import pygame
-import sys
 from config import *
 from board import *
-from _backend.accessory import *
+from accessory import *
 
 
 ##################

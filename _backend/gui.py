@@ -1,7 +1,6 @@
 import pygame
 
 from config import *
-from game import *
 
 
 def make_chess_GUI():
