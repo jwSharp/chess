@@ -37,6 +37,52 @@ class Button:
             self.text = self.font.render(self.name, True, self.hovering_color)
         else:
             self.text = self.font.render(self.name, True, self.base_color)
+            
+            
+class Two_Line(Button):
+    def __init__(self, image, position: (int, int), name_text1: str, name_text2: str, font_type, base_color, hover_color):
+        self.image = image
+        self.x_pos = position[0]
+        self.y_pos = position[1]
+        self.font = font_type
+        self.base_color, self.hovering_color = base_color, hover_color
+        self.name1 = name_text1
+        self.name2 = name_text2
+        self.name = name_text1 + name_text2
+        self.text1 = self.font.render(self.name1, True, self.base_color)
+        self.text2 = self.font.render(self.name2, True, self.base_color)
+        self.text = self.font.render(self.name, True, self.base_color)
+
+        if self.image is None:
+            self.image = self.text
+        else:
+            self.image = image
+
+        self.rect = self.image.get_rect(center=(self.x_pos, self.y_pos))
+        self.text_rect1 = self.text1.get_rect(midtop=(self.x_pos, self.y_pos - 30))
+        self.text_rect2 = self.text2.get_rect(midbottom=(self.x_pos, self.y_pos + 30))
+
+    def update(self, screen):
+
+        screen.blit(self.text1, self.text_rect1)
+        screen.blit(self.text2, self.text_rect2)
+
+    def input(self, position):
+        if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top,
+                                                                                          self.rect.bottom):
+            return True
+        return False
+
+    def set_color(self, position):
+        if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top,
+                                                                                          self.rect.bottom):
+            self.text1 = self.font.render(self.name1, True, self.hovering_color)
+            self.text2 = self.font.render(self.name2, True, self.hovering_color)
+
+        else:
+            self.text1 = self.font.render(self.name1, True, self.base_color)
+            self.text2 = self.font.render(self.name2, True, self.base_color)
+
 
 class Timer:
     def __init__(self, manager, minute, additional):
@@ -84,4 +130,4 @@ class Timer:
 
     def add_additional(self):
         pass #TODO: Add additional seconds
-
+    
