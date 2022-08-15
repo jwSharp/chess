@@ -1,15 +1,15 @@
 import pygame
 
 from config import *
-from _backend.accessory import *
+from accessory import *
 from player import *
 from piece import *
 
 
 class Board:
-    def __init__(self, manager, view):
+    def __init__(self, manager):
         self.manager = manager
-        self.view = view
+        self.view = "flat"
         
         self.current_turn = 1
         self.selected_block = None
@@ -30,6 +30,7 @@ class Board:
         if self.view == "flat":
             board = self._draw_flat(screen)[0]
             playing_field = self._draw_flat(screen)[1]
+        
         elif self.view == "iso":
             board = self._draw_iso(screen)[0]
             playing_field = self._draw_iso(screen)[1]
@@ -134,3 +135,8 @@ class Board:
         highlight.top = playing_field.top - 3
         highlight.left = playing_field.left - 3
         pygame.draw.rect(screen, WHITE, highlight, 1)
+
+
+
+    def set_view(self, view):
+        self.view = view
