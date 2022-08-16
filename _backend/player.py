@@ -13,6 +13,9 @@ class Player:
     #def set_board(self, board: board.Board):
     #    self.board = board
 
+    def move(self):
+        pass
+
 
 ###########
 # Players #
@@ -29,3 +32,6 @@ class Computer(Player):
         self.name = 'CPU -' # + str(rating)
         #self.rating = rating
         self.board = None
+        
+    
+    

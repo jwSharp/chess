@@ -546,7 +546,7 @@ class Game(Scene):
         
         # Turn Change
         if self.board.made_a_turn:
-            self.board.handle_check()
+            self.board.check()
             if self.board.turn_count != 0:
                 if self.board.current_turn == 1:
                     self.timer_1.add_additional(self.time[1])
