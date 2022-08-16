@@ -3,7 +3,7 @@ import sys
  
 from config import *
 from player import *
-from _backend.board import *
+from board import *
 from accessory import *
  
  
@@ -46,7 +46,7 @@ class SceneManager:
     ############
     # Abstract #
     ############
-    class Scene:
+class Scene:
     def __init__(self):
         pass
     
@@ -63,10 +63,10 @@ class SceneManager:
         pass
 
 
-    #############
-    # Main Menu #
-    #############
-    class MainMenuScene(Scene):
+#############
+# Main Menu #
+#############
+class MainMenuScene(Scene):
     def __init__(self, manager):
         self.manager = manager
     
@@ -122,10 +122,10 @@ class SceneManager:
         self.quit.update(screen)
 
 
-    #############
-    # Selection #
-    #############
-    class PlayerSelection(Scene):
+#############
+# Selection #
+#############
+class PlayerSelection(Scene):
     def __init__(self, manager):
         self.manager = manager
     
@@ -160,15 +160,11 @@ class SceneManager:
             if self.one_player.input(mouse_pos) or self.two_player.input(mouse_pos):
                 if self.one_player.input(mouse_pos):
                     self.manager.players[1] = Computer()
-                    self.manager.players[2] = None
-                    self.manager.players[3] = None
                     
                     scene = AI_Selection(self.manager)
                     self.manager.push(scene)
                 else:
                     self.manager.players[1] = Human('Player 2')
-                    self.manager.players[2] = None
-                    self.manager.players[3] = None
     
                     scene = TimeSelection(self.manager)
                     self.manager.push(scene)
@@ -204,7 +200,7 @@ class SceneManager:
         self.back.update(screen)
     
     
-    class AI_Selection(Scene):
+class AI_Selection(Scene):
     def __init__(self, manager):
         self.manager = manager
     
@@ -317,7 +313,7 @@ class SceneManager:
         self.quit.update(screen)
 
 
-    class TimeSelection(Scene):
+class TimeSelection(Scene):
     def __init__(self, manager):
         self.manager = manager
     
@@ -427,7 +423,7 @@ class SceneManager:
             return (int(name[:2]), int(name[-2:]))
 
 
-    class TimerInfo(TimeSelection):
+class TimerInfo(TimeSelection):
     def __init__(self, manager):
         self.manager = manager
     
@@ -471,7 +467,6 @@ class SceneManager:
             else:
                 pass
     
-    
         self.back.set_color(mouse_pos)
     
     def draw(self, screen):
@@ -489,10 +484,10 @@ class SceneManager:
         self.back.update(screen)
 
 
-    #############
-    # Game Play #
-    #############
-    class Game(Scene):
+#############
+# Game Play #
+#############
+class Game(Scene):
     def __init__(self, manager, time=(0, 0)):
         '''For timed and untimed chess matches.'''
         self.manager = manager
@@ -559,9 +554,6 @@ class SceneManager:
                     self.timer_2.add_additional(self.time[1])
             self.turn_count += 1
             self.board.made_a_turn = False
-            
-        self.game_state_text = GET_FONT("elephant", 30).render(self.board.game_state(), True, OAK)
-        screen.blit(self.game_state_text, self.game_state_text.get_rect(center=(self.board.board_panel.centerx, screen.get_height() - 30)))
  
         # Game Frame
         self._draw_frame(screen, left_wing, right_wing)
@@ -587,6 +579,9 @@ class SceneManager:
         
         # Board
         self.board.draw(screen)
+        
+        self.game_state_text = GET_FONT("elephant", 30).render(self.board.game_state(), True, OAK)
+        screen.blit(self.game_state_text, self.game_state_text.get_rect(center=(self.board.board_panel.centerx, screen.get_height() - 30)))
         
     def _draw_frame(self, screen, left_wing, right_wing):
         self._add_wings(screen, left_wing, right_wing)
@@ -669,7 +664,7 @@ class SceneManager:
         screen.blit(player_text, player_text_rect)
 
 
-    class Options(Scene):
+class Options(Scene):
     def __init__(self, manager):
         self.manager = manager
     
@@ -727,7 +722,7 @@ class SceneManager:
         self.back.update(screen)
 
 
-    class Credits(Scene):
+class Credits(Scene):
     def __init__(self, manager):
         self.manager = manager
     
