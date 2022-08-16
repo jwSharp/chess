@@ -518,7 +518,7 @@ class Game(Scene):
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.USEREVENT:
-            if self.board.game_state() != 'Check-Mate' and self.turn_count != 0 and not self.board.pause:
+            if self.board.game_state() != 'Check-Mate' and self.board.turn_count != 0 and not self.board.pause:
                 if self.board.current_turn == 0 and self.timer_1 != None:
                     self.timer_1.update()
                 if self.board.current_turn == 1 and self.timer_2 != None:
@@ -547,12 +547,12 @@ class Game(Scene):
         # Turn Change
         if self.board.made_a_turn:
             self.board.handle_check()
-            if self.turn_count != 0:
+            if self.board.turn_count != 0:
                 if self.board.current_turn == 1:
                     self.timer_1.add_additional(self.time[1])
                 else:
                     self.timer_2.add_additional(self.time[1])
-            self.turn_count += 1
+            self.board.turn_count += 1
             self.board.made_a_turn = False
  
         # Game Frame

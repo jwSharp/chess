@@ -1,4 +1,5 @@
 import pygame
+import random
 
 from config import *
 from accessory import Button, Timer
@@ -11,11 +12,18 @@ class Board:
         self.manager = manager
         self.board_turns = all(type(player) is Human for player in self.manager.players)
         self.blocks = [(x, y) for x in range(8) for y in range(8)]
+        
+        
         self.current_turn = 0
+        self.turn_count = 0
+        
+        
         self.board_panel = None
         self.check_state = None
         self.made_a_turn = False
         self.pause = False
+        self.board_turning = False
+        self.delay = 1
         self._reset_selected()
         self._reset_pieces()
 
@@ -41,6 +49,14 @@ class Board:
                     self.change_piece(Knight(pos, turn), True)
                 elif event.key == pygame.K_4:
                     self.change_piece(Rook(pos, turn), True)
+        if self.board_turning and event.type == pygame.USEREVENT:
+            if self.delay > 0:
+                self.delay -= 1
+            else:
+                self.next_turn()
+                self.board_turning = False
+                self.delay = 1
+                pygame.time.set_timer(pygame.USEREVENT, 1000)
 
     def draw(self, screen):
         screen_center = (screen.get_width()/2, screen.get_height()/2)
@@ -60,13 +76,27 @@ class Board:
         self.add_texture(screen, board)
         self.add_border(screen, playing_field)
         self.draw_pieces(screen)
+        
+        if self.board_turning and self.board_turns:
+            r = pygame.Rect(0, 0, 400, 200)
+            r.center = screen.get_rect().center
+            pygame.draw.rect(screen, OAK, r, 0, 10)
+            text = GET_FONT('elephant', 40).render("White's turn!" if self.current_turn == 1 else "Black's turn!", True, WHITE)
+            screen.blit(text, text.get_rect(center=(screen.get_rect().centerx, screen.get_rect().centery)))
+            
+        
         if self.needs_change == None:
             self.pause = False
         else:
             self.pause = True
-        
-        # if self.needs_change != None:
-        #     self.draw_piece_selection(screen)
+            
+        if not self.board_turns and self.current_turn != 0 and self.game_state('1','2','3') != '3':
+            pieces = [p for p in self.pieces if p.turn == self.current_turn and len(p.get_movement(self.pieces)) > 1 or len(p.get_capturables(self.pieces)) > 0]
+            selected_piece = random.sample(pieces, 1)[0]
+            drop_pos = random.sample(selected_piece.get_movement(self.pieces) + selected_piece.get_capturables(self.pieces), 1)[0]
+            self.select_block((0, 0), (selected_piece.current_pos[0], selected_piece.current_pos[1]))
+            self.drop_piece(drop_pos[0], drop_pos[1], (drop_pos[0], drop_pos[1]))
+            
 
     def draw_squares(self,screen, playing_field):
         sq_width, sq_height = playing_field.width/8, playing_field.height/8
@@ -164,14 +194,17 @@ class Board:
         highlight.left = playing_field.left - 3
         pygame.draw.rect(screen, WHITE, highlight, 1)
 
-    def select_block(self, pos: tuple):
+    def select_block(self, pos: tuple, grid_pos: tuple = None):
         x, y = pos
         piece_positions = [i.current_pos for i in self.pieces]
         if self.pause:
             return
-        if self.drop_piece(x, y) or self.board_panel == None:
+        if self.drop_piece(x, y, grid_pos) or self.board_panel == None:
             return
-        x, y = self._get_grid_position(x, y)
+        if grid_pos == None:
+            x, y = self._get_grid_position(x, y)
+        else:
+            x, y = grid_pos
         if (x, y) not in self.movable_blocks or (x, y) not in self.capturables:
             self._reset_selected()
         if (x >= 0 and x <= 7) and (y >= 0) and (y <= 7):
@@ -214,7 +247,7 @@ class Board:
         if self.selected_piece is not None:
             self.selected_piece.pos = (x, y)
             
-    def drop_piece(self, x, y):
+    def drop_piece(self, x, y, grid_pos: tuple = None):
         """
         Calculates the grid point of the mouse position, after this method called
         it will set the piece position to the grid point. which will give the snap effect.
@@ -222,14 +255,21 @@ class Board:
         if self.board_panel == None:
             return False
         # converts x, y to grid position
-        block_x, block_y = self._get_grid_position(x, y)
+        if grid_pos == None:
+            block_x, block_y = self._get_grid_position(x, y)
+        else:
+            block_x, block_y = grid_pos
         
         if self.selected_piece == None:
             return False
         if (block_x, block_y) in self.castling_blocks:
             self.selected_piece.do_castling((block_x, block_y))
             self.pawn_at_end(self.selected_piece)
-            self.next_turn()
+            # self.next_turn()
+            if self.board_turns: 
+                self.board_turning = True
+                pygame.time.set_timer(pygame.USEREVENT, 300)
+            else: self.next_turn()
             self._reset_selected()
             return True
         
@@ -245,13 +285,21 @@ class Board:
             self.captured_pieces.append(self.pieces[piece_positions.index((block_x, block_y))])
             self.pieces[piece_positions.index((block_x, block_y))].destroy_piece()
             self.pawn_at_end(self.selected_piece)
-            self.next_turn()
+            # self.next_turn()
+            if self.board_turns: 
+                self.board_turning = True
+                pygame.time.set_timer(pygame.USEREVENT, 300)
+            else: self.next_turn()
             self._reset_selected()
             return True
         
         if (block_x, block_y) != self.selected_block:
             self.pawn_at_end(self.selected_piece)
-            self.next_turn()
+            # self.next_turn()
+            if self.board_turns: 
+                self.board_turning = True
+                pygame.time.set_timer(pygame.USEREVENT, 300)
+            else: self.next_turn()
             self._reset_selected()
             return True
         
@@ -300,6 +348,12 @@ class Board:
         if x > self.board_panel.x and y > self.board_panel.y:
             x = int((x - self.board_panel.x) / block_size)
             y = int((y - self.board_panel.y) / block_size)
+        return x, y
+    
+    def _grid_to_screen_pos(self, x: float, y: float):
+        block_size = self.board_panel.width / 8
+        x = x + self.board_panel.x * block_size
+        y = y + self.board_panel.y * block_size
         return x, y
     
     def _reset_selected(self, keep_feedback=False):
