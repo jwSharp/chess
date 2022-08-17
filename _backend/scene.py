@@ -5,11 +5,6 @@ from config import *
 from player import *
 from board import *
 from accessory import *
-
-############################################################
-# Update 8/16: Button works, hover color doesn't, can't test
-############################################################
- 
  
 class SceneManager:
     '''A stack of Scene objects that can pop/push next scene to top.'''
