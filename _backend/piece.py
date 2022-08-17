@@ -283,6 +283,9 @@ class Queen(Piece):
 class King(Piece):
     def __init__(self, pos, turn):
         super().__init__(pos, turn, "king")
+        
+        
+        
         self.piece_moves = [("1", "1"), ("1", "-1"), ("-1", "1"), ("-1", "-1"), ("1", "0"), ("0", "1"), ("-1", "0"), ("0", "-1")]
         self._set_sprite(turn, "king_top.png", "king_top.png")
         self.threats = []

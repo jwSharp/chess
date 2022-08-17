@@ -25,6 +25,8 @@ class Board:
         
         # Game State
         self.pause = False
+        self.is_check = False
+        
         
         
         
@@ -364,6 +366,8 @@ class Board:
         return False
     
     
+    
+    
     def change_piece(self, piece, change_turn = False): #TODO view
         if self.needs_change == None or self.needs_change not in self.pieces:
             return
@@ -385,10 +389,16 @@ class Board:
         self.check()
         self.made_a_turn = True
 
+
+
+
     ### Flip Board ###
     def flip_places(self): #TODO view
         for piece in self.pieces:
             piece.reflect_place()
+
+
+
 
     def _get_grid_position(self, x: float, y: float): #TODO view
         block_size = self.board_panel.width / 8
@@ -403,18 +413,27 @@ class Board:
         y = y + self.board_panel.y * block_size
         return x, y
     
+    
+    
+    
+    
+    
     def _reset_selected(self, keep_feedback=False): #TODO view
         self.selected_piece = None
         self.holding_piece = False
         self.selected_block = None
+        
         self.movable_blocks = []
         self.capturables = []
         self.castling_blocks = []
+        
         if not keep_feedback:
             self.feedback_blocks = {}
     
     def _reset_pieces(self): #TODO view
         '''Set up board with bieces '''
+        self.FEN = ""
+        
         self.selected_block = None
         self.stuck_indicator = None
         self.holding_piece = False
