@@ -110,11 +110,6 @@ a:hover {
 .intro-text p {
     margin: 1.5rem 0;
 }
-.intro-image {
-    flex: 1 0 33%;
-    padding-right: 2rem;
-    text-align: right;
-}
 .img-thumbnail {
     display: flex;
     flex-direction: column;
@@ -162,10 +157,20 @@ a:hover {
   font-weight: bold;
 }
 .caption-text {
-  font-size: 1.1em;
+  font-size: .9em;
   text-align: center;
   padding: .5em;
 }
+.caption-text2 {
+    font-size: 1em;
+    text-align: center;
+    padding: .5em;
+  }
+  .caption-text3 {
+    font-size: 1.1em;
+    text-align: center;
+    padding: .5em;
+  }
 .about {
     margin-bottom: 1rem;
 }
