@@ -741,7 +741,13 @@ class Game(Scene):
                     self.timer_2.update()
         if event.type == pygame.KEYDOWN:
             if event.key == pygame.K_ESCAPE:
-                self.manager.pop()
+               scene = PauseMenu(self.manager)
+               self.manager.push(scene)
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.menu_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
+                if pygame.mouse.get_pressed()[0]:
+                    scene = PauseMenu(self.manager)
+                    self.manager.push(scene)
         mouse_pos = pygame.mouse.get_pos()
         self.board.input(event)
     
@@ -786,7 +792,8 @@ class Game(Scene):
             self.timer_2.draw(screen, right_wing.center, 32)
 
         # Menu Buttons
-        screen.blit(self.menu_text, self.menu_text.get_rect(center=(right_wing.centerx, right_wing.height * .82)))
+        self.menu_rect = self.menu_text.get_rect(center=(right_wing.centerx, right_wing.height * .82))
+        screen.blit(self.menu_text, self.menu_rect)
         screen.blit(self.exit_text, self.exit_text.get_rect(center=(right_wing.centerx, right_wing.height * .92)))
         
         # Player Names
@@ -911,46 +918,50 @@ class PauseMenu(Scene):
  
 
     def input(self, event):
-       mouse_pos = pygame.mouse.get_pos()
-       if event.type == pygame.MOUSEBUTTONDOWN:
+        mouse_pos = pygame.mouse.get_pos()
+        if event.type == pygame.MOUSEBUTTONDOWN:
             
-           if self.instruct.input(mouse_pos):
-               scene = Instructions(self.manager)
-               self.manager.push(scene)
+            if self.instruct.input(mouse_pos):
+                scene = Instructions(self.manager)
+                self.manager.push(scene)
 
-           elif self.theme.input(mouse_pos):
-               scene = ThemeSelection(self.manager)
-               self.manager.push(scene)
-            
-           elif self.lang.input(mouse_pos):
-               scene = LanguageSelection(self.manager)
-               self.manager.push(scene)
-            
-           elif self.access.input(mouse_pos):
-               scene = AccessSettings(self.manager)
-               self.manager.push(scene)
+            elif self.theme.input(mouse_pos):
+                scene = ThemeSelection(self.manager)
+                self.manager.push(scene)
+                
+            elif self.lang.input(mouse_pos):
+                scene = LanguageSelection(self.manager)
+                self.manager.push(scene)
+                
+            elif self.access.input(mouse_pos):
+                scene = AccessSettings(self.manager)
+                self.manager.push(scene)
+        
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.manager.pop()
                
  
-       self.instruct.set_color(mouse_pos)
-       self.theme.set_color(mouse_pos)
-       self.lang.set_color(mouse_pos)
-       self.access.set_color(mouse_pos)
+        self.instruct.set_color(mouse_pos)
+        self.theme.set_color(mouse_pos)
+        self.lang.set_color(mouse_pos)
+        self.access.set_color(mouse_pos)
  
     def draw(self, screen):
-       pygame.display.set_caption("Pause Menu")
-       screen.fill(BLACK)
- 
-       screen.blit(self.text_shadow, self.text_shadow_rect)
-       screen.blit(self.text, self.text_rect)
-       screen.blit(self.theme_shadow, self.theme_shadow_rect)
-       screen.blit(self.instruct_shadow, self.instruct_shadow_rect)
-       self.instruct.update(screen)
-       screen.blit(self.theme_shadow, self.theme_shadow_rect)
-       self.theme.update(screen)
-       screen.blit(self.lang_shadow, self.lang_shadow_rect)
-       self.lang.update(screen)
-       screen.blit(self.access_shadow, self.access_shadow_rect)
-       self.access.update(screen)
+        pygame.display.set_caption("Pause Menu")
+        screen.fill(BLACK)
+    
+        screen.blit(self.text_shadow, self.text_shadow_rect)
+        screen.blit(self.text, self.text_rect)
+        screen.blit(self.theme_shadow, self.theme_shadow_rect)
+        screen.blit(self.instruct_shadow, self.instruct_shadow_rect)
+        self.instruct.update(screen)
+        screen.blit(self.theme_shadow, self.theme_shadow_rect)
+        self.theme.update(screen)
+        screen.blit(self.lang_shadow, self.lang_shadow_rect)
+        self.lang.update(screen)
+        screen.blit(self.access_shadow, self.access_shadow_rect)
+        self.access.update(screen)
 
 
 ##########################
