@@ -1,1 +1,3 @@
-At the moment, this project may not be contributed to.
+# Contributing
+
+- Unfortunately, at this time, no outside contributions may be made.
