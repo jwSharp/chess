@@ -19,7 +19,7 @@ build-job:
   stage: build
   variables:
     NAME: jwsharp/chess
-    TAG: python-app-1.0
+    TAG: chess
 
     DOCKER_TLS_CERTDIR: "/certs"
 
