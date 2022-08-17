@@ -5,6 +5,10 @@ from config import *
 from player import *
 from board import *
 from accessory import *
+
+############################################################
+# Update 8/16: Button works, hover color doesn't, can't test
+############################################################
  
  
 class SceneManager:
@@ -722,11 +726,10 @@ class Game(Scene):
         self.retro_text = font.render("Retro", True, GOLD)
         self.modern_text = font.render("Modern", True, GOLD)
         self.chess_text = font.render("Chess", True, GOLD)
-        
-        # Menu Buttons
+
         font = GET_FONT("ocr", 58)
-        self.menu_text = font.render("Menu", True, BLACK, GREY)
-        self.exit_text = font.render("Exit", True, BLACK, GREY)
+        self.menu_button = Button(None, (1152, 664), "Menu", font, WHITE, GREY)
+        self.exit_button = Button(None, (1152, 732), "Exit", font, WHITE, GOLD)
         
         # Board
         self.board = Board(self.manager)
@@ -734,16 +737,21 @@ class Game(Scene):
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.USEREVENT:
-            if self.board.game_state() != 'Check-Mate' and self.board.turn_count != 0 and not self.board.pause:
-                if self.board.current_turn == 0 and self.timer_1 != None:
-                    self.timer_1.update()
-                if self.board.current_turn == 1 and self.timer_2 != None:
-                    self.timer_2.update()
-        if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
-                self.manager.pop()
+            if self.board.current_turn == 0:
+                self.timer_1.update()
+            if self.board.current_turn == 1:
+                self.timer_2.update()
+            self.menu_button.set_color(mouse_pos)
+            self.exit_button.set_color(mouse_pos)
         mouse_pos = pygame.mouse.get_pos()
         self.board.input(event)
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.exit_button.input(mouse_pos):
+                pygame.quit()
+                sys.exit()
+        else:
+            pass
     
     def draw(self, screen):
         pygame.display.set_caption("Retro|Modern Chess")
@@ -762,7 +770,7 @@ class Game(Scene):
         
         # Turn Change
         if self.board.made_a_turn:
-            self.board.check()
+            self.board.handle_check()
             if self.board.turn_count != 0:
                 if self.board.current_turn == 1:
                     self.timer_1.add_additional(self.time[1])
@@ -786,8 +794,10 @@ class Game(Scene):
             self.timer_2.draw(screen, right_wing.center, 32)
 
         # Menu Buttons
-        screen.blit(self.menu_text, self.menu_text.get_rect(center=(right_wing.centerx, right_wing.height * .82)))
-        screen.blit(self.exit_text, self.exit_text.get_rect(center=(right_wing.centerx, right_wing.height * .92)))
+
+        font = GET_FONT("ocr", screen.get_width() // 22)
+        self.menu_button = Button(None, (screen.get_width() * .9, screen.get_height() * .83), "Menu", font, WHITE, GREY)
+        self.exit_button = Button(None, (screen.get_width() * .9, screen.get_height() * .92), "Exit", font, WHITE, GOLD)
         
         # Player Names
         self._add_player_text(screen, left_wing, self.manager.players[0].name)
@@ -798,6 +808,9 @@ class Game(Scene):
         
         self.game_state_text = GET_FONT("elephant", 30).render(self.board.game_state(), True, OAK)
         screen.blit(self.game_state_text, self.game_state_text.get_rect(center=(self.board.board_panel.centerx, screen.get_height() - 30)))
+
+        self.menu_button.update(screen)
+        self.exit_button.update(screen)
         
     def _draw_frame(self, screen, left_wing, right_wing):
         self._add_wings(screen, left_wing, right_wing)
