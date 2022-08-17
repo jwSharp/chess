@@ -5,7 +5,9 @@ stages:
 
 unit-test-job:
   stage: test
+
   image: python:3.10-slim-buster # for pip and unit tests
+
   before_script:
     - apt-get update && apt-get install make # for make cmd
   script:
@@ -15,14 +17,16 @@ unit-test-job:
 
 build-job:
   stage: build
-
   variables:
     NAME: jwsharp/chess
     TAG: python-app-1.0
 
-  # Docker Daemon locally
+    DOCKER_TLS_CERTDIR: "/certs"
+
+  # Connect client and server
   image: docker:20.10.17
-  services: docker:20.10.17-dind
+  services:
+    - docker:20.10.17-dind
 
   before_script:
     - docker login -u $DOCKER_USER -p $DOCKER_PASS
@@ -34,8 +38,10 @@ build-job:
 
 deploy-job:
   stage: deploy
+
   environment: production # may change environment
+
   script:
-    - echo "deploy phase"
+    - 
   after_script:
     - echo "Application successfully deployed."
