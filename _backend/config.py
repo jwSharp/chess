@@ -5,7 +5,7 @@ from pathlib import Path
 ##########
 # Pygame #
 ##########
-ASPECT_RATIO = (16, 9.5)
+ASPECT_RATIO = (16, 10)
 HEIGHT = 800
 WIDTH = 1280
 SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
