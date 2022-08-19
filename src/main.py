@@ -1,8 +1,8 @@
 import pygame
 
-from config import *
+from config import * #TODO Import in a cleaner fashion
 from scene import SceneManager, MainMenuScene
-from player import *
+from player import Human
 
 
 def main():
