@@ -18,16 +18,14 @@ class Piece:
         self.turn = turn
         
         self.captured = False
-        self.move_count = 0
+        
+        self.move_count = 0 # move to pawn and king and rook only
     
     def input(self, event: pygame.event):
         if event.type == pygame.VIDEORESIZE:
             self.sprite = pygame.image.load(self.image_path)
-    
-    def update(self, pieces=[], board_turns=False):
-        pass
 
-    def draw(self, screen, blit_size: (int, int), panel, rotate = 0):
+    def draw(self, screen, blit_size: (int, int), panel, rotate = 0): #TODO view
         if self.image_path == None or self.pos == None:
             return
         self.sprite = pygame.image.load(self.image_path)
@@ -38,7 +36,10 @@ class Piece:
         self.sprite = pygame.transform.smoothscale(self.sprite, blit_size)
         screen.blit(self.sprite, (x_pos, y_pos))
     
-    def move_piece(self, x, y, current_turn=0, other_pieces=[]) -> (int, int):
+    ###
+    # Piece Movement
+    ###
+    def move(self, x, y, current_turn=0, other_pieces=[]) -> (int, int): #TODO view
         if self.is_valid_move(x, y, other_pieces) and self.turn == current_turn:
             self.current_pos = (x, y)
             self.pos = (x, y)
@@ -46,21 +47,14 @@ class Piece:
         else:
             self.pos = self.current_pos
         return self.current_pos
-    
-    def force_move(self, x, y, count_move = True, condition = True) -> (int, int):
-        if condition:
-            self.current_pos = (x, y)
-            self.pos = (x, y)
-            if count_move:
-                self.move_count += 1
-        return self.current_pos
 
-    def is_valid_move(self, target_x, target_y, other_pieces=[]) -> bool:
+    def is_valid_move(self, target_x, target_y, other_pieces=[]) -> bool: #TODO rewrite partially
+        '''Determines whether the piece may move to a selected square given the board state.'''
         if target_x < 0 or target_x > 7 or target_y < 0 or target_y > 7 or (target_x, target_y) == self.current_pos:
             return False
         return (target_x, target_y) in self.get_movement(other_pieces) or (target_x, target_y) in self.get_capturables(other_pieces)
     
-    def get_movement(self, other_pieces):
+    def get_movement(self, other_pieces): #TODO view
         blocks = []
         self.capturables = []
         piece_positions = []
@@ -91,7 +85,7 @@ class Piece:
         self.capturables = [c for c in self.capturables if c not in self.disabled_moves]
         return [b for b in blocks if b not in self.disabled_moves]
 
-    def get_capturables(self, other_pieces):
+    def get_capturables(self, other_pieces): #TODO view
         if self.piece_attacks == None:
             self.get_movement(other_pieces)
         else:
@@ -110,45 +104,28 @@ class Piece:
                         break
         return self.capturables
 
-    def add_to_pos(self, move: str):
+    def is_protected(self, pieces) -> bool: #TODO view
+        self._change_turn(pieces)
+        self.protectors = [p for p in pieces if p.turn == self.turn and self.current_pos in p.get_capturables(pieces)]
+        self._change_turn(pieces)
+        return len(self.protectors) > 0
+
+    def destroy(self): #TODO implement graveyard
+        '''Moves a piece from the board to the graveyard.'''
+        self.current_pos = None
+        self.pos = None
+        self.captured = True
+        
+        # Move to graveyard #TODO
+
+    def add_to_pos(self, move: str): #TODO rewrite entirely
         return [
             (self.current_pos[0] + j[0], self.current_pos[1] - j[1])
             for j in self.decode_move(move) 
             if self.current_pos[0] + j[0] in range(0, 8) and self.current_pos[1] - j[1] in range(0, 8)
         ]
         
-    def reflect_place(self):
-        '''
-            Mirrors the pieces position.
-        '''
-        if self.current_pos == None:
-            return
-        x = 7 - self.current_pos[0]
-        y = 7 - self.current_pos[1]
-        self.force_move(x, y, False)
-        self.piece_moves = self.get_reflected_move(self.piece_moves)
-        if self.piece_attacks != None:
-            self.piece_attacks = self.get_reflected_move(self.piece_attacks)
-        return (x, y)
-
-    def get_reflected_move(self, old_move:[(str)]) -> [(str)]:
-        '''
-            Returns reflected movement of a piece!
-        '''
-        new_move = []
-        for move in old_move:
-            new_points = []
-            for point in move:
-                temp = point
-                try:
-                    temp = str(int(temp) * -1)
-                except:
-                    temp = str(int(temp.split('|')[0]) * -1) + '|' + str(int(temp.split('|')[1]) * -1)
-                new_points.append(temp)
-            new_move.append(new_points)
-        return new_move
-
-    def decode_move(self, area: list) -> [(int, int)]:
+    def decode_move(self, area: list) -> [(int, int)]: #TODO view
         '''
             Return all possible blocks as a list
         '''
@@ -172,15 +149,54 @@ class Piece:
             y = pos_y[-1] if pos_y.index(pos_y[-1]) < i else pos_y[i]
             blocks.append((x, y))
         return blocks
-
-    def destroy_piece(self):
-        self.current_pos = None
-        self.pos = None
-        self.captured = True
     
-    def _get_n2n(self, n2n: str, seperator: str):
+    
+    ###
+    # Two Player Board Flip
+    ###
+    def translate(self, x, y, count_move = True, condition = True) -> (int, int): #TODO view
+        '''Translates piece from one location to another.'''
+        if condition:
+            self.current_pos = (x, y)
+            self.pos = (x, y)
+            if count_move:
+                self.move_count += 1
+        return self.current_pos
+    
+    def reflect_place(self): #TODO view
         '''
-            Returns List of numbers from n2n by seperating
+            Mirrors the pieces position.
+        '''
+        if self.current_pos == None:
+            return
+        x = 7 - self.current_pos[0]
+        y = 7 - self.current_pos[1]
+        self.translate(x, y, False)
+        self.piece_moves = self.get_reflected_move(self.piece_moves)
+        if self.piece_attacks != None:
+            self.piece_attacks = self.get_reflected_move(self.piece_attacks)
+        return (x, y)
+
+    def get_reflected_move(self, old_move:[(str)]) -> [(str)]: #TODO view
+        '''
+            Returns reflected movement of a piece!
+        '''
+        new_move = []
+        for move in old_move:
+            new_points = []
+            for point in move:
+                temp = point
+                try:
+                    temp = str(int(temp) * -1)
+                except:
+                    temp = str(int(temp.split('|')[0]) * -1) + '|' + str(int(temp.split('|')[1]) * -1)
+                new_points.append(temp)
+            new_move.append(new_points)
+        return new_move
+    
+    def _get_n2n(self, n2n: str, seperator: str) -> list: #TODO What?
+        '''
+            Returns list of numbers from n2n by seperating
             with the seperator.
             i.e: n2n = 1|5, seperator = '|' -> [1, 2, 3, 4, 5]
         '''
@@ -200,25 +216,23 @@ class Piece:
         
         return nums
 
-    def _set_sprite(self, turn, white_piece_name, black_piece_name):
+
+    def _set_sprite(self, turn, white_piece_name, black_piece_name): #TODO view
         if turn == 0:
-            self.image_path = WHITE_PIECES_PATH + white_piece_name
+            self.image_path = WHITE_PIECES_PATH + white_piece_name # + view + piece_name
         else:
             self.image_path = BLACK_PIECES_PATH + black_piece_name
     
-    def _change_turn(self, pieces):
+    def _change_turn(self, pieces): #TODO view
         piece_turns = [p.turn for p in pieces]
         if self.turn < max(piece_turns):
             self.turn += 1
         else:
             self.turn = min(piece_turns)
 
-    def is_protected(self, pieces) -> bool:
-        self._change_turn(pieces)
-        self.protectors = [p for p in pieces if p.turn == self.turn and self.current_pos in p.get_capturables(pieces)]
-        self._change_turn(pieces)
-        return len(self.protectors) > 0
-
+##########
+# Pieces #
+##########
 class Pawn(Piece):
     def __init__(self, pos, turn):
         super().__init__(pos, turn, "pawn")
@@ -232,6 +246,15 @@ class Pawn(Piece):
                 self.piece_moves = [('0', '1')]
             else:
                 self.piece_moves = [('0', '1')] if self.turn == 0 else [('0', '-1')]
+    
+    def destroy(self, promotion=False):
+        '''Moves a piece from the board to the graveyard (if not a promotion)'''
+        self.current_pos = None
+        self.pos = None
+        self.captured = True
+        
+        if not promotion:# Move to graveyard
+            pass
     
 class Bishop(Piece):
     def __init__(self, pos, turn):
@@ -270,7 +293,7 @@ class King(Piece):
     def update(self, pieces=[], board_turns=False):
         self.board_turns = board_turns
     
-    def move_piece(self, x, y, current_turn=0, other_pieces=[]) -> (int, int):
+    def move(self, x, y, current_turn=0, other_pieces=[]) -> (int, int):
         if self.is_valid_move(x, y, other_pieces) and self.turn == current_turn:
             self.current_pos = (x, y)
             self.pos = (x, y)
@@ -341,7 +364,7 @@ class King(Piece):
     def do_castling(self, block):
         if block not in self.castling_blocks:
             return
-        self.force_move(block[0], block[1])
+        self.translate(block[0], block[1])
         for rook in self.rooks_can_castle:
             print(rook.current_pos)
             if block[0] + 1 == rook.current_pos[0] or block[0] + 2 == rook.current_pos[0]:
