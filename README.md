@@ -38,13 +38,14 @@ Down the Road:
 Current Contributors: [Jacob Sharp][1]
 
 Original Authors: [Jacob Sharp][1], [Amy Ciuffoletti][2], [Ashley Butela][3], [Mehmet Özen][4], and [Nabeyou Tadessa][5].
-A special thank you to our project mentor Felipe Rivera. Thanks to the instructional team at Talentsprint's Teachwise.
+A special thank you to our project mentor [Felipe Rivera][6]. Thanks to the instructional team at Talentsprint's Teachwise.
 
 [1]: https://www.linkedin.com/in/jacob-w-sharp/ "Jacob Sharp's LinkedIn"
 [2]: https://www.linkedin.com/in/amy-c-9b7a9a23b/ "Amy Ciuffoletti's LinkedIn"
 [3]: https://www.linkedin.com/in/ashley-butela/ "Ashley Butela's LinkedIn"
 [4]: https://www.linkedin.com/ "Unknown LinkedIn Profile"
 [5]: https://www.linkedin.com/in/nabeyoutadessa/ "Nabeyou Tadessa's LinkedIn"
+[6]: https://www.linkedin.com/in/feliperiverach/ "Felipe Rivera's LinkedIn"
 
 ## License
 MIT License
