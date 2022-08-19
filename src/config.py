@@ -5,14 +5,14 @@ from pathlib import Path
 ##########
 # Pygame #
 ##########
-ASPECT_RATIO = (16, 10)
+pygame.init() #TODO Move to main ideally
+ASPECT_RATIO = (16, 10) #TODO Make more streamlined
 HEIGHT = 800
 WIDTH = 1280
-SCREEN = pygame.display.set_mode((WIDTH, HEIGHT))
-CLOCK = pygame.time.Clock()
-pygame.init()
+
 
 def PIXEL_TO_ASPECT(width, height, aspect = ASPECT_RATIO):
+    ''''''
     if width < height:
         width = abs(round(height / aspect[1])) * aspect[0] 
     else:
@@ -20,6 +20,7 @@ def PIXEL_TO_ASPECT(width, height, aspect = ASPECT_RATIO):
     return width, height
 
 def FIXED_SCALE(width, height, limit_min: tuple, limit_max: tuple):
+    ''''''
     if width < limit_min[0]:
         width = limit_min[0]
     if height < limit_min[1]:
@@ -29,6 +30,7 @@ def FIXED_SCALE(width, height, limit_min: tuple, limit_max: tuple):
     if height > limit_max[1]:
         height = limit_max[1]
     return width, height
+
 #########
 # Paths #
 #########
@@ -36,6 +38,7 @@ FILE_PATH = Path(__file__).parent.absolute()
 ASSETS_PATH = str(FILE_PATH / "Assets") + "/"
 IMAGES_PATH = ASSETS_PATH + "Images/"
 TEXTURE_PATH = ASSETS_PATH + "Textures/"
+#TODO Redo structure ex. Pieces/ViewType/Black
 BLACK_PIECES_PATH = ASSETS_PATH + "Pieces/Black/Top/"
 WHITE_PIECES_PATH = ASSETS_PATH + "Pieces/White/Top/"
 FONTS_PATH = ASSETS_PATH + "Fonts" + "/"
@@ -43,19 +46,19 @@ FONTS_PATH = ASSETS_PATH + "Fonts" + "/"
 #########
 # Fonts #
 #########
-#SIZES = {'small' : 20, 'medium' : 40, 'large' : 60}
-FONTS = { 'Regular' : FONTS_PATH + "regular.ttf", 'Timer' : FONTS_PATH + "alarm_clock.ttf", 'elephant' : FONTS_PATH + "elephant.ttf", 'ocr' : FONTS_PATH + "ocr.ttf"}
+
+CUSTOM_FONTS = { 'Regular' : FONTS_PATH + "regular.ttf", 'Timer' : FONTS_PATH + "alarm_clock.ttf", 'elephant' : FONTS_PATH + "elephant.ttf", 'ocr' : FONTS_PATH + "ocr.ttf"}
 SYS_FONTS = pygame.font.get_fonts()
 def GET_FONT(name: str, size: int):
-    '''Returns the @name pygame font of @size size.'''
+    '''Returns the pygame font of a particular size.'''
     if name in SYS_FONTS:
         return pygame.font.SysFont(name, size)
-    return pygame.font.Font(FONTS[name], size)
+    return pygame.font.Font(CUSTOM_FONTS[name], size)
 
 ##########
 # Colors #
 ##########
-BLACK = (0, 0, 0)
+BLACK = (0, 0, 0) #TODO Change all to hexcode.
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
 LIGHT_GREEN = (116, 252, 152, 50)
