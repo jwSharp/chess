@@ -23,16 +23,17 @@ class Board:
         
         # Game State
         self.pause = False
+
         self.is_check = False
-        
+
         
         
         
         self.board_turning = False
-        self.ai_thinking = False
         self.delay = 1
 
         self.ai_delay = random.randint(3, 10)
+
 
         self._reset_selected()
         self._reset_pieces()
@@ -41,16 +42,14 @@ class Board:
         mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
-                if self.current_turn == 0 or not type(self.manager.players[1]) == Computer:
-                    self.selected_block = self.select_block(mouse_pos)
+                self.selected_block = self.select_block(mouse_pos)
         elif event.type == pygame.MOUSEBUTTONUP:
             if event.button == 1:  # release left click to drop the piece
-
                 if self.current_turn == 0 or not type(self.manager.players[1]) == Computer:
                     self.drop_piece(mouse_pos)
+
         elif pygame.mouse.get_pressed()[0]:  # if dragging, move the piece
-            if self.current_turn == 0 or not type(self.manager.players[1]) == Computer:
-                self.drag_piece(mouse_pos[0], mouse_pos[1])
+            self.drag(mouse_pos[0], mouse_pos[1])
         elif event.type == pygame.KEYDOWN:
             if self.needs_change:
                 pos = self.needs_change.current_pos
@@ -86,6 +85,7 @@ class Board:
                     self.delay = 1
                     pygame.time.set_timer(pygame.USEREVENT, 1000)
 
+
     ##################
     # Draw the Board #
     ##################
@@ -108,18 +108,22 @@ class Board:
         self.draw_border(screen, playing_field)
         self.draw_pieces(screen)
         
+
         if self.needs_change == None:
             self.pause = False
         else:
             self.pause = True
             
+        # Transition Between Turns #TODO move to Scene somehow
         if self.board_turning and self.board_turns and not self.pause:
+
             r = pygame.Rect(0, 0, 400, 200)
             r.center = screen.get_rect().center
             pygame.draw.rect(screen, OAK, r, 0, 10)
             text = GET_FONT('elephant', 40).render("White's turn!" if self.current_turn == 1 else "Black's turn!", True, WHITE)
             screen.blit(text, text.get_rect(center=(screen.get_rect().centerx, screen.get_rect().centery)))
             
+
         if self.needs_change == None:
             self.pause = False
         else:
@@ -131,7 +135,6 @@ class Board:
                 self.select_block(None, (selected_piece.current_pos[0], selected_piece.current_pos[1]))
             drop_pos = random.sample(self.selected_piece.get_movement(self.pieces) + self.selected_piece.get_capturables(self.pieces), 1)[0]
             self.select_block(None, (drop_pos[0], drop_pos[1]))
-            
 
     def draw_squares(self,screen, playing_field):
         '''Draws individual squares of the board.'''
@@ -169,6 +172,7 @@ class Board:
             if piece == self.selected_piece: #TODO why?
                 continue
             
+            # Make Knight Face Proper Direction
             if isinstance(piece, Knight): 
                 if self.board_turns:
                     if self.current_turn == 0:
@@ -244,6 +248,7 @@ class Board:
         highlight.left = playing_field.left - 3
         pygame.draw.rect(screen, WHITE, highlight, 1)
 
+
     def select_block(self, pos: tuple, grid_pos: tuple = None):
         if self.pause or (pos == None and grid_pos == None):
             return
@@ -280,11 +285,17 @@ class Board:
                     self._reset_selected(True)
         return (x, y)
     
-    def drag_piece(self, x, y):
-        """
-        Since draw_pieces renders the piece by its position, drag_piece changes
-        the position of the held piece to the mouse position until drop_piece runs.
-        """
+
+        
+ 
+ 
+    #################
+    # Drag and Drop #
+    #################
+    def drag(self, x, y): #TODO view
+        """Since draw_pieces renders the piece by its position, drag_piece changes
+        the position of the held piece to the mouse position until drop_piece runs."""
+
         if self.board_panel == None or self.pause:
             return
         
@@ -301,18 +312,17 @@ class Board:
         if self.selected_piece is not None:
             self.selected_piece.pos = (x, y)
 
-            
-    def drop_piece(self, pos, grid_pos: tuple = None):
-        """
-        Calculates the grid point of the mouse position, after this method called
-        it will set the piece position to the grid point. which will give the snap effect.
-        """
+
+    
+    def drop(self, x, y, grid_pos: tuple = None): #TODO view
+        """Calculates the grid point of the mouse position, after this method called
+        it will set the piece position to the grid point. which will give the snap effect."""
 
         if self.board_panel == None:
             return False
         # converts x, y to grid position
         if grid_pos == None:
-            block_x, block_y = self._get_grid_position(pos[0], pos[1])
+            block_x, block_y = self._get_grid_position(x, y)
         else:
             block_x, block_y = grid_pos
         
@@ -442,8 +452,6 @@ class Board:
         return False
     
     
-    
-    
     def change_piece(self, piece, change_turn = False): #TODO view
         if self.needs_change == None or self.needs_change not in self.pieces:
             return
@@ -463,23 +471,18 @@ class Board:
             self.current_turn = min(self.turns)
         if self.board_turns: self.flip_places()
 
-        else: self.handle_ai()
+        else:
+            self.handle_ai()
 
         self.handle_check()
 
         self.made_a_turn = True
 
-
-
-
     ### Flip Board ###
     def flip_places(self): #TODO view
         for piece in self.pieces:
             piece.reflect_place()
-
-
-
-
+            
     def _get_grid_position(self, x: float, y: float): #TODO view
         block_size = self.board_panel.width / 8
         if x > self.board_panel.x and y > self.board_panel.y:
@@ -492,11 +495,6 @@ class Board:
         x = x + self.board_panel.x * block_size
         y = y + self.board_panel.y * block_size
         return x, y
-    
-    
-    
-    
-    
     
     def _reset_selected(self, keep_feedback=False): #TODO view
         self.selected_piece = None
@@ -513,7 +511,8 @@ class Board:
     
     def _reset_pieces(self): #TODO view
         '''Set up board with bieces '''
-        self.FEN = ""
+
+        self.FEN = "" #TODO FEN Functionality
         
         self.selected_block = None
         self.stuck_indicator = None

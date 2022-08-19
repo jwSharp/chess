@@ -6,7 +6,6 @@ from player import *
 from board import *
 from accessory import *
  
- 
 class SceneManager:
     '''A stack of Scene objects that can pop/push next scene to top.'''
     def __init__(self, players: [Player]):
@@ -259,8 +258,7 @@ class AI_Selection(Scene):
         if event.type == pygame.MOUSEBUTTONDOWN:
             
             if self.easy.input(mouse_pos):
-                scene = TimeSelection(self.manager)
-                self.manager.push(scene)
+                pass
             
             elif self.medium.input(mouse_pos):
                 pass
@@ -473,7 +471,7 @@ class Options(Scene):
                 
             elif self.back.input(mouse_pos):
                 self.manager.pop()  # close options menu
-            
+        
         self.options.set_color(mouse_pos)
         self.credits.set_color(mouse_pos)
         self.back.set_color(mouse_pos)
@@ -489,11 +487,6 @@ class Options(Scene):
         screen.blit(self.credits_shadow, self.credits_rect)
         screen.blit(self.back_shadow, self.back_shadow_rect)
         screen.blit(self.quit_shadow, self.quit_rect)
-
-        self.options.update(screen)
-        self.credits.update(screen)
-        self.back.update(screen)
-        self.quit.update(screen)
 
 class GameOptions(Scene):
     '''Game options menu where player can see Instructions, Theme Selection, Language Selection, and Accessibility Settings.'''
@@ -550,7 +543,7 @@ class GameOptions(Scene):
            elif self.access.input(mouse_pos):
                scene = AccessSettings(self.manager)
                self.manager.push(scene)
-           
+       
        self.instruct.set_color(mouse_pos)
        self.back.set_color(mouse_pos)
        self.theme.set_color(mouse_pos)
@@ -573,7 +566,6 @@ class GameOptions(Scene):
        self.lang.update(screen)
        screen.blit(self.access_shadow, self.access_shadow_rect)
        self.access.update(screen)
-       
 
 class ThemeSelection(GameOptions):
     "Future scene to select different theme options for game play"
@@ -618,10 +610,9 @@ class ThemeSelection(GameOptions):
        screen.blit(self.back_shadow, self.back_shadow_rect)
        self.back.update(screen)
 
-
 class LanguageSelection(GameOptions):
     '''Future scene to select different language options for game play.'''
-    
+
     def __init__(self, manager):
        self.manager = manager
  
@@ -665,7 +656,7 @@ class LanguageSelection(GameOptions):
 
 class AccessSettings(GameOptions):
     '''Future scene to select different accessibility feature settings.'''
-    
+
     def __init__(self, manager):
        self.manager = manager
  
@@ -754,6 +745,7 @@ class Game(Scene):
             if event.key == pygame.K_ESCAPE: #TODO Change key to escape
                scene = PauseMenu(self.manager)
                self.manager.push(scene)
+
         mouse_pos = pygame.mouse.get_pos()
         self.board.input(event)
 
@@ -787,7 +779,7 @@ class Game(Scene):
         # Turn Change
         if self.board.made_a_turn:
             self.board.handle_check()
-            if self.board.turn_count != 0 and self.time != (0, 0):
+            if self.board.turn_count != 0:
                 if self.board.current_turn == 1:
                     self.timer_1.add_additional(self.time[1])
                 else:
@@ -812,8 +804,8 @@ class Game(Scene):
         # Timer
         if self.time != (0, 0):
             self._add_timer_rects(screen, left_wing, right_wing)
-            self.timer_1.draw(screen, (left_wing.centerx, screen.get_height() * .19), 32)
-            self.timer_2.draw(screen, (right_wing.centerx, screen.get_height() * .19), 32)
+            self.timer_1.draw(screen, left_wing.center, 32)
+            self.timer_2.draw(screen, right_wing.center, 32)
 
         # Menu Buttons
         self.menu_rect = self.menu_text.get_rect(center=(right_wing.centerx, right_wing.height * .82))
@@ -984,6 +976,7 @@ class PauseMenu(Scene):
         self.lang.update(screen)
         screen.blit(self.access_shadow, self.access_shadow_rect)
         self.access.update(screen)
+
 
 
 ##########################
@@ -1253,4 +1246,3 @@ class TimerInfo(TimeSelection):
         screen.blit(self.rapid, self.rapid_rect)
         screen.blit(self.back_shadow, self.back_shadow_rect)
         self.back.update(screen)
-
