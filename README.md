@@ -1,8 +1,10 @@
 # Chess
 What We Aim to Accomplish:
+
 Website-based chess focused on the ease of playing Simultaneous Exhibitions (Simuls). A CNN will allow chess masters to play Simuls with their voice. The feature proves especially helpful when playing blindfolded. No longer will mouse-slips or mistyped words interfere with the exhibition.
 
 Humble Beginnings:
+
 As the first project for TalentSprint's TechWise, our group of five aims to create a functional and unique rendition of the classic chess game. The project ran from July 6, 2022 to August 22, 2022. Our team presented to a panel of industry professionals from companies including Google and Microsoft. Our final product was a fully functional chess game with a "retro" feel. Integrated was a static website that hosted the executable file for our game.
 
 ## Visuals
@@ -38,7 +40,7 @@ Down the Road:
 Current Contributors: [Jacob Sharp][1]
 
 Original Authors: [Jacob Sharp][1], [Amy Ciuffoletti][2], [Ashley Butela][3], [Mehmet Özen][4], and [Nabeyou Tadessa][5].
-A special thank you to our project mentor [Felipe Rivera][6]. Thanks to the instructional team at Talentsprint's Teachwise.
+A special thank you to our project mentor [Felipe Rivera][6]. Thanks to the instructional team at TalentSprint's TeachWise.
 
 [1]: https://www.linkedin.com/in/jacob-w-sharp/ "Jacob Sharp's LinkedIn"
 [2]: https://www.linkedin.com/in/amy-c-9b7a9a23b/ "Amy Ciuffoletti's LinkedIn"
@@ -53,4 +55,4 @@ MIT License
 ## Project status
 In Progress
 
-A code freeze for the final presentation has been implemented. Work from after August 19 is on an individual basis.
+(A code freeze for the final presentation has been implemented. Work from after August 19 is on an individual basis.)
