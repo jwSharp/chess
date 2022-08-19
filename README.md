@@ -45,7 +45,7 @@ A special thank you to our project mentor [Felipe Rivera][6]. Thanks to the inst
 [1]: https://www.linkedin.com/in/jacob-w-sharp/ "Jacob Sharp's LinkedIn"
 [2]: https://www.linkedin.com/in/amy-c-9b7a9a23b/ "Amy Ciuffoletti's LinkedIn"
 [3]: https://www.linkedin.com/in/ashley-butela/ "Ashley Butela's LinkedIn"
-[4]: https://www.linkedin.com/ "Unknown LinkedIn Profile"
+[4]: https://www.linkedin.com/in/mehmet-ozen-8a8489175 "Mehmet Özen's LinkedIn"
 [5]: https://www.linkedin.com/in/nabeyoutadessa/ "Nabeyou Tadessa's LinkedIn"
 [6]: https://www.linkedin.com/in/feliperiverach/ "Felipe Rivera's LinkedIn"
 
