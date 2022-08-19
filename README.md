@@ -1,8 +1,8 @@
 # Chess
-As the first project for Talentsprint's Techwise, our group of five aims to create a functional and unique rendition of the classic chess game. The project begins on July 6 and ends in late August.
+As the first project for Talentsprint's Techwise, our group of five aims to create a functional and unique rendition of the classic chess game. The project began on July 6 and our final presentation is on August 22.
 
 ## Visuals
-![alt text](chess/Assets/visual.png)
+![Picture of Homepage](img/HomeScreen.png)
 
 ## Installation
 Install pygame:
