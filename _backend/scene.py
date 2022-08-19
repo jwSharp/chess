@@ -42,6 +42,7 @@ class SceneManager:
     def set(self, scene):
         self.scenes = [scene]
 
+
 ############
 # Abstract #
 ############
@@ -66,7 +67,8 @@ class Scene:
 # Main Menu #
 #############
 class MainMenuScene(Scene):
-    "Main menu screen to start game and/or find other options"
+    '''Main menu screen to start game and/or find other options.'''
+    
     def __init__(self, manager):
         self.manager = manager
     
@@ -126,7 +128,8 @@ class MainMenuScene(Scene):
 # Selection #
 #############
 class PlayerSelection(Scene):
-    "Player Selection Screen to select 1 or 2 player game"
+    '''Player Selection Screen to select 1 or 2 player game.'''
+    
     def __init__(self, manager):
         self.manager = manager
     
@@ -201,7 +204,8 @@ class PlayerSelection(Scene):
         self.back.update(screen)
     
 class AI_Selection(Scene):
-    "If 1 player game selected, choose difficulty level for ocmputer player"
+    '''If 1 player game selected, choose difficulty level for computer player.'''
+    
     def __init__(self, manager):
         self.manager = manager
     
@@ -314,7 +318,8 @@ class AI_Selection(Scene):
         self.quit.update(screen)
 
 class TimeSelection(Scene):
-    "Choose timer option for 1 or 2 player game"
+    '''Choose timer option for 1 or 2 player game.'''
+
     def __init__(self, manager):
         self.manager = manager
     
@@ -424,7 +429,8 @@ class TimeSelection(Scene):
             return (int(name[:2]), int(name[-2:]))
 
 class Options(Scene):
-    "Options screen where player can see game options and credits"
+    '''Options screen where player can see game options and credits.'''
+
     def __init__(self, manager):
         self.manager = manager
     
@@ -467,10 +473,6 @@ class Options(Scene):
             elif self.back.input(mouse_pos):
                 self.manager.pop()  # close options menu
             
-            elif self.quit.input(mouse_pos):
-                pygame.quit()
-                sys.exit()
-            
         self.options.set_color(mouse_pos)
         self.credits.set_color(mouse_pos)
         self.back.set_color(mouse_pos)
@@ -486,13 +488,15 @@ class Options(Scene):
         screen.blit(self.credits_shadow, self.credits_rect)
         screen.blit(self.back_shadow, self.back_shadow_rect)
         screen.blit(self.quit_shadow, self.quit_rect)
+
         self.options.update(screen)
         self.credits.update(screen)
         self.back.update(screen)
         self.quit.update(screen)
 
 class GameOptions(Scene):
-    "Game options menu where player can see Instructions, Theme Selection, Language Selection, and Accessibility Settings"
+    '''Game options menu where player can see Instructions, Theme Selection, Language Selection, and Accessibility Settings.'''
+
     def __init__(self, manager):
        self.manager = manager
  
@@ -523,7 +527,6 @@ class GameOptions(Scene):
        self.back = Button(None, (140, 750), "<=", font, WHITE, ORANGE)
        self.back_shadow = font.render("<=", True, ORANGE)
        self.back_shadow_rect = self.back_shadow.get_rect(center=(144, 754))
-
        
     def input(self, event):
        mouse_pos = pygame.mouse.get_pos()
@@ -546,8 +549,7 @@ class GameOptions(Scene):
            elif self.access.input(mouse_pos):
                scene = AccessSettings(self.manager)
                self.manager.push(scene)
-               
- 
+           
        self.instruct.set_color(mouse_pos)
        self.back.set_color(mouse_pos)
        self.theme.set_color(mouse_pos)
@@ -570,6 +572,7 @@ class GameOptions(Scene):
        self.lang.update(screen)
        screen.blit(self.access_shadow, self.access_shadow_rect)
        self.access.update(screen)
+       
 
 class ThemeSelection(GameOptions):
     "Future scene to select different theme options for game play"
@@ -614,8 +617,10 @@ class ThemeSelection(GameOptions):
        screen.blit(self.back_shadow, self.back_shadow_rect)
        self.back.update(screen)
 
+
 class LanguageSelection(GameOptions):
-    "Future scene to select different language options for game play"
+    '''Future scene to select different language options for game play.'''
+    
     def __init__(self, manager):
        self.manager = manager
  
@@ -658,7 +663,8 @@ class LanguageSelection(GameOptions):
        self.back.update(screen)
 
 class AccessSettings(GameOptions):
-    "Future scene to select different accessibility feature settings"
+    '''Future scene to select different accessibility feature settings.'''
+    
     def __init__(self, manager):
        self.manager = manager
  
@@ -704,8 +710,9 @@ class AccessSettings(GameOptions):
 # Game Play #
 #############
 class Game(Scene):
-    def __init__(self, manager, time=(0, 0)):
-        '''For timed and untimed chess matches.'''
+    '''For timed and untimed chess matches.'''
+    
+    def __init__(self, manager, time=(0, 0)):    
         self.manager = manager
         self.time = time
         pygame.time.set_timer(pygame.USEREVENT, 1000)
@@ -723,14 +730,15 @@ class Game(Scene):
         self.modern_text = font.render("Modern", True, GOLD)
         self.chess_text = font.render("Chess", True, GOLD)
         
-        # Menu Buttons
-        font = GET_FONT("ocr", 58)
-        self.menu_text = font.render("Menu", True, BLACK, GREY)
-        self.exit_text = font.render("Exit", True, BLACK, GREY)
-        
         # Board
         self.board = Board(self.manager)
     
+        # Menu Buttons
+
+        font = GET_FONT("ocr", 58)
+        self.menu_button = Button(None, (1152, 664), "Menu", font, WHITE, GREY) # TODO: Change when in-game menu working!
+        self.exit_button = Button(None, (1152, 736), "Exit", font, WHITE, GOLD)
+
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.USEREVENT:
@@ -739,23 +747,32 @@ class Game(Scene):
                     self.timer_1.update()
                 if self.board.current_turn == 1 and self.timer_2 != None:
                     self.timer_2.update()
+        
+        # Open Pause Menu
         if event.type == pygame.KEYDOWN:
-            if event.key == pygame.K_ESCAPE:
+            if event.key == pygame.K_ESCAPE: #TODO Change key to escape
                scene = PauseMenu(self.manager)
                self.manager.push(scene)
-        if event.type == pygame.MOUSEBUTTONDOWN:
-            if self.menu_rect.collidepoint(mouse_pos[0], mouse_pos[1]):
-                if pygame.mouse.get_pressed()[0]:
-                    scene = PauseMenu(self.manager)
-                    self.manager.push(scene)
         mouse_pos = pygame.mouse.get_pos()
         self.board.input(event)
+
+        if event.type == pygame.MOUSEBUTTONDOWN:
+            if self.exit_button.input(mouse_pos):
+                pygame.quit()
+                sys.exit()
+            elif self.menu_button.input(mouse_pos):
+                self.manager.pop()
+                scene = PlayerSelection(self.manager)
+                self.manager.push(scene)
+    
+        self.menu_button.set_color(mouse_pos)
+        self.exit_button.set_color(mouse_pos)
     
     def draw(self, screen):
         pygame.display.set_caption("Retro|Modern Chess")
         screen.fill(BLACK)
     
-        wing_width = screen.get_width() * .20
+        wing_width = screen.get_width() * .19        
         wing_height = screen.get_height()
     
         left_wing = pygame.Rect(0, 0, wing_width, wing_height)
@@ -776,7 +793,13 @@ class Game(Scene):
                     self.timer_2.add_additional(self.time[1])
             self.board.turn_count += 1
             self.board.made_a_turn = False
- 
+
+        # Board
+        self.board.draw(screen)
+        
+        self.game_state_text = GET_FONT("elephant", 30).render(self.board.game_state(), True, OAK)
+        screen.blit(self.game_state_text, self.game_state_text.get_rect(center=(self.board.board_panel.centerx, screen.get_height() - 30)))
+
         # Game Frame
         self._draw_frame(screen, left_wing, right_wing)
         
@@ -788,23 +811,21 @@ class Game(Scene):
         # Timer
         if self.time != (0, 0):
             self._add_timer_rects(screen, left_wing, right_wing)
-            self.timer_1.draw(screen, left_wing.center, 32)
-            self.timer_2.draw(screen, right_wing.center, 32)
+            self.timer_1.draw(screen, (left_wing.centerx, screen.get_height() * .19), 32)
+            self.timer_2.draw(screen, (right_wing.centerx, screen.get_height() * .19), 32)
 
         # Menu Buttons
         self.menu_rect = self.menu_text.get_rect(center=(right_wing.centerx, right_wing.height * .82))
         screen.blit(self.menu_text, self.menu_rect)
         screen.blit(self.exit_text, self.exit_text.get_rect(center=(right_wing.centerx, right_wing.height * .92)))
-        
+
         # Player Names
         self._add_player_text(screen, left_wing, self.manager.players[0].name)
         self._add_player_text(screen, right_wing, self.manager.players[1].name)
-        
-        # Board
-        self.board.draw(screen)
-        
-        self.game_state_text = GET_FONT("elephant", 30).render(self.board.game_state(), True, OAK)
-        screen.blit(self.game_state_text, self.game_state_text.get_rect(center=(self.board.board_panel.centerx, screen.get_height() - 30)))
+
+        #Buttons
+        self.menu_button.update(screen)
+        self.exit_button.update(screen)
         
     def _draw_frame(self, screen, left_wing, right_wing):
         self._add_wings(screen, left_wing, right_wing)
@@ -903,7 +924,7 @@ class PauseMenu(Scene):
        self.instruct = Button(None, (640, 250), "INSTRUCTIONS", font, WHITE, ORANGE)
        self.instruct_shadow = font.render("INSTRUCTIONS", True, ORANGE)
        self.instruct_shadow_rect = self.instruct_shadow.get_rect(center=(644, 254))
-       
+
        self.theme = Button(None, (640, 325), "THEME SELECTION", font, WHITE, ORANGE)
        self.theme_shadow = font.render("THEME SELECTION", True, ORANGE)
        self.theme_shadow_rect = self.theme_shadow.get_rect(center=(644, 329))
@@ -969,7 +990,8 @@ class PauseMenu(Scene):
 ##########################
 
 class Credits(Scene):
-    "Credits page for the game displaying group members names in alphabetical order by last name"
+    '''Credits page for the game displaying group members names.'''
+
     def __init__(self, manager):
         self.manager = manager
     
@@ -1020,7 +1042,8 @@ class Credits(Scene):
         self.back.update(screen)
 
 class Instructions(GameOptions):
-    "Instructions Page 1"
+    '''Instructions Page 1.'''
+
     def __init__(self, manager):
        self.manager = manager
  
@@ -1105,7 +1128,8 @@ class Instructions(GameOptions):
        self.inst2.update(screen)
 
 class Instructions2(GameOptions):
-    "Instructions Page 2"
+    '''Instructions Page 2.''' #TODO Make Page Turn all one scene
+
     def __init__(self, manager):
        self.manager = manager
  
@@ -1228,3 +1252,4 @@ class TimerInfo(TimeSelection):
         screen.blit(self.rapid, self.rapid_rect)
         screen.blit(self.back_shadow, self.back_shadow_rect)
         self.back.update(screen)
+
