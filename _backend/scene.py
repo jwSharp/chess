@@ -67,8 +67,8 @@ class Scene:
 # Main Menu #
 #############
 class MainMenuScene(Scene):
-    #Main menu screen to start game and/or find other options"
-
+    '''Main menu screen to start game and/or find other options.'''
+    
     def __init__(self, manager):
         self.manager = manager
     
@@ -128,8 +128,8 @@ class MainMenuScene(Scene):
 # Selection #
 #############
 class PlayerSelection(Scene):
-    #Player Selection Screen to select 1 or 2 player game"
-
+    '''Player Selection Screen to select 1 or 2 player game.'''
+    
     def __init__(self, manager):
         self.manager = manager
     
@@ -204,8 +204,8 @@ class PlayerSelection(Scene):
         self.back.update(screen)
     
 class AI_Selection(Scene):
-    #If 1 player game selected, choose difficulty level for computer player"
-
+    '''If 1 player game selected, choose difficulty level for computer player.'''
+    
     def __init__(self, manager):
         self.manager = manager
     
@@ -318,7 +318,7 @@ class AI_Selection(Scene):
         self.quit.update(screen)
 
 class TimeSelection(Scene):
-    #Choose timer option for 1 or 2 player game"
+    '''Choose timer option for 1 or 2 player game.'''
 
     def __init__(self, manager):
         self.manager = manager
@@ -429,7 +429,7 @@ class TimeSelection(Scene):
             return (int(name[:2]), int(name[-2:]))
 
 class Options(Scene):
-    #Options screen where player can see game options and credits"
+    '''Options screen where player can see game options and credits.'''
 
     def __init__(self, manager):
         self.manager = manager
@@ -488,13 +488,15 @@ class Options(Scene):
         screen.blit(self.credits_shadow, self.credits_rect)
         screen.blit(self.back_shadow, self.back_shadow_rect)
         screen.blit(self.quit_shadow, self.quit_rect)
-        
+
         self.options.update(screen)
         self.credits.update(screen)
         self.back.update(screen)
         self.quit.update(screen)
 
 class GameOptions(Scene):
+    '''Game options menu where player can see Instructions, Theme Selection, Language Selection, and Accessibility Settings.'''
+
     def __init__(self, manager):
        self.manager = manager
  
@@ -526,7 +528,6 @@ class GameOptions(Scene):
        self.back_shadow = font.render("<=", True, ORANGE)
        self.back_shadow_rect = self.back_shadow.get_rect(center=(144, 754))
        
-       
     def input(self, event):
        mouse_pos = pygame.mouse.get_pos()
        if event.type == pygame.MOUSEBUTTONDOWN:
@@ -548,8 +549,7 @@ class GameOptions(Scene):
            elif self.access.input(mouse_pos):
                scene = AccessSettings(self.manager)
                self.manager.push(scene)
-
- 
+           
        self.instruct.set_color(mouse_pos)
        self.back.set_color(mouse_pos)
        self.theme.set_color(mouse_pos)
@@ -572,6 +572,7 @@ class GameOptions(Scene):
        self.lang.update(screen)
        screen.blit(self.access_shadow, self.access_shadow_rect)
        self.access.update(screen)
+       
 
 class ThemeSelection(GameOptions):
     "Future scene to select different theme options for game play"
@@ -616,8 +617,10 @@ class ThemeSelection(GameOptions):
        screen.blit(self.back_shadow, self.back_shadow_rect)
        self.back.update(screen)
 
+
 class LanguageSelection(GameOptions):
-    "Future scene to select different language options for game play"
+    '''Future scene to select different language options for game play.'''
+    
     def __init__(self, manager):
        self.manager = manager
  
@@ -660,7 +663,8 @@ class LanguageSelection(GameOptions):
        self.back.update(screen)
 
 class AccessSettings(GameOptions):
-    "Future scene to select different accessibility feature settings"
+    '''Future scene to select different accessibility feature settings.'''
+    
     def __init__(self, manager):
        self.manager = manager
  
@@ -706,8 +710,9 @@ class AccessSettings(GameOptions):
 # Game Play #
 #############
 class Game(Scene):
-    def __init__(self, manager, time=(0, 0)):
-        '''For timed and untimed chess matches.'''
+    '''For timed and untimed chess matches.'''
+    
+    def __init__(self, manager, time=(0, 0)):    
         self.manager = manager
         self.time = time
         pygame.time.set_timer(pygame.USEREVENT, 1000)
@@ -737,11 +742,17 @@ class Game(Scene):
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.USEREVENT:
-            if self.board.current_turn == 0:
-                self.timer_1.update()
-            if self.board.current_turn == 1:
-                self.timer_2.update()
-
+            if self.board.game_state() != 'Check-Mate' and self.board.turn_count != 0 and not self.board.pause:
+                if self.board.current_turn == 0 and self.timer_1 != None:
+                    self.timer_1.update()
+                if self.board.current_turn == 1 and self.timer_2 != None:
+                    self.timer_2.update()
+        
+        # Open Pause Menu
+        if event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE: #TODO Change key to escape
+               scene = PauseMenu(self.manager)
+               self.manager.push(scene)
         mouse_pos = pygame.mouse.get_pos()
         self.board.input(event)
 
@@ -774,7 +785,7 @@ class Game(Scene):
         
         # Turn Change
         if self.board.made_a_turn:
-            self.board.handle_check()
+            self.board.check()
             if self.board.turn_count != 0:
                 if self.board.current_turn == 1:
                     self.timer_1.add_additional(self.time[1])
@@ -803,11 +814,14 @@ class Game(Scene):
             self.timer_1.draw(screen, (left_wing.centerx, screen.get_height() * .19), 32)
             self.timer_2.draw(screen, (right_wing.centerx, screen.get_height() * .19), 32)
 
+        # Menu Buttons
+        self.menu_rect = self.menu_text.get_rect(center=(right_wing.centerx, right_wing.height * .82))
+        screen.blit(self.menu_text, self.menu_rect)
+        screen.blit(self.exit_text, self.exit_text.get_rect(center=(right_wing.centerx, right_wing.height * .92)))
 
         # Player Names
         self._add_player_text(screen, left_wing, self.manager.players[0].name)
         self._add_player_text(screen, right_wing, self.manager.players[1].name)
-        
 
         #Buttons
         self.menu_button.update(screen)
@@ -910,69 +924,73 @@ class PauseMenu(Scene):
        self.instruct = Button(None, (640, 250), "INSTRUCTIONS", font, WHITE, ORANGE)
        self.instruct_shadow = font.render("INSTRUCTIONS", True, ORANGE)
        self.instruct_shadow_rect = self.instruct_shadow.get_rect(center=(644, 254))
+
+       self.theme = Button(None, (640, 325), "THEME SELECTION", font, WHITE, ORANGE)
+       self.theme_shadow = font.render("THEME SELECTION", True, ORANGE)
+       self.theme_shadow_rect = self.theme_shadow.get_rect(center=(644, 329))
        
-       self.theme = Button(None, (640, 375), "THEME", font, WHITE, ORANGE)
-       self.theme_shadow = font.render("THEME", True, ORANGE)
-       self.theme_shadow_rect = self.theme_shadow.get_rect(center=(644, 379))
+       self.lang = Button(None, (640, 400), "LANGUAGE SELECTION", font, WHITE, ORANGE)
+       self.lang_shadow = font.render("LANGUAGE SELECTION", True, ORANGE)
+       self.lang_shadow_rect = self.lang_shadow.get_rect(center=(644, 404))
        
-       self.lang = Button(None, (640, 500), "LANGUAGE", font, WHITE, ORANGE)
-       self.lang_shadow = font.render("LANGUAGE", True, ORANGE)
-       self.lang_shadow_rect = self.lang_shadow.get_rect(center=(644, 504))
-       
-       self.access = Button(None, (640, 625), "ACCESSIBILITY", font, WHITE, ORANGE)
-       self.access_shadow = font.render("ACCESSIBILITY", True, ORANGE)
-       self.access_shadow_rect = self.access_shadow.get_rect(center=(644, 629))
-       
+       self.access = Button(None, (640, 475), "ACCESSIBILITY SETTINGS", font, WHITE, ORANGE)
+       self.access_shadow = font.render("ACCESSIBILITY SETTINGS", True, ORANGE)
+       self.access_shadow_rect = self.access_shadow.get_rect(center=(644, 479))
+ 
 
     def input(self, event):
-       mouse_pos = pygame.mouse.get_pos()
-       if event.type == pygame.MOUSEBUTTONDOWN:
+        mouse_pos = pygame.mouse.get_pos()
+        if event.type == pygame.MOUSEBUTTONDOWN:
             
-           if self.instruct.input(mouse_pos):
-               scene = Instructions(self.manager)
-               self.manager.push(scene)
+            if self.instruct.input(mouse_pos):
+                scene = Instructions(self.manager)
+                self.manager.push(scene)
 
-           elif self.theme.input(mouse_pos):
-               scene = ThemeSelection(self.manager)
-               self.manager.push(scene)
-            
-           elif self.lang.input(mouse_pos):
-               scene = LanguageSelection(self.manager)
-               self.manager.push(scene)
-            
-           elif self.access.input(mouse_pos):
-               scene = AccessSettings(self.manager)
-               self.manager.push(scene)
+            elif self.theme.input(mouse_pos):
+                scene = ThemeSelection(self.manager)
+                self.manager.push(scene)
+                
+            elif self.lang.input(mouse_pos):
+                scene = LanguageSelection(self.manager)
+                self.manager.push(scene)
+                
+            elif self.access.input(mouse_pos):
+                scene = AccessSettings(self.manager)
+                self.manager.push(scene)
+        
+        elif event.type == pygame.KEYDOWN:
+            if event.key == pygame.K_ESCAPE:
+                self.manager.pop()
                
  
-       self.instruct.set_color(mouse_pos)
-       self.theme.set_color(mouse_pos)
-       self.lang.set_color(mouse_pos)
-       self.access.set_color(mouse_pos)
+        self.instruct.set_color(mouse_pos)
+        self.theme.set_color(mouse_pos)
+        self.lang.set_color(mouse_pos)
+        self.access.set_color(mouse_pos)
  
     def draw(self, screen):
-       pygame.display.set_caption("Pause Menu")
-       screen.fill(BLACK)
- 
-       screen.blit(self.text_shadow, self.text_shadow_rect)
-       screen.blit(self.text, self.text_rect)
-       screen.blit(self.theme_shadow, self.theme_shadow_rect)
-       screen.blit(self.instruct_shadow, self.instruct_shadow_rect)
-       self.instruct.update(screen)
-       screen.blit(self.theme_shadow, self.theme_shadow_rect)
-       self.theme.update(screen)
-       screen.blit(self.lang_shadow, self.lang_shadow_rect)
-       self.lang.update(screen)
-       screen.blit(self.access_shadow, self.access_shadow_rect)
-       self.access.update(screen)
+        pygame.display.set_caption("Pause Menu")
+        screen.fill(BLACK)
+    
+        screen.blit(self.text_shadow, self.text_shadow_rect)
+        screen.blit(self.text, self.text_rect)
+        screen.blit(self.theme_shadow, self.theme_shadow_rect)
+        screen.blit(self.instruct_shadow, self.instruct_shadow_rect)
+        self.instruct.update(screen)
+        screen.blit(self.theme_shadow, self.theme_shadow_rect)
+        self.theme.update(screen)
+        screen.blit(self.lang_shadow, self.lang_shadow_rect)
+        self.lang.update(screen)
+        screen.blit(self.access_shadow, self.access_shadow_rect)
+        self.access.update(screen)
+
 
 ##########################
 # Information Pages #
 ##########################
 
 class Credits(Scene):
-    #Credits page for the game displaying group members names 
-    # in alphabetical order by last name"
+    '''Credits page for the game displaying group members names.'''
 
     def __init__(self, manager):
         self.manager = manager
@@ -1024,7 +1042,8 @@ class Credits(Scene):
         self.back.update(screen)
 
 class Instructions(GameOptions):
-    #Instructions Page 1"
+    '''Instructions Page 1.'''
+
     def __init__(self, manager):
        self.manager = manager
  
@@ -1107,9 +1126,10 @@ class Instructions(GameOptions):
        self.back.update(screen)
        screen.blit(self.inst2_shadow, self.inst2_rect)
        self.inst2.update(screen)
-    
+
 class Instructions2(GameOptions):
-    #Instructions Page 2"
+    '''Instructions Page 2.''' #TODO Make Page Turn all one scene
+
     def __init__(self, manager):
        self.manager = manager
  
