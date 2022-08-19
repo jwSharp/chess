@@ -29,8 +29,20 @@ class Human(Player):
 
 class Computer(Player):
     def __init__(self, rating=0):
-        self.name = 'CPU -' # + str(rating)
-        #self.rating = rating
+        self.name = 'CPU' # + str(rating)
+        
+        rating //= 100
+        if rating < 6:
+            self.eval_method = 'random'
+            self.depth = 0
+            
+        elif rating < 10:
+            self.eval_method = 'simple'
+            self.depth = 0
+        else:
+            self.eval_method = 'complex'
+            self.depth = 0
+        
         self.board = None
         
     

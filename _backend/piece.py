@@ -239,22 +239,39 @@ class Pawn(Piece):
         self.piece_moves = [('0', '1|2')] if turn == 0 else [('0', '-1|-2')]
         self.piece_attacks = [('-1', '1'), ('1', '1')] if turn == 0 else [('-1', '-1'), ('1', '-1')]
         self._set_sprite(turn, "pawn_top.png", "pawn_top.png")
+        self.en_passant = None
     
     def update(self, pieces=[], board_turns=False):
+        self.board_turns = board_turns
         if self.move_count > 0:
             if board_turns:
                 self.piece_moves = [('0', '1')]
             else:
                 self.piece_moves = [('0', '1')] if self.turn == 0 else [('0', '-1')]
     
-    def destroy(self, promotion=False):
-        '''Moves a piece from the board to the graveyard (if not a promotion)'''
-        self.current_pos = None
-        self.pos = None
-        self.captured = True
-        
-        if not promotion:# Move to graveyard
-            pass
+    def check_enpassant(self, pieces):
+        # if self.en_passant != None:
+        #     self.en_passant = []
+        #     return False
+        self.en_passant = None
+        opponent_pawns = [p for p in pieces if not p.captured and p.turn != self.turn and p.move_count == 1 and p.piece_name == self.piece_name and p.current_pos[1] in [3, 4]]
+        opponents_positions = [p.current_pos for p in opponent_pawns]
+        if (self.current_pos[0] - 1, self.current_pos[1]) in opponents_positions: # Checks the left side of our pawn
+            opponent_pawns_index = opponents_positions.index((self.current_pos[0] - 1, self.current_pos[1]))
+            self.en_passant = opponent_pawns[opponent_pawns_index]
+        if (self.current_pos[0] + 1, self.current_pos[1]) in opponents_positions: # Checks the right side of our pawn
+            opponent_pawns_index = opponents_positions.index((self.current_pos[0] + 1, self.current_pos[1]))
+            self.en_passant = opponent_pawns[opponent_pawns_index]
+        return self.en_passant != None
+
+    def do_enpassant(self):
+        if self.en_passant == None: return False
+        if (not self.board_turns and self.turn == 0) or not self.board_turns:
+            self.force_move(self.en_passant.current_pos[0], self.current_pos[1] + 1)
+        else:
+            self.force_move(self.en_passant.current_pos[0], self.current_pos[1] - 1)
+        self.en_passant.destroy_piece()
+
     
 class Bishop(Piece):
     def __init__(self, pos, turn):
@@ -283,6 +300,9 @@ class Queen(Piece):
 class King(Piece):
     def __init__(self, pos, turn):
         super().__init__(pos, turn, "king")
+        
+        
+        
         self.piece_moves = [("1", "1"), ("1", "-1"), ("-1", "1"), ("-1", "-1"), ("1", "0"), ("0", "1"), ("-1", "0"), ("0", "-1")]
         self._set_sprite(turn, "king_top.png", "king_top.png")
         self.threats = []
@@ -305,7 +325,7 @@ class King(Piece):
     
     def set_disabled_moves(self, pieces):
         openents = [p for p in pieces if p.turn != self.turn]
-        openents_positions = [p.current_pos for p in openents]
+        opponents_positions = [p.current_pos for p in openents]
         for piece in pieces:
             piece.disabled_moves = []
             hold_pos = piece.current_pos
@@ -314,8 +334,8 @@ class King(Piece):
                 continue
             for move in (piece.get_movement(pieces) + piece.get_capturables(pieces)):
                 piece.force_move(move[0], move[1], False)
-                if piece.current_pos in openents_positions:
-                    destroyed_piece = openents[openents_positions.index(move)]
+                if piece.current_pos in opponents_positions:
+                    destroyed_piece = openents[opponents_positions.index(move)]
                     pieces.remove(destroyed_piece)
                 if self.is_check(pieces, self.current_pos):
                     piece.disabled_moves.append(move)
