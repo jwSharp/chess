@@ -34,20 +34,22 @@ def FIXED_SCALE(width, height, limit_min: tuple, limit_max: tuple):
 #########
 # Paths #
 #########
+
+#TODO Change all to formatted strings
+
 FILE_PATH = Path(__file__).parent.absolute()
-ASSETS_PATH = str(FILE_PATH / "Assets") + "/"
-IMAGES_PATH = ASSETS_PATH + "Images/"
-TEXTURE_PATH = ASSETS_PATH + "Textures/"
-#TODO Redo structure ex. Pieces/ViewType/Black
-BLACK_PIECES_PATH = ASSETS_PATH + "Pieces/Black/Top/"
-WHITE_PIECES_PATH = ASSETS_PATH + "Pieces/White/Top/"
-FONTS_PATH = ASSETS_PATH + "Fonts" + "/"
+ASSETS_PATH = str(FILE_PATH / "assets") + "/"
+IMAGES_PATH = ASSETS_PATH + "images/"
+TEXTURE_PATH = ASSETS_PATH + "textures/"
+BLACK_PIECES_PATH = ASSETS_PATH + "pieces/black/"
+WHITE_PIECES_PATH = ASSETS_PATH + "pieces/white/"
+FONTS_PATH = ASSETS_PATH + "fonts" + "/"
 
 #########
 # Fonts #
 #########
 
-CUSTOM_FONTS = { 'Regular' : FONTS_PATH + "regular.ttf", 'Timer' : FONTS_PATH + "alarm_clock.ttf", 'elephant' : FONTS_PATH + "elephant.ttf", 'ocr' : FONTS_PATH + "ocr.ttf"}
+CUSTOM_FONTS = { 'regular' : FONTS_PATH + "regular.ttf", 'Timer' : FONTS_PATH + "alarm_clock.ttf", 'elephant' : FONTS_PATH + "elephant.ttf", 'ocr' : FONTS_PATH + "ocr.ttf"}
 SYS_FONTS = pygame.font.get_fonts()
 def GET_FONT(name: str, size: int):
     '''Returns the pygame font of a particular size.'''
@@ -58,6 +60,7 @@ def GET_FONT(name: str, size: int):
 ##########
 # Colors #
 ##########
+
 BLACK = (0, 0, 0) #TODO Change all to hexcode.
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
@@ -78,4 +81,12 @@ PURPLE = ('#cc5ced')
 ##########
 # Images #
 ##########
+
 BACKGROUND = pygame.image.load(IMAGES_PATH + "brain_colorful.jpg")
+
+
+#########
+# Board #
+#########
+VIEWS = ['top', 'iso', 'front']
+THEMES = []

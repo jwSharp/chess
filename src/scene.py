@@ -2,9 +2,9 @@ import pygame
 import sys
  
 from config import *
-from player import *
-from board import *
-from accessory import *
+from player import Human, Computer
+from board import Board
+from accessory import Timer, Button, Two_Line
  
 class SceneManager:
     '''A stack of Scene objects that can pop/push next scene to top.'''
@@ -71,14 +71,14 @@ class MainMenuScene(Scene):
     def __init__(self, manager):
         self.manager = manager
     
-        font = GET_FONT('Regular', 100)
+        font = GET_FONT('regular', 100)
         self.text = font.render("MAIN MENU", True, ORANGE)
         self.text_rect = self.text.get_rect(center=(640, 100))
     
         self.text_shadow = font.render("MAIN MENU", True, WHITE)
         self.text_shadow_rect = self.text_shadow.get_rect(center=(644, 104))
     
-        font = GET_FONT('Regular', 75)
+        font = GET_FONT('regular', 75)
         self.play = Button(None, (640, 275), "PLAY", font, ORANGE, WHITE)
         self.play_shadow = font.render("PLAY", True, WHITE)
         self.play_shadow_rect = self.play_shadow.get_rect(center=(644, 279))
@@ -132,13 +132,13 @@ class PlayerSelection(Scene):
     def __init__(self, manager):
         self.manager = manager
     
-        font = GET_FONT('Regular', 85)
+        font = GET_FONT('regular', 85)
         self.game_selection = font.render("PLAYER OPTIONS", True, ORANGE)
         self.game_selection_rect = self.game_selection.get_rect(center=(640, 100))
         self.game_selection_shadow = font.render("PLAYER OPTIONS", True, WHITE)
         self.game_selection_shadow_rect = self.game_selection_shadow.get_rect(center=(644, 104))
     
-        font = GET_FONT('Regular', 75)
+        font = GET_FONT('regular', 75)
         self.one_player = Button(None, (640, 275), "One Player", font, ORANGE, WHITE)
         self.one_player_shadow = font.render("One Player", True, WHITE)
         self.one_player_rect = self.one_player_shadow.get_rect(center=(644, 279))
@@ -147,7 +147,7 @@ class PlayerSelection(Scene):
         self.two_player_shadow = font.render("Two Player", True, WHITE)
         self.two_player_rect = self.two_player_shadow.get_rect(center=(644, 454))
     
-        font = GET_FONT('Regular', 65)
+        font = GET_FONT('regular', 65)
         self.back = Button(None, (340, 660), "BACK", font, ORANGE, WHITE)
         self.back_shadow = font.render("BACK", True, WHITE)
         self.back_rect = self.back_shadow.get_rect(center=(344, 664))
@@ -209,13 +209,13 @@ class AI_Selection(Scene):
         self.manager = manager
     
         # get w/h and check % initial WIDTH/HEIGHT
-        font = GET_FONT('Regular', 40)
+        font = GET_FONT('regular', 40)
         self.text = font.render("CHOOSE YOUR DIFFICULTY LEVEL", True, ORANGE)
         self.text_rect = self.text.get_rect(center=(640, 50))
         self.text_shadow = font.render("CHOOSE YOUR DIFFICULTY LEVEL", True, BLACK)
         self.text_shadow_rect = self.text_shadow.get_rect(center=(643, 53))
             
-        font = GET_FONT('Regular', 30)
+        font = GET_FONT('regular', 30)
         #pygame_menu.widgets.RangeSlider("Difficulty Level", None, 3, (1, 5), )
         #self.range = font.render("EASY   MEDIUM   EXPERT   WORLD-CLASS", True, ORANGE)
         #self.range_rect = self.range.get_rect(center=(640, 400))
@@ -242,12 +242,12 @@ class AI_Selection(Scene):
         self.wc_shadow = font.render("WORLD-CLASS", True, BLACK)
         self.wc_shadow_rect = self.wc_shadow.get_rect(center=(1023, 403))
         
-        font = GET_FONT('Regular', 50)
+        font = GET_FONT('regular', 50)
         self.back = Button(None, (100, 750), "<=", font, ORANGE, BLACK)
         self.back_shadow = font.render("<=", True, BLACK)
         self.back_shadow_rect = self.back_shadow.get_rect(center=(103, 753))
     
-        font = GET_FONT('Regular', 35) 
+        font = GET_FONT('regular', 35) 
         self.quit = Button(None, (1140, 750), "QUIT", font, ORANGE, BLACK)
         self.quit_shadow = font.render("QUIT", True, BLACK)
         self.quit_rect = self.quit_shadow.get_rect(center=(1144, 753))
@@ -323,13 +323,13 @@ class TimeSelection(Scene):
         self.manager = manager
     
         # get w/h and check % initial WIDTH/HEIGHT
-        font = GET_FONT('Regular', 50)
+        font = GET_FONT('regular', 50)
         self.text = font.render("CHOOSE YOUR TIMER OPTION", True, ORANGE)
         self.text_rect = self.text.get_rect(center=(640, 50))
         self.text_shadow = font.render("CHOOSE YOUR TIMER OPTION", True, BLACK)
         self.text_shadow_rect = self.text_shadow.get_rect(center=(644, 54))
     
-        font = GET_FONT('Regular', 25)
+        font = GET_FONT('regular', 25)
         time_1_0 = Two_Line(None, (225, 200), "BULLET", "1 + 0", font, ORANGE, BLACK)
         time_2_1 = Two_Line(None, (640, 200), "BULLET", "2 + 1", font, ORANGE, BLACK)
         time_3_0 = Two_Line(None, (1055, 200), "BLITZ", "3 + 0", font, ORANGE, BLACK)
@@ -341,17 +341,17 @@ class TimeSelection(Scene):
         time_15_10 = Two_Line(None, (1055, 475), "RAPID", "15 + 10", font, ORANGE, BLACK)
         self.buttons = (time_1_0, time_2_1, time_3_0, time_3_2, time_5_0, time_5_3, time_10_0, time_10_5, time_15_10)
     
-        font = GET_FONT('Regular', 40)
+        font = GET_FONT('regular', 40)
         self.time_unlimited = Button(None, (644, 620), "UNLIMITED", font, ORANGE, BLACK)
         self.time_unlimited_shadow = font.render("UNLIMITED", True, BLACK)
         self.time_unlimited_rect = self.time_unlimited_shadow.get_rect(center=(640, 623))
     
-        font = GET_FONT('Regular', 50)
+        font = GET_FONT('regular', 50)
         self.back = Button(None, (100, 750), "<=", font, ORANGE, BLACK)
         self.back_shadow = font.render("<=", True, BLACK)
         self.back_shadow_rect = self.back_shadow.get_rect(center=(103, 753))
     
-        font = GET_FONT('Regular', 35)
+        font = GET_FONT('regular', 35)
         self.info = Button(None, (640, 750), "TIMER INFO", font, ORANGE, BLACK)
         self.info_shadow = font.render("TIMER INFO", True, BLACK)
         self.info_shadow_rect = self.info_shadow.get_rect(center=(644, 753))
@@ -433,13 +433,13 @@ class Options(Scene):
     def __init__(self, manager):
         self.manager = manager
     
-        font = GET_FONT('Regular', 90)
+        font = GET_FONT('regular', 90)
         self.text = font.render("OPTIONS", True, ORANGE)
         self.text_rect = self.text.get_rect(center=(640, 100))
         self.text_shadow = font.render("OPTIONS", True, BLACK)
         self.text_shadow_rect = self.text_shadow.get_rect(center=(644, 104))
     
-        font = GET_FONT('Regular', 65)
+        font = GET_FONT('regular', 65)
         self.options = Button(None, (640, 300), "GAME OPTIONS", font, ORANGE, BLACK)
         self.options_shadow = font.render("GAME OPTIONS", True, BLACK)
         self.options_rect = self.options_shadow.get_rect(center=(644, 304))
@@ -448,7 +448,7 @@ class Options(Scene):
         self.credits_shadow = font.render("CREDITS", True, BLACK)
         self.credits_rect = self.credits_shadow.get_rect(center=(644, 479))
     
-        font = GET_FONT('Regular', 45)
+        font = GET_FONT('regular', 45)
         self.back = Button(None, (140, 750), "<=", font, BLACK, ORANGE)
         self.back_shadow = font.render("<=", True, ORANGE)
         self.back_shadow_rect = self.back_shadow.get_rect(center=(144, 754))
@@ -494,13 +494,13 @@ class GameOptions(Scene):
     def __init__(self, manager):
        self.manager = manager
  
-       font = GET_FONT('Regular', 85)
+       font = GET_FONT('regular', 85)
        self.text = font.render("GAME OPTIONS", True, WHITE)
        self.text_rect = self.text.get_rect(center=(640, 100))
        self.text_shadow = font.render("GAME OPTIONS", True, ORANGE)
        self.text_shadow_rect = self.text_shadow.get_rect(center=(644, 104))
        
-       font = GET_FONT('Regular', 55) 
+       font = GET_FONT('regular', 55) 
        self.instruct = Button(None, (640, 250), "INSTRUCTIONS", font, WHITE, ORANGE)
        self.instruct_shadow = font.render("INSTRUCTIONS", True, ORANGE)
        self.instruct_shadow_rect = self.instruct_shadow.get_rect(center=(644, 254))
@@ -517,7 +517,7 @@ class GameOptions(Scene):
        self.access_shadow = font.render("ACCESSIBILITY", True, ORANGE)
        self.access_shadow_rect = self.access_shadow.get_rect(center=(644, 629))
        
-       font = GET_FONT('Regular', 45)
+       font = GET_FONT('regular', 45)
        self.back = Button(None, (140, 750), "<=", font, WHITE, ORANGE)
        self.back_shadow = font.render("<=", True, ORANGE)
        self.back_shadow_rect = self.back_shadow.get_rect(center=(144, 754))
@@ -572,19 +572,19 @@ class ThemeSelection(GameOptions):
     def __init__(self, manager):
        self.manager = manager
  
-       font = GET_FONT('Regular', 80)
+       font = GET_FONT('regular', 80)
        self.title = font.render("THEME SELECTION", True, WHITE)
        self.title_rect = self.title.get_rect(center=(640, 100))
        self.title_shadow = font.render("THEME SELECTION", True, ORANGE)
        self.title_shadow_rect = self.title_shadow.get_rect(center=(644, 104))
        
-       font = GET_FONT('Regular', 43) 
+       font = GET_FONT('regular', 43) 
        self.text = font.render("This scene does not exist yet", True, ORANGE)
        self.text_rect = self.text.get_rect(center=(640, 450))
        self.text_shadow = font.render("This scene does not exist yet", True, WHITE)
        self.text_shadow_rect = self.text.get_rect(center=(643, 453))
 
-       font = GET_FONT('Regular', 45)
+       font = GET_FONT('regular', 45)
        self.back = Button(None, (140, 750), "<=", font, WHITE, ORANGE)
        self.back_shadow = font.render("<=", True, ORANGE)
        self.back_shadow_rect = self.back_shadow.get_rect(center=(144, 754))
@@ -616,19 +616,19 @@ class LanguageSelection(GameOptions):
     def __init__(self, manager):
        self.manager = manager
  
-       font = GET_FONT('Regular', 70)
+       font = GET_FONT('regular', 70)
        self.title = font.render("LANGUAGE OPTIONS", True, WHITE)
        self.title_rect = self.title.get_rect(center=(640, 100))
        self.title_shadow = font.render("LANGUAGE OPTIONS", True, BLACK)
        self.title_shadow_rect = self.title_shadow.get_rect(center=(644, 104))
        
-       font = GET_FONT('Regular', 43) 
+       font = GET_FONT('regular', 43) 
        self.text = font.render("This scene does not exist yet", True, BLACK)
        self.text_rect = self.text.get_rect(center=(640, 450))
        self.text_shadow = font.render("This scene does not exist yet", True, WHITE)
        self.text_shadow_rect = self.text_shadow.get_rect(center=(643, 453))
        
-       font = GET_FONT('Regular', 45)
+       font = GET_FONT('regular', 45)
        self.back = Button(None, (140, 750), "<=", font, WHITE, BLACK)
        self.back_shadow = font.render("<=", True, BLACK)
        self.back_shadow_rect = self.back_shadow.get_rect(center=(144, 754))
@@ -660,19 +660,19 @@ class AccessSettings(GameOptions):
     def __init__(self, manager):
        self.manager = manager
  
-       font = GET_FONT('Regular', 55)
+       font = GET_FONT('regular', 55)
        self.title = font.render("ACCESSIBILITY SETTINGS", True, BLACK)
        self.title_rect = self.title.get_rect(center=(640, 100))
        self.title_shadow = font.render("ACCESSIBILITY SETTINGS", True, ORANGE)
        self.title_shadow_rect = self.title_shadow.get_rect(center=(644, 104))
        
-       font = GET_FONT('Regular', 43) 
+       font = GET_FONT('regular', 43) 
        self.text = font.render("This scene does not exist yet", True, ORANGE)
        self.text_rect = self.text.get_rect(center=(640, 450))
        self.text_shadow = font.render("This scene does not exist yet", True, BLACK)
        self.text_shadow_rect = self.text_shadow.get_rect(center=(643, 453))
        
-       font = GET_FONT('Regular', 45)
+       font = GET_FONT('regular', 45)
        self.back = Button(None, (140, 750), "<=", font, BLACK, ORANGE)
        self.back_shadow = font.render("<=", True, ORANGE)
        self.back_shadow_rect = self.back_shadow.get_rect(center=(144, 754))
@@ -734,7 +734,7 @@ class Game(Scene):
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.USEREVENT:
-            if self.board.game_state() != 'Check-Mate' and self.board.turn_count != 0 and (not self.board.pause or self.board.needs_change):
+            if self.board.get_game_state() != 'Check-Mate' and self.board.turn_count != 0 and (not self.board.pause or self.board.needs_change):
                 if self.board.current_turn == 0 and self.timer_1 != None:
                     self.timer_1.update()
                 if self.board.current_turn == 1 and self.timer_2 != None:
@@ -790,7 +790,7 @@ class Game(Scene):
         # Board
         self.board.draw(screen)
         
-        self.game_state_text = GET_FONT("elephant", 30).render(self.board.game_state(), True, OAK)
+        self.game_state_text = GET_FONT("elephant", 30).render(self.board.get_game_state(), True, OAK)
         screen.blit(self.game_state_text, self.game_state_text.get_rect(center=(self.board.board_panel.centerx, screen.get_height() - 30)))
 
         # Game Frame
@@ -905,7 +905,7 @@ class PauseMenu(Scene):
     def __init__(self, manager):
        self.manager = manager
  
-       font = GET_FONT('Regular', 85)
+       font = GET_FONT('regular', 85)
        self.text = font.render("PAUSE", True, ORANGE)
        self.text_rect = self.text.get_rect(center=(640, 100))
  
@@ -913,7 +913,7 @@ class PauseMenu(Scene):
        self.text_shadow_rect = self.text_shadow.get_rect(center=(644, 104))
        
        
-       font = GET_FONT('Regular', 55) 
+       font = GET_FONT('regular', 55) 
        self.instruct = Button(None, (640, 250), "INSTRUCTIONS", font, WHITE, ORANGE)
        self.instruct_shadow = font.render("INSTRUCTIONS", True, ORANGE)
        self.instruct_shadow_rect = self.instruct_shadow.get_rect(center=(644, 254))
@@ -989,13 +989,13 @@ class Credits(Scene):
     def __init__(self, manager):
         self.manager = manager
     
-        font = GET_FONT('Regular', 45)
+        font = GET_FONT('regular', 45)
         self.text = font.render("This game is presented by: ", True, BLACK)
         self.text_rect = self.text.get_rect(center=(655, 100))
         self.text_shadow = font.render("This game is presented by: ", True, WHITE)
         self.text_shadow_rect = self.text_shadow.get_rect(center=(658, 102))
     
-        font = GET_FONT('Regular', 40)
+        font = GET_FONT('regular', 40)
         self.name_1 = font.render("Ashley Butela", True, BLACK)
         self.name_1_rect = self.name_1.get_rect(center=(640, 220))
         self.name_2 = font.render("Amy Ciuffoletti", True, BLACK)
@@ -1007,7 +1007,7 @@ class Credits(Scene):
         self.name_5 = font.render("Nabeyou Tadessa", True, BLACK)
         self.name_5_rect = self.name_2.get_rect(center=(640, 520))
     
-        font = GET_FONT('Regular', 50)
+        font = GET_FONT('regular', 50)
         self.back = Button(None, (640, 750), "BACK", font, BLACK, WHITE)
         self.back_shadow = font.render("BACK", True, WHITE)
         self.back_rect = self.back_shadow.get_rect(center=(642, 752))
@@ -1041,7 +1041,7 @@ class Instructions(GameOptions):
     def __init__(self, manager):
        self.manager = manager
  
-       font = GET_FONT('Regular', 55)
+       font = GET_FONT('regular', 55)
        self.instruct = font.render("INSTRUCTIONS", True, BLACK)
        self.instruct_rect = self.instruct.get_rect(center=(640, 100))
        self.instruct_shadow = font.render("INSTRUCTIONS", True, ORANGE)
@@ -1065,7 +1065,7 @@ class Instructions(GameOptions):
        self.inst2_shadow = font.render("=>", True, ORANGE)
        self.inst2_rect = self.inst2_shadow.get_rect(center=(1143, 753))
         
-       font = GET_FONT('Regular', 15)
+       font = GET_FONT('regular', 15)
        self.text1 = font.render("THE FOLLOWING IS TAKEN FROM WIKIPEDIA", True, BLACK)
        self.text_rect1 = self.text1.get_rect(center=(640, 175))
        self.text2 = font.render("The goal of chess is to move your pieces to a checkmate, ", True, BLACK)
@@ -1127,7 +1127,7 @@ class Instructions2(GameOptions):
     def __init__(self, manager):
        self.manager = manager
  
-       font = GET_FONT('Regular', 55)
+       font = GET_FONT('regular', 55)
        self.instruct = font.render("INSTRUCTIONS (cont)", True, BLACK)
        self.instruct_rect = self.instruct.get_rect(center=(640, 100))
        self.instruct_shadow = font.render("INSTRUCTIONS (cont)", True, ORANGE)
@@ -1137,11 +1137,11 @@ class Instructions2(GameOptions):
        self.back_shadow = font.render("<=", True, ORANGE)
        self.back_shadow_rect = self.back_shadow.get_rect(center=(144, 754))
         
-       font = GET_FONT('Regular', 15)
+       font = GET_FONT('regular', 15)
        self.text1 = font.render("THE FOLLOWING IS TAKEN FROM WIKIPEDIA", True, BLACK)
        self.text_rect1 = self.text1.get_rect(center=(640, 175))
        
-       font = GET_FONT('Regular', 12)
+       font = GET_FONT('regular', 12)
        self.text2 = font.render("PAWN:  Can move two squares forward on its first move, or one square otherwise. ", True, BLACK)
        self.text_rect2 = self.text2.get_rect(center=(640, 275))
        self.text3 = font.render("However, the Pawn can move one square diagonally to capture an opponent’s piece. ", True, BLACK)
@@ -1194,7 +1194,7 @@ class TimerInfo(TimeSelection):
         self.manager = manager
     
         # get w/h and check % initial WIDTH/HEIGHT
-        font = GET_FONT('Regular', 50)
+        font = GET_FONT('regular', 50)
         self.text = font.render("TIMER INFO", True, ORANGE)
         self.text_rect = self.text.get_rect(center=(640, 75))
         self.text_shadow = font.render("TIMER INFO", True, BLACK)
@@ -1203,7 +1203,7 @@ class TimerInfo(TimeSelection):
         self.back_shadow = font.render("<=", True, BLACK)
         self.back_shadow_rect = self.back_shadow.get_rect(center=(103, 703))
     
-        font = GET_FONT('Regular', 20)
+        font = GET_FONT('regular', 20)
         self.info = font.render("Time controls are based on estimated game duration", True, BLACK)
         self.info_rect = self.info.get_rect(center=(640, 180))
     
@@ -1211,7 +1211,7 @@ class TimerInfo(TimeSelection):
         self.t_text = font.render("(clock initial time in seconds) + 40 × (clock increment)", True, BLACK)
         self.t_text_rect = self.t_text.get_rect(center=(640, 225))
     
-        font = GET_FONT('Regular', 30)
+        font = GET_FONT('regular', 30)
         self.bullet = font.render("≤ 179s = Bullet", True, BLACK)
         self.bullet_rect = self.bullet.get_rect(center=(640, 350))
     
