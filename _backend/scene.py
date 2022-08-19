@@ -254,8 +254,7 @@ class AI_Selection(Scene):
         if event.type == pygame.MOUSEBUTTONDOWN:
             
             if self.easy.input(mouse_pos):
-                scene = TimeSelection(self.manager)
-                self.manager.push(scene)
+                pass
             
             elif self.medium.input(mouse_pos):
                 pass
@@ -519,7 +518,7 @@ class Game(Scene):
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
         if event.type == pygame.USEREVENT:
-            if self.board.game_state() != 'Check-Mate' and self.board.turn_count != 0 and (not self.board.pause or self.board.needs_change):
+            if self.board.game_state() != 'Check-Mate' and self.board.turn_count != 0 and not self.board.pause:
                 if self.board.current_turn == 0 and self.timer_1 != None:
                     self.timer_1.update()
                 if self.board.current_turn == 1 and self.timer_2 != None:
@@ -548,7 +547,7 @@ class Game(Scene):
         # Turn Change
         if self.board.made_a_turn:
             self.board.handle_check()
-            if self.board.turn_count != 0 and self.time != (0, 0):
+            if self.board.turn_count != 0:
                 if self.board.current_turn == 1:
                     self.timer_1.add_additional(self.time[1])
                 else:
@@ -567,8 +566,8 @@ class Game(Scene):
         # Timer
         if self.time != (0, 0):
             self._add_timer_rects(screen, left_wing, right_wing)
-            self.timer_1.draw(screen, (left_wing.centerx, screen.get_height() * .19), 32)
-            self.timer_2.draw(screen, (right_wing.centerx, screen.get_height() * .19), 32)
+            self.timer_1.draw(screen, left_wing.center, 32)
+            self.timer_2.draw(screen, right_wing.center, 32)
 
         # Menu Buttons
         screen.blit(self.menu_text, self.menu_text.get_rect(center=(right_wing.centerx, right_wing.height * .82)))
