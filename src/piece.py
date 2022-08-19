@@ -3,9 +3,13 @@ import pygame
 from config import *
 
 
+
+##################
+# Abstract Class #
+##################
 class Piece:
-    def __init__(self, pos: (int, int), turn: int, piece_name: str = None):
-        self.piece_name = piece_name
+    def __init__(self, pos: (int, int), turn: int, view):
+        self.piece_name = ''
         self.sprite = None
         self.image_path = None
         self.piece_moves = []
@@ -43,8 +47,8 @@ class Piece:
         if self.is_valid_move(x, y, other_pieces) and self.turn == current_turn:
             self.current_pos = (x, y)
             self.pos = (x, y)
-            self.move_count += 1
-        else:
+            
+        else: # snap back to original position
             self.pos = self.current_pos
         return self.current_pos
 
@@ -154,33 +158,26 @@ class Piece:
     ###
     # Two Player Board Flip
     ###
-    def translate(self, x, y, count_move = True, condition = True) -> (int, int): #TODO view
+    def translate(self, x, y) -> (int, int): #TODO view
         '''Translates piece from one location to another.'''
-        if condition:
-            self.current_pos = (x, y)
-            self.pos = (x, y)
-            if count_move:
-                self.move_count += 1
+        self.current_pos = (x, y)
+        self.pos = (x, y)
         return self.current_pos
     
     def reflect_place(self): #TODO view
-        '''
-            Mirrors the pieces position.
-        '''
+        '''Mirrors the pieces position.'''
         if self.current_pos == None:
             return
         x = 7 - self.current_pos[0]
         y = 7 - self.current_pos[1]
-        self.translate(x, y, False)
+        self.translate(x, y)
         self.piece_moves = self.get_reflected_move(self.piece_moves)
         if self.piece_attacks != None:
             self.piece_attacks = self.get_reflected_move(self.piece_attacks)
         return (x, y)
 
-    def get_reflected_move(self, old_move:[(str)]) -> [(str)]: #TODO view
-        '''
-            Returns reflected movement of a piece!
-        '''
+    def get_reflected_move(self, old_move:[(str)]) -> [(str)]:
+        '''Returns movement of a piece when the board has been flipped.'''
         new_move = []
         for move in old_move:
             new_points = []
@@ -188,13 +185,13 @@ class Piece:
                 temp = point
                 try:
                     temp = str(int(temp) * -1)
-                except:
+                except: #? Not sure what the except clause is for
                     temp = str(int(temp.split('|')[0]) * -1) + '|' + str(int(temp.split('|')[1]) * -1)
                 new_points.append(temp)
             new_move.append(new_points)
         return new_move
     
-    def _get_n2n(self, n2n: str, seperator: str) -> list: #TODO What?
+    def _get_n2n(self, n2n: str, seperator: str) -> list: #TODO Remove this function
         '''
             Returns list of numbers from n2n by seperating
             with the seperator.
@@ -217,6 +214,14 @@ class Piece:
         return nums
 
 
+    def set_theme(self, theme):
+        self.theme = theme
+        #TODO update sprite accordingly
+    
+    def set_view(self, view):
+        self.view = view
+        #TODO update sprite accordingly
+
     def _set_sprite(self, turn, white_piece_name, black_piece_name): #TODO view
         if turn == 0:
             self.image_path = WHITE_PIECES_PATH + white_piece_name # + view + piece_name
@@ -229,48 +234,80 @@ class Piece:
             self.turn += 1
         else:
             self.turn = min(piece_turns)
+    
+    
 
-##########
-# Pieces #
-##########
+
+
+##################
+# Piece Children #
+##################
 class Pawn(Piece):
     def __init__(self, pos, turn):
         super().__init__(pos, turn, "pawn")
         self.piece_moves = [('0', '1|2')] if turn == 0 else [('0', '-1|-2')]
         self.piece_attacks = [('-1', '1'), ('1', '1')] if turn == 0 else [('-1', '-1'), ('1', '-1')]
         self._set_sprite(turn, "pawn_top.png", "pawn_top.png")
+        
         self.en_passant = None
+        
+        self.has_moved = False
+        self.is_first_move = False
     
-    def update(self, pieces=[], board_turns=False):
+    def update(self, pieces=[], board_turns=False): #TODO rename and rewrite
         self.board_turns = board_turns
-        if self.move_count > 0:
+        if self.has_moved:
             if board_turns:
                 self.piece_moves = [('0', '1')]
             else:
                 self.piece_moves = [('0', '1')] if self.turn == 0 else [('0', '-1')]
     
-    def check_enpassant(self, pieces):
-        # if self.en_passant != None:
-        #     self.en_passant = []
-        #     return False
-        self.en_passant = None
-        opponent_pawns = [p for p in pieces if not p.captured and p.turn != self.turn and p.move_count == 1 and p.piece_name == self.piece_name and p.current_pos[1] in [3, 4]]
+    def move(self, x, y, current_turn=0, other_pieces=[]) -> (int, int): #TODO view
+        if self.is_valid_move(x, y, other_pieces) and self.turn == current_turn:
+            self.current_pos = (x, y)
+            self.pos = (x, y)
+            
+            if self.has_moved:
+                self.is_first_move = False
+            else:
+                self.has_moved = True
+                
+        else: # snap back to original position
+            self.pos = self.current_pos
+        return self.current_pos
+    
+    def check_enpassant(self, pieces): #TODO Messy, redo, make one function
+        opponent_pawns = [p for p in pieces if not p.captured and p.turn != self.turn and isinstance(p, Pawn) and p.is_first_move and p.current_pos[1] in [3, 4]]
         opponents_positions = [p.current_pos for p in opponent_pawns]
-        if (self.current_pos[0] - 1, self.current_pos[1]) in opponents_positions: # Checks the left side of our pawn
+        
+        if (self.current_pos[0] - 1, self.current_pos[1]) in opponents_positions: # Checks the left side
             opponent_pawns_index = opponents_positions.index((self.current_pos[0] - 1, self.current_pos[1]))
+            #TODO append to attacks
             self.en_passant = opponent_pawns[opponent_pawns_index]
-        if (self.current_pos[0] + 1, self.current_pos[1]) in opponents_positions: # Checks the right side of our pawn
+        if (self.current_pos[0] + 1, self.current_pos[1]) in opponents_positions: # Checks the right side
             opponent_pawns_index = opponents_positions.index((self.current_pos[0] + 1, self.current_pos[1]))
+            #TODO append to attacks
             self.en_passant = opponent_pawns[opponent_pawns_index]
+        
         return self.en_passant != None
 
-    def do_enpassant(self):
-        if self.en_passant == None: return False
+    def enpassant(self): #TODO Messy, redo, make one function
         if (not self.board_turns and self.turn == 0) or not self.board_turns:
-            self.force_move(self.en_passant.current_pos[0], self.current_pos[1] + 1)
+            self.translate(self.en_passant.current_pos[0], self.current_pos[1] + 1)
         else:
-            self.force_move(self.en_passant.current_pos[0], self.current_pos[1] - 1)
+            self.translate(self.en_passant.current_pos[0], self.current_pos[1] - 1)
         self.en_passant.destroy_piece()
+
+    def translate(self, x, y, count_move = False) -> (int, int): #TODO view
+        '''Translates piece from one location to another.'''
+        self.current_pos = (x, y)
+        self.pos = (x, y)
+        if count_move:
+            if self.has_moved:
+                self.is_first_move = False
+            else:
+                self.has_moved = True
+        return self.current_pos
 
     
 class Bishop(Piece):
@@ -301,25 +338,29 @@ class King(Piece):
     def __init__(self, pos, turn):
         super().__init__(pos, turn, "king")
         
-        
-        
         self.piece_moves = [("1", "1"), ("1", "-1"), ("-1", "1"), ("-1", "-1"), ("1", "0"), ("0", "1"), ("-1", "0"), ("0", "-1")]
         self._set_sprite(turn, "king_top.png", "king_top.png")
         self.threats = []
         self.capturables = []
         self.castling_blocks = []
+        
         self.check_count = 0
+        
+        self.has_moved = False
     
     def update(self, pieces=[], board_turns=False):
         self.board_turns = board_turns
     
-    def move(self, x, y, current_turn=0, other_pieces=[]) -> (int, int):
+    def move(self, x, y, current_turn=0, other_pieces=[]) -> (int, int): #TODO view
         if self.is_valid_move(x, y, other_pieces) and self.turn == current_turn:
             self.current_pos = (x, y)
             self.pos = (x, y)
-            self.move_count += 1
-            self.threads = []
-        else:
+            
+            self.threats = []
+            
+            self.has_moved = True
+        
+        else: # snap back to original position
             self.pos = self.current_pos
         return self.current_pos
     
@@ -333,7 +374,7 @@ class King(Piece):
             if piece.turn != self.turn:
                 continue
             for move in (piece.get_movement(pieces) + piece.get_capturables(pieces)):
-                piece.force_move(move[0], move[1], False)
+                piece.translate(move[0], move[1], False)
                 if piece.current_pos in opponents_positions:
                     destroyed_piece = openents[opponents_positions.index(move)]
                     pieces.remove(destroyed_piece)
@@ -342,7 +383,7 @@ class King(Piece):
                 if destroyed_piece != None:
                     pieces.append(destroyed_piece)
                     destroyed_piece = None
-                piece.force_move(hold_pos[0], hold_pos[1], False)
+                piece.translate(hold_pos[0], hold_pos[1], False)
     
     def is_check(self, pieces: Piece, pos) -> bool:
         self.threats = [piece for piece in pieces if piece.turn != self.turn and pos in piece.get_capturables(pieces)]
@@ -381,17 +422,25 @@ class King(Piece):
                     self.piece_moves.remove(('1|3', '0'))
         return len(self.castling_blocks) > 0
 
-    def do_castling(self, block):
+    def castle(self, block):
         if block not in self.castling_blocks:
             return
         self.translate(block[0], block[1])
         for rook in self.rooks_can_castle:
             print(rook.current_pos)
             if block[0] + 1 == rook.current_pos[0] or block[0] + 2 == rook.current_pos[0]:
-                rook.force_move(block[0] - 1, block[1], False)
+                rook.translate(block[0] - 1, block[1], False)
                 break
             elif block[0] - 2 == rook.current_pos[0] or block[0] - 1 == rook.current_pos[0]:
-                rook.force_move(block[0] + 1, block[1], False)
+                rook.translate(block[0] + 1, block[1], False)
                 break
         return
+
+    def translate(self, x, y, count_move = False) -> (int, int): #TODO view
+        '''Translates piece from one location to another.'''
+        self.current_pos = (x, y)
+        self.pos = (x, y)
+        if count_move:
+            self.has_moved = True
+        return self.current_pos
                 
