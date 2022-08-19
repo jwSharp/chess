@@ -23,11 +23,7 @@ class Board:
         
         # Game State
         self.pause = False
-
         self.is_check = False
-
-        
-        
         
         self.board_turning = False
         self.delay = 1
@@ -529,8 +525,8 @@ class Board:
         queen = [Queen((3, 7), 0), Queen((3, 0), 1)]
         king = [King((4, 7), 0), King((4, 0), 1)]
 
-        self.manager.players[0].pieces = [rook1[0], rook2[0], bishop1[0], bishop2[0], knight1[0], knight2[0], queen[0], king[0]] + pawns1
-        self.manager.players[1].pieces = [rook1[1], rook2[1], bishop1[1], bishop2[1], knight1[1], knight2[1], queen[1], king[1]] + pawns2
+        self.manager.players[0].pieces = [rooks[0], bishops[0], knights[0], queen[0], king[0]] + pawns[0]
+        self.manager.players[1].pieces = [rooks[1], bishops[1], knights[1], queen[1], king[1]] + pawns[1]
         self.pieces = self.manager.players[0].pieces + self.manager.players[1].pieces
         self.turns = [p.turn for p in self.pieces]
     
