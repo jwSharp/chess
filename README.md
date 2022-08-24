@@ -50,7 +50,7 @@ A special thank you to our project mentor [Felipe Rivera][6]. Thanks to the inst
 [6]: https://www.linkedin.com/in/feliperiverach/ "Felipe Rivera's LinkedIn"
 
 ## License
-MIT License
+[GNU GENERAL PUBLIC LICENSE](COPYING.md)
 
 ## Project status
 In Progress
