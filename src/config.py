@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import pygame
 from pathlib import Path
+from typing import Tuple
 
 
 ##########
@@ -29,7 +30,7 @@ HEIGHT = 800
 WIDTH = 1280
 
 
-def PIXEL_TO_ASPECT(width, height) -> tuple(int, int):
+def PIXEL_TO_ASPECT(width, height) -> Tuple(int, int):
     '''Returns width and height of window based ont the aspect ratio.'''
     if width < height:
         width = abs(round(height / ASPECT_RATIO[1])) * ASPECT_RATIO[0]
@@ -37,7 +38,7 @@ def PIXEL_TO_ASPECT(width, height) -> tuple(int, int):
         height = abs(round(width / ASPECT_RATIO[0])) * ASPECT_RATIO[1]
     return width, height
 
-def FIXED_SCALE(width, height, limit_min: tuple, limit_max: tuple) -> tuple(int, int):
+def FIXED_SCALE(width, height, limit_min: tuple, limit_max: tuple) -> Tuple(int, int):
     '''Returns a corrected width and height based on maximum and minimum values.'''
     if width < limit_min[0]:
         width = limit_min[0]

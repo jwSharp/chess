@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import pygame
 import random
+from typing import Tuple
 
 from config import *
 from accessory import Timer # useful?
@@ -277,7 +278,7 @@ class Board:
 
         
     
-    def square_highlighter(self, xy: (int, int), color, reset_feedbacks):
+    def square_highlighter(self, xy: Tuple(int, int), color, reset_feedbacks):
         '''Highlights squares.'''
         if reset_feedbacks:
             self.colored_squares = {xy: color}
