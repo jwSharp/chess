@@ -1,46 +1,109 @@
+'''
+Modern | Retro Chess - A chess program focused on providing a simple solution to online simultaneous exhibitions.
+Copyright (C) 2022 Society of Overthinkers
+
+This program is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
+
+This program is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
+
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <https://www.gnu.org/licenses/>.
+'''
+
 import pygame
 import random
+from typing import Tuple
 
 from config import *
-from accessory import Button, Timer
-from player import *
+from accessory import Timer # useful?
+from player import Human, Computer
 from piece import King, Queen, Rook, Bishop, Knight, Pawn
 
 
 class Board:
     def __init__(self, manager):
         self.manager = manager
+        
+        # Set up players
+        self.players = self.manager.players[:2]
+        for player in self.players:
+            player.set_board(self)
+            player.reset_pieces
+        
+        # set default view and themes
         self.view = 'top'
         #self.theme = 'light'
         
-        self.current_turn = 0
-        
-        self.turn_count = 0
+        # reset the board
+        self._reset_board()
         
         self.rotation = all(type(player) is Human for player in self.manager.players) #TODO remove feature?
-        self.board_turning = False
+        self.is_board_to_rotate = False
         
         self.blocks = [(x, y) for x in range(8) for y in range(8)]
         
-        self.board_panel = None
+        self.panel = None
         self.check_state = None
-        self.made_a_turn = False
-        
-        
-        # Game State
-        self.pause = False
-        self.is_check = False
-        
         
         self.delay = 1
 
-
         self._reset_selected()
-        
         self._reset_pieces()
-
+    
+    def _reset_board(self):
+        '''Resets the board to a fresh new game.'''
+        # Game State
+        self.current_turn = 0
+        self.game_state = "Make the First Move"
+        
+        # Reset bitboard
+        self.bitboard = [ # Row (1 - 8), Column (A - H)
+                        ['R', 'N', 'B', 'Q', 'K', 'B', 'N', 'R'],
+                        ['P', 'P', 'P', 'P', 'P', 'P', 'P', 'P'],
+                        ['',  '',  '',  '',  '',  '',  '',  ''],
+                        ['',  '',  '',  '',  '',  '',  '',  ''],
+                        ['',  '',  '',  '',  '',  '',  '',  ''],
+                        ['',  '',  '',  '',  '',  '',  '',  ''],
+                        ['p', 'p', 'p', 'p', 'p', 'p', 'p', 'p'],
+                        ['r', 'n', 'b', 'q', 'k', 'b', 'n', 'r']
+                        ]
+        self.FEN = ""
+        self.colored_squares = []
+        
+        # Reset Players
+        for player in self.players:
+            player.set_color("Black")
+            player.reset_pieces()
+            
+            
+        self.pieces_on_board = self.manager.players[0].pieces + self.manager.players[1].pieces
+        self.turns = [p.turn for p in self.pieces_on_board]
+        
+        # Pick Random Player to Go First
+        random_index = random.randrange(0, 1)
+        self.player_to_move = self.players[random_index]
+        self.players[random_index].set_color("White")
+        
+        self.selected_block = None
+        self.selected_piece = None
+        
+        self.is_player_holding_piece = False
+        
+        self.promoting_pawn = None
+        
+        self.captured_pieces = []
+        
+        
     def input(self, event):
         mouse_pos = pygame.mouse.get_pos()
+        
+        # Drag/Drop and Selection
         if event.type == pygame.MOUSEBUTTONDOWN:
             if event.button == 1:
                 self.selected_block = self.select_block(mouse_pos)
@@ -54,36 +117,33 @@ class Board:
         
         # Pawn Promotion
         elif event.type == pygame.KEYDOWN:
-            if self.needs_change:
-                pos = self.needs_change.current_pos
-                turn = self.needs_change.turn
+            if self.promoting_pawn:
+                pos = self.promoting_pawn.real_time_position
+                turn = self.promoting_pawn.is_players_turn
                 
-                if event.key == pygame.K_1:
-                    self.change_piece(Queen(pos, turn), True)
-                elif event.key == pygame.K_2:
-                    self.change_piece(Bishop(pos, turn), True)
-                elif event.key == pygame.K_3:
-                    self.change_piece(Knight(pos, turn), True)
-                elif event.key == pygame.K_4:
-                    self.change_piece(Rook(pos, turn), True)
+                # Keyboard Selection
+                if not self.auto_queen: #TODO or holding down ctrl key
+                    if event.key == pygame.K_1:
+                        self.promote_pawn(Queen(pos, turn))
+                    elif event.key == pygame.K_2:
+                        self.promote_pawn(Bishop(pos, turn))
+                    elif event.key == pygame.K_3:
+                        self.promote_pawn(Knight(pos, turn))
+                    elif event.key == pygame.K_4:
+                        self.promote_pawn(Rook(pos, turn))
+                else:
+                    self.promote_pawn(Queen(pos, turn))
 
+        # Player Turn
         if event.type == pygame.USEREVENT:
-            if self.players[self.turn_count]
-            # AI Movement #TODO Move to Player.py
-            if self.ai_thinking:
-                randomize = random.randint(0, 5)
-                if randomize % 2 == 0:
-                    selected_piece = random.sample(self.ai_pieces, 1)[0]
-                    if self.selected_piece != selected_piece:
-                        self.select_block(None, (selected_piece.current_pos[0], selected_piece.current_pos[1]))
-                self.ai_thinking = False
-                
-            if self.board_turning:
+            self.player_to_move.move()
+                    
+            if self.is_board_to_rotate:
                 if self.delay > 0:
                     self.delay -= 1
                 else:
                     self.next_turn()
-                    self.board_turning = False
+                    self.is_board_to_rotate = False
                     self.delay = 1
                     pygame.time.set_timer(pygame.USEREVENT, 1000)
 
@@ -92,6 +152,8 @@ class Board:
     # Draw the Board
     ###
     def draw(self, screen):
+        '''Draws the board.'''
+        # Render Board with Dynamic Sizing
         screen_center = (screen.get_width()/2, screen.get_height()/2)
         board_width = screen.get_height()
         board_height = board_width
@@ -100,59 +162,25 @@ class Board:
         board = pygame.Rect(0, 0, board_width, board_height)
         playing_field = pygame.Rect(0, 0, playing_field_width, playing_field_height)
         playing_field.center = board.center = screen_center
-        self.board_panel = playing_field
+        self.panel = playing_field
 
-        pygame.draw.rect(screen, BROWN, board)
+        pygame.draw.rect(screen, BROWN, board) #TODO Make colors based on theme
         pygame.draw.rect(screen, OAK, playing_field)
 
-        self.draw_squares(screen, playing_field)
-        self.draw_texture(screen, board)
-        self.draw_border(screen, playing_field)
-        self.draw_pieces(screen)
-        
-
-        if self.needs_change == None:
-            self.pause = False
-        else:
-            self.pause = True
-            
-        # Transition Between Turns #TODO move to Scene somehow
-        if self.board_turning and self.rotation and not self.pause:
-
-            r = pygame.Rect(0, 0, 400, 200)
-            r.center = screen.get_rect().center
-            pygame.draw.rect(screen, OAK, r, 0, 10)
-            text = GET_FONT('elephant', 40).render("White's turn!" if self.current_turn == 1 else "Black's turn!", True, WHITE)
-            screen.blit(text, text.get_rect(center=(screen.get_rect().centerx, screen.get_rect().centery)))
-            
-
-        if self.needs_change == None:
-            self.pause = False
-        else:
-            self.pause = True 
-        
-        if not self.rotation and self.current_turn != 0 and self.get_game_state('1','2','3') != '3' and self.ai_delay <= 0:
-            if self.selected_piece == None:
-                selected_piece = random.sample(self.ai_pieces, 1)[0]
-                self.select_block(None, (selected_piece.current_pos[0], selected_piece.current_pos[1]))
-            drop_pos = random.sample(self.selected_piece.get_movement(self.pieces) + self.selected_piece.get_capturables(self.pieces), 1)[0]
-            self.select_block(None, (drop_pos[0], drop_pos[1]))
-
-    def draw_squares(self,screen, playing_field):
-        '''Draws individual squares of the board.'''
+        # Draw Squares on the Board #TODO Clean up, lighter weight, combine with piece drawing?
         sq_width, sq_height = playing_field.width/8, playing_field.height/8
-        square = pygame.Rect(self.board_panel.left, self.board_panel.top, sq_width, sq_height)
+        square = pygame.Rect(self.panel.left, self.panel.top, sq_width, sq_height)
         for x, y in self.blocks:
             sq_left = x * sq_width + playing_field.x
             sq_top = y * sq_height + playing_field.y
             sq = pygame.Rect(sq_left, sq_top, sq_width, sq_height)
             
-            if (x + y) % 2 == 0:
+            if (x + y) % 2 == 0: #TODO coordinate with color options for theme
                 pygame.draw.rect(screen, OAK, sq)
             else:
                 pygame.draw.rect(screen, BROWN, sq)
-            if (x, y) in self.feedback_blocks:
-                pygame.draw.rect(screen, self.feedback_blocks[(x, y)], sq)
+            if (x, y) in self.colored_squares:
+                pygame.draw.rect(screen, self.colored_squares[(x, y)], sq)
             elif (x, y) == self.selected_block:
                 self.draw_rect(screen, LIGHT_GREEN, sq, 300)
             if (x, y) in self.movable_blocks:
@@ -161,50 +189,8 @@ class Board:
                 pygame.draw.rect(screen, RED, sq, 3)
             if (x, y) == self.en_passant_block:
                 pygame.draw.rect(screen, RED, sq)
-        
-        self.draw_labels(screen, square, playing_field)
-    
-    def draw_pieces(self, screen):
-        '''Draws each piece on the board.'''
-        img_width = self.board_panel.width / 8 - 10
-        img_height = self.board_panel.height / 8 - 10
-        for piece in self.pieces:
-            piece.update(self.pieces, self.rotation)
-            
-            if piece == self.selected_piece: #TODO why?
-                continue
-            
-            # Make Knight Face Proper Direction
-            if isinstance(piece, Knight): 
-                if self.rotation:
-                    if self.current_turn == 0:
-                        piece.draw(screen, (img_width, img_height), self.board_panel, 180 if piece.turn == 0 else 0)
-                    else:
-                        piece.draw(screen, (img_width, img_height), self.board_panel, 0 if piece.turn == 0 else 180)
-                else:
-                    piece.draw(screen, (img_width, img_height), self.board_panel, 180 if piece.turn == 0 else 0)
-                continue
-
-            
-            piece.draw(screen, (img_width, img_height), self.board_panel)
-            
-            
-        if self.selected_piece != None:
-            self.selected_piece.draw(screen, (img_width, img_height), self.board_panel)
-    
-    def draw_feedback(self, xy: (int, int), color, reset_feedbacks):
-        if reset_feedbacks:
-            self.feedback_blocks = {xy: color}
-        else:
-            self.feedback_blocks[xy] = color
-
-    def draw_rect(self, screen, color, rect: pygame.Rect, opacity = 255):
-        s = pygame.Surface(rect.size)
-        s.set_alpha(opacity)        
-        s.fill(color)
-        screen.blit(s, (rect.x, rect.y))
-    
-    def draw_labels(self, screen, square, playing_field):
+              
+        # Draw the board square labels  
         letters = ["A", "B", "C", "D", "E", "F", "G", "H"]
         if self.current_turn != 0 and self.rotation:
             letters.reverse()
@@ -212,7 +198,7 @@ class Board:
         number_font = pygame.font.SysFont('arial', 40, bold = True)
 
         for i in range (0, 8):
-            label_text = label_font.render(letters[i], True, DARK_OAK)
+            label_text = label_font.render(letters[i], True, DARK_OAK) #TODO Make consistent with theme colors
             label_rect = label_text.get_rect()
             label_rect.centerx = square.centerx
             label_rect.centery = self.board_panel.top - square.height / 2
@@ -227,16 +213,16 @@ class Board:
             square.top += square.height
         
         square.topleft = playing_field.topleft
-
-    def draw_texture(self, screen, board):
+        
+        # Add board texture
         texture = pygame.image.load(TEXTURE_PATH + "wood_grain.png")
         texture = pygame.transform.scale(texture, (board.width, board.height))
         texture_rect = texture.get_rect()
         texture.set_alpha(80)
         texture_rect.topleft = board.topleft
         screen.blit(texture, texture_rect)
-
-    def draw_border(self, screen, playing_field):
+        
+        # Add board borders
         border = pygame.Rect(0, 0, playing_field.width, playing_field.height)
         border.top = playing_field.top-2
         border.left = playing_field.left - 2
@@ -249,13 +235,68 @@ class Board:
         highlight.top = playing_field.top - 3
         highlight.left = playing_field.left - 3
         pygame.draw.rect(screen, WHITE, highlight, 1)
+        
+        # Draw each piece
+        sprite_width = self.panel.width / 8 - 10
+        sprite_height = self.panel.height / 8 - 10
+        for piece in self.pieces_on_board:
+            piece.update(self.pieces_on_board, self.rotation)
+            if piece == self.selected_piece: #TODO why?
+                continue
+
+            # Make knight face proper direction
+            if isinstance(piece, Knight):
+                if self.rotation: #TODO rewrite this
+                    if self.current_turn == 0:
+                        piece.draw(screen, (sprite_width, sprite_height), self.panel, 180 if piece.is_players_turn == 0 else 0)
+                    else:
+                        piece.draw(screen, (sprite_width, sprite_height), self.panel, 0 if piece.is_players_turn == 0 else 180)
+                else:
+                    piece.draw(screen, (sprite_width, sprite_height), self.panel, 180 if piece.is_players_turn == 0 else 0)
+                continue
+            
+            piece.draw(screen, (sprite_width, sprite_height), self.panel)
+        
+        # Add effect to selected piece
+        if self.selected_piece != None:
+            self.selected_piece.draw(screen, (sprite_width, sprite_height), self.panel)
+        
+        # Transition Between Turns #TODO move to Scene somehow
+        if self.is_board_to_rotate and self.rotation and not self.pause:
+            r = pygame.Rect(0, 0, 400, 200)
+            r.center = screen.get_rect().center
+            pygame.draw.rect(screen, OAK, r, 0, 10)
+            text = GET_FONT('elephant', 40).render("White's turn!" if self.current_turn == 1 else "Black's turn!", True, WHITE)
+            screen.blit(text, text.get_rect(center=(screen.get_rect().centerx, screen.get_rect().centery)))
+        
+        if not self.rotation and self.current_turn != 0 and self.get_game_state('1','2','3') != '3' and self.ai_delay <= 0:
+            if self.selected_piece == None:
+                selected_piece = random.sample(self.ai_pieces, 1)[0]
+                self.select_block(None, (selected_piece.current_pos[0], selected_piece.current_pos[1]))
+            drop_pos = random.sample(self.selected_piece.get_movement(self.pieces_on_board) + self.selected_piece.get_capturables(self.pieces_on_board), 1)[0]
+            self.select_block(None, (drop_pos[0], drop_pos[1]))
+
+        
+    
+    def square_highlighter(self, xy: Tuple(int, int), color, reset_feedbacks):
+        '''Highlights squares.'''
+        if reset_feedbacks:
+            self.colored_squares = {xy: color}
+        else:
+            self.colored_squares[xy] = color
+
+    def draw_rect(self, screen, color, rect: pygame.Rect, opacity = 255):
+        s = pygame.Surface(rect.size)
+        s.set_alpha(opacity)        
+        s.fill(color)
+        screen.blit(s, (rect.x, rect.y))
 
 
     def select_block(self, pos: tuple, grid_pos: tuple = None):
         if self.pause or (pos == None and grid_pos == None):
             return
         if pos != None: x, y = pos
-        piece_positions = [i.current_pos for i in self.pieces]
+        piece_positions = [i.current_pos for i in self.pieces_on_board]
         if self.drop_piece(pos, grid_pos) or self.board_panel == None:
             return
         if grid_pos == None:
@@ -267,23 +308,23 @@ class Board:
         if (x >= 0 and x <= 7) and (y >= 0) and (y <= 7):
             self.selected_block = (x, y)
             if self.selected_block in piece_positions:
-                if (self.pieces[piece_positions.index(self.selected_block)].turn == self.current_turn):
-                    self.selected_piece = self.pieces[piece_positions.index(self.selected_block)]
+                if (self.pieces_on_board[piece_positions.index(self.selected_block)].turn == self.current_turn):
+                    self.selected_piece = self.pieces_on_board[piece_positions.index(self.selected_block)]
                     self.handle_check()
-                    if self.selected_piece.piece_name == 'pawn':
+                    if isinstance(self.selected_piece, Pawn):
                         self.check_enpassant(self.selected_piece)
                         print('Got Here A')
                         print(self.en_passant_block)
-                    if self.selected_piece.piece_name == 'king':
-                        if self.selected_piece.check_castling(self.pieces):
+                    if isinstance(self.selected_piece, King):
+                        if self.selected_piece.check_castling(self.pieces_on_board):
                             for block in self.selected_piece.castling_blocks:
                                 self.castling_blocks += [tuple(block)]
-                                self.draw_feedback(block, PURPLE, False)
+                                self.square_highlighter(block, PURPLE, False)
 
-                    self.movable_blocks = self.selected_piece.get_movement(self.pieces)
-                    self.capturables = self.selected_piece.get_capturables(self.pieces)
+                    self.movable_blocks = self.selected_piece.get_movement(self.pieces_on_board)
+                    self.capturables = self.selected_piece.get_capturables(self.pieces_on_board)
                 else:
-                    self.draw_feedback(self.selected_block, RED, True)
+                    self.square_highlighter(self.selected_block, RED, True)
                     self._reset_selected(True)
         return (x, y)
  
@@ -291,8 +332,7 @@ class Board:
     # Drag and Drop
     ###
     def drag(self, x, y): #TODO view
-        """Since draw_pieces renders the piece by its position, drag_piece changes
-        the position of the held piece to the mouse position until drop_piece runs."""
+        '''Changes the position of the held piece to the mouse position until dropped.'''
 
         if self.board_panel == None or self.pause:
             return
@@ -301,9 +341,9 @@ class Board:
         x = (x - self.board_panel.x) / block_size - 0.5
         y = (y - self.board_panel.y) / block_size - 0.5
         
-        for i in self.pieces:
-            if (self.selected_block == i.current_pos and not self.holding_piece and not i.captured):
-                self.holding_piece = True
+        for i in self.pieces_on_board:
+            if (self.selected_block == i.current_pos and not self.is_player_holding_piece and not i.captured):
+                self.is_player_holding_piece = True
                 self.selected_piece = i
                 return
         
@@ -326,42 +366,43 @@ class Board:
         
         if self.selected_piece == None:
             return False
+        
         if (block_x, block_y) in self.castling_blocks:
             self.selected_piece.do_castling((block_x, block_y))
             self.pawn_at_end(self.selected_piece)
             # self.next_turn()
             if self.rotation: 
-                self.board_turning = True
+                self.is_board_to_rotate = True
                 pygame.time.set_timer(pygame.USEREVENT, self.delay_speed)
             else: self.next_turn()
             self._reset_selected()
             return True
         
-        if self.selected_piece.piece_name == 'pawn' and (block_x, block_y) == self.en_passant_block:
+        if isinstance(self.selected_piece, Pawn) and (block_x, block_y) == self.en_passant_block:
             self.captured_pieces.append(self.selected_piece.en_passant)
             self.selected_piece.do_enpassant()
             if self.rotation: 
-                self.board_turning = True
+                self.is_board_to_rotate = True
                 pygame.time.set_timer(pygame.USEREVENT, self.delay_speed)
             else: self.next_turn()
             self._reset_selected()
             return True
         
-        piece_positions = [p.current_pos for p in self.pieces]
-        prev_pos = self.selected_piece.current_pos
+        piece_positions = [p.current_pos for p in self.pieces_on_board]
+        prev_pos = self.selected_piece.real_time_position
         
-        self.selected_piece.move_piece(block_x, block_y, self.current_turn, self.pieces)
+        self.selected_piece.move_piece(block_x, block_y, self.current_turn, self.pieces_on_board)
         
-        if self.selected_piece.current_pos == prev_pos:
+        if self.selected_piece.real_time_position == prev_pos:
             return False
 
         if (block_x, block_y) in self.capturables:
-            self.captured_pieces.append(self.pieces[piece_positions.index((block_x, block_y))])
-            self.pieces[piece_positions.index((block_x, block_y))].destroy_piece()
+            self.captured_pieces.append(self.pieces_on_board[piece_positions.index((block_x, block_y))])
+            self.pieces_on_board[piece_positions.index((block_x, block_y))].destroy_piece()
             self.pawn_at_end(self.selected_piece)
             # self.next_turn()
             if self.rotation: 
-                self.board_turning = True
+                self.is_board_to_rotate = True
                 pygame.time.set_timer(pygame.USEREVENT, self.delay_speed)
             else: self.next_turn()
             self._reset_selected()
@@ -371,7 +412,7 @@ class Board:
             self.pawn_at_end(self.selected_piece)
             # self.next_turn()
             if self.rotation: 
-                self.board_turning = True
+                self.is_board_to_rotate = True
                 pygame.time.set_timer(pygame.USEREVENT, self.delay_speed)
             else: self.next_turn()
             self._reset_selected()
@@ -382,7 +423,7 @@ class Board:
 
     def select_block(self, pos: tuple, grid_pos: tuple = None): #TODO view
         x, y = pos
-        piece_positions = [i.current_pos for i in self.pieces]
+        piece_positions = [i.current_pos for i in self.pieces_on_board]
         if self.pause:
             return
         if self.drop(x, y, grid_pos) or self.board_panel == None:
@@ -396,19 +437,19 @@ class Board:
         if (x >= 0 and x <= 7) and (y >= 0) and (y <= 7):
             self.selected_block = (x, y)
             if self.selected_block in piece_positions:
-                if (self.pieces[piece_positions.index(self.selected_block)].turn == self.current_turn):
-                    self.selected_piece = self.pieces[piece_positions.index(self.selected_block)]
+                if (self.pieces_on_board[piece_positions.index(self.selected_block)].turn == self.current_turn):
+                    self.selected_piece = self.pieces_on_board[piece_positions.index(self.selected_block)]
                     self.check()
-                    if self.selected_piece.piece_name == 'king':
-                        if self.selected_piece.check_castling(self.pieces):
+                    if isinstance(self.selected_piece, King):
+                        if self.selected_piece.check_castling(self.pieces_on_board):
                             for block in self.selected_piece.castling_blocks:
                                 self.castling_blocks += [tuple(block)]
-                                self.draw_feedback(block, PURPLE, False)
+                                self.square_highlighter(block, PURPLE, False)
 
-                    self.movable_blocks = self.selected_piece.get_movement(self.pieces)
-                    self.capturables = self.selected_piece.get_capturables(self.pieces)
+                    self.movable_blocks = self.selected_piece.get_movement(self.pieces_on_board)
+                    self.capturables = self.selected_piece.get_capturables(self.pieces_on_board)
                 else:
-                    self.draw_feedback(self.selected_block, RED, True)
+                    self.square_highlighter(self.selected_block, RED, True)
                     self._reset_selected(True)
         return (x, y)
 
@@ -418,9 +459,10 @@ class Board:
     ###
     def get_game_state(self): #TODO view
         '''Returns the status of the game.'''
+        return self.game_state
         if self.check_state == None:
             return 'Playing'
-        elif any([len(piece.get_movement(self.pieces)) > 1 or len(piece.get_capturables(self.pieces)) > 0 for piece in self.pieces if piece.turn == self.current_turn]):
+        elif any([len(piece.get_movement(self.pieces_on_board)) > 1 or len(piece.get_capturables(self.pieces_on_board)) > 0 for piece in self.pieces_on_board if piece.turn == self.current_turn]):
             return 'Check'
         elif False: #TODO stalemate
             pass
@@ -429,12 +471,11 @@ class Board:
     
     def check(self): #TODO view
         '''Executes when the king is in check.'''
-        self.check_state = None
-        for piece in self.pieces:
-            if piece.piece_name == 'king':
+        for piece in self.pieces_on_board:
+            if piece is King:
                 if piece.turn == self.current_turn:
-                    piece.set_disabled_moves(self.pieces)
-                if piece.is_check(self.pieces, piece.current_pos):
+                    piece.set_disabled_moves(self.pieces_on_board)
+                if piece.is_check(self.pieces_on_board, piece.current_pos):
                     self.check_state = piece.turn
     
     
@@ -444,24 +485,25 @@ class Board:
         target_pos_y = 0
         if not self.rotation:
             target_pos_y = 0 if self.current_turn == 0 else 7
-        if piece.piece_name == 'pawn' and piece.current_pos != None and piece.turn == self.current_turn and piece.current_pos[1] == target_pos_y:
-            self.needs_change = piece
+        if isinstance(piece, Pawn) and piece.real_time_position != None and piece.is_players_turn == self.current_turn and piece.real_time_position[1] == target_pos_y:
+            self.promoting_pawn = piece
             return True
         return False
     
     
-    def change_piece(self, piece, change_turn = False): #TODO view
-        if self.needs_change == None or self.needs_change not in self.pieces:
+    def promote_pawn(self, piece):
+        if self.promoting_pawn == None or self.promoting_pawn not in self.pieces_on_board: # Unnecessary Safeguard
             return
-        piece.current_pos = self.needs_change.current_pos
-        self.pieces.remove(self.needs_change)
-        self.pieces.append(piece)
-        self.needs_change = None
-        self.pause = False
-        if change_turn: self.next_turn()
+        piece.current_pos = self.promoting_pawn.real_time_position
+        self.pieces_on_board.remove(self.promoting_pawn)
+        self.pieces_on_board.append(piece)
+        
+        self.promoting_pawn = None
+        
+        self.next_turn()
 
     def next_turn(self): #TODO view
-        if self.pause or self.needs_change != None:
+        if self.pause or self.promoting_pawn != None:
             return
         if self.current_turn < max(self.turns):
             self.current_turn += 1
@@ -474,11 +516,9 @@ class Board:
 
         self.handle_check()
 
-        self.made_a_turn = True
-
     ### Flip Board ###
     def flip_places(self): #TODO view
-        for piece in self.pieces:
+        for piece in self.pieces_on_board:
             piece.reflect_place()
             
     def _get_grid_position(self, x: float, y: float): #TODO view
@@ -496,7 +536,7 @@ class Board:
     
     def _reset_selected(self, keep_feedback=False): #TODO view
         self.selected_piece = None
-        self.holding_piece = False
+        self.is_player_holding_piece = False
         self.selected_block = None
         
         self.movable_blocks = []
@@ -505,70 +545,35 @@ class Board:
         self.en_passant_block = []
 
         if not keep_feedback:
-            self.feedback_blocks = {}
-    
-    def _reset_pieces(self): #TODO view
-        '''Set up board with bieces '''
-
-        self.FEN = "" #TODO FEN Functionality
-        
-        self.selected_block = None
-        self.stuck_indicator = None
-        self.holding_piece = False
-        self.selected_piece = None
-        self.needs_change = None
-        self.captured_pieces = []
-        
-        # Delete Old Pieces
-        #TODO Create __del__ for Super Piece
-        
-        # Create Pieces
-        pawns = [[Pawn((i, 6), 0, self.theme) for i in range(8)], [Pawn((i, 1), 1, self.theme) for i in range(8)]]
-        rooks = [ [Rook((0, 7), 0, self.theme), Rook((7, 7), 0, self.theme)], [Rook((0, 0), 1, self.theme), Rook((7, 0), 1, self.theme)] ]
-        knights = [ [Knight((1, 7), 0, self.theme), Knight((6, 7), 0, self.theme)], [Knight((1, 0), 1, self.theme), Knight((6, 0), 1, self.theme)] ]
-        bishops = [[Bishop((2, 7), 0, self.theme), Bishop((5, 7), 0, self.theme)], [Bishop((2, 0), 1, self.theme), Bishop((5, 0), 1, self.theme)]]
-        queen = [Queen((3, 7), 0, self.theme), Queen((3, 0), 1, self.theme)]
-        king = [King((4, 7), 0, self.theme), King((4, 0), 1, self.theme)]
-
-        self.manager.players[0].pieces = [rooks[0], bishops[0], knights[0], queen[0], king[0]] + pawns[0]
-        self.manager.players[1].pieces = [rooks[1], bishops[1], knights[1], queen[1], king[1]] + pawns[1]
-        
-        self.pieces = self.manager.players[0].pieces + self.manager.players[1].pieces
-        self.turns = [p.turn for p in self.pieces]
+            self.colored_squares = {}
     
     def set_theme(self, theme):
         if theme in THEMES:
             self.theme = theme
-            for piece in self.pieces:
+            for piece in self.pieces_on_board:
                 piece.set_theme(self.theme)
                 
     def set_view(self, view):
         '''Changes the board's view.'''
         if view in VIEWS:
             self.view = view
-            for piece in self.pieces:
+            for piece in self.pieces_on_board:
                 piece.set_view(self.view)
     
     def handle_check(self):
         self.check_state = None
-        for piece in self.pieces:
-            if piece.piece_name == 'king':
-                if piece.turn == self.current_turn:
-                    piece.set_disabled_moves(self.pieces)
-                if piece.is_check(self.pieces, piece.current_pos):
-                    self.check_state = piece.turn
+        for piece in self.pieces_on_board:
+            if isinstance(piece, King):
+                if piece.is_players_turn == self.current_turn:
+                    piece.set_disabled_moves(self.pieces_on_board)
+                if piece.is_check(self.pieces_on_board, piece.current_pos):
+                    self.check_state = piece.is_players_turn
                 
     def get_game_state(self):
         '''Returns text reflecting the state of the game.'''
         if self.check_state == None:
             return 'Playing'
-        if any([len(piece.get_movement(self.pieces)) > 1 or len(piece.get_capturables(self.pieces)) > 0 for piece in self.pieces if piece.turn == self.current_turn]):
+        if any([len(piece.get_movement(self.pieces_on_board)) > 1 or len(piece.get_capturables(self.pieces_on_board)) > 0 for piece in self.pieces_on_board if piece.turn == self.current_turn]):
             return 'Check'
         else:
             return 'Check-Mate'
-    
-
-    def handle_ai(self):
-        if not self.rotation and self.current_turn != 0 and self.get_game_state() != 'Check-Mate':
-            self.ai_pieces = [p for p in self.pieces if p.turn == self.current_turn and len(p.get_movement(self.pieces)) > 1 or len(p.get_capturables(self.pieces)) > 0]
-            self.ai_thinking = True

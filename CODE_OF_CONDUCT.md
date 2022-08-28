@@ -1,0 +1,1 @@
+Since inclucivity in a top priority, our team is in the works of properly writing this document. We have sought outside mentorship on this task. Until updated, please follow your conscience and be respectful to everyone.
