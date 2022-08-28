@@ -18,17 +18,20 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import pygame
 import sys
+from typing import List, Tuple
  
 from config import *
-from player import Human, Computer
+from player import *
 from board import Board
-from accessory import Timer, Button, Two_Line
+from accessory import Timer, Button, Button_Two_Line
  
 class SceneManager:
     '''A stack of Scene objects that can pop/push next scene to top.'''
-    def __init__(self, players: [Player]):
+    def __init__(self, players: List[Player]):
         self.players = players
         self.scenes = []
+        self.view = 'top'
+        self.theme = 'default'
     
     def enter(self):
         pass
@@ -221,7 +224,7 @@ class PlayerSelection(Scene):
         self.back.update(screen)
     
 class AI_Selection(Scene):
-    '''If 1 player game selected, choose difficulty level for computer player.'''
+    '''Choose difficulty level for computer player. (Only for 1 Player Selection)'''
     
     def __init__(self, manager):
         self.manager = manager
@@ -274,7 +277,7 @@ class AI_Selection(Scene):
         mouse_pos = pygame.mouse.get_pos()
     
         if event.type == pygame.MOUSEBUTTONDOWN:
-            
+            #TODO set to value - pop scene - etc
             if self.easy.input(mouse_pos):
                 pass
             
@@ -348,15 +351,15 @@ class TimeSelection(Scene):
         self.text_shadow_rect = self.text_shadow.get_rect(center=(644, 54))
     
         font = GET_FONT('regular', 25)
-        time_1_0 = Two_Line(None, (225, 200), "BULLET", "1 + 0", font, ORANGE, BLACK)
-        time_2_1 = Two_Line(None, (640, 200), "BULLET", "2 + 1", font, ORANGE, BLACK)
-        time_3_0 = Two_Line(None, (1055, 200), "BLITZ", "3 + 0", font, ORANGE, BLACK)
-        time_3_2 = Two_Line(None, (225, 340), "BLITZ", "3 + 0", font, ORANGE, BLACK)
-        time_5_0 = Two_Line(None, (640, 340), "BLITZ", "5 + 0", font, ORANGE, BLACK)
-        time_5_3 = Two_Line(None, (1055, 340), "BLITZ", "5 + 3", font, ORANGE, BLACK)
-        time_10_0 = Two_Line(None, (225, 475), "RAPID", "10 + 0", font, ORANGE, BLACK)
-        time_10_5 = Two_Line(None, (640, 475), "RAPID", "10 + 5", font, ORANGE, BLACK)
-        time_15_10 = Two_Line(None, (1055, 475), "RAPID", "15 + 10", font, ORANGE, BLACK)
+        time_1_0 = Button_Two_Line(None, (225, 200), "BULLET", "1 + 0", font, ORANGE, BLACK)
+        time_2_1 = Button_Two_Line(None, (640, 200), "BULLET", "2 + 1", font, ORANGE, BLACK)
+        time_3_0 = Button_Two_Line(None, (1055, 200), "BLITZ", "3 + 0", font, ORANGE, BLACK)
+        time_3_2 = Button_Two_Line(None, (225, 340), "BLITZ", "3 + 0", font, ORANGE, BLACK)
+        time_5_0 = Button_Two_Line(None, (640, 340), "BLITZ", "5 + 0", font, ORANGE, BLACK)
+        time_5_3 = Button_Two_Line(None, (1055, 340), "BLITZ", "5 + 3", font, ORANGE, BLACK)
+        time_10_0 = Button_Two_Line(None, (225, 475), "RAPID", "10 + 0", font, ORANGE, BLACK)
+        time_10_5 = Button_Two_Line(None, (640, 475), "RAPID", "10 + 5", font, ORANGE, BLACK)
+        time_15_10 = Button_Two_Line(None, (1055, 475), "RAPID", "15 + 10", font, ORANGE, BLACK)
         self.buttons = (time_1_0, time_2_1, time_3_0, time_3_2, time_5_0, time_5_3, time_10_0, time_10_5, time_15_10)
     
         font = GET_FONT('regular', 40)
@@ -437,7 +440,7 @@ class TimeSelection(Scene):
         screen.blit(self.quit_shadow, self.quit_rect)
         self.quit.update(screen)
     
-    def _parse_time(self, name: str) -> (int, int):
+    def _parse_time(self, name: str) -> Tuple(int, int):
         if len(name) == 5:
             return (int(name[0]), int(name[-1]))
         elif len(name) == 6:
@@ -812,7 +815,8 @@ class Game(Scene):
         screen.blit(self.game_state_text, self.game_state_text.get_rect(center=(self.board.board_panel.centerx, screen.get_height() - 30)))
 
         # Game Frame
-        self._draw_frame(screen, left_wing, right_wing)
+        self._add_wings(screen, left_wing, right_wing)
+        self._add_graveyard(screen, left_wing, right_wing)
         
         # Retro|Modern Chess text
         screen.blit(self.retro_text, self.retro_text.get_rect(center=(left_wing.centerx, screen.get_height() * .81)))
@@ -838,10 +842,6 @@ class Game(Scene):
         self.menu_button.update(screen)
         self.exit_button.update(screen)
         
-    def _draw_frame(self, screen, left_wing, right_wing):
-        self._add_wings(screen, left_wing, right_wing)
-        self._add_graveyard(screen, left_wing, right_wing)
-    
     def _add_wings(self, screen,left_wing, right_wing):
         '''Adds shadows and highlights to the decorative elements of the gamebox.'''
         # Shadows
@@ -909,7 +909,7 @@ class Game(Scene):
         pygame.draw.rect(screen, GOLD_SHADOW, r_shadow, 2)
     
     def _add_player_text(self, screen, placement, title):
-        '''Adds text, either "Player" or "Player 1", to the upper left corner of the gamebox.'''
+        '''Adds text player's name to the upper corners of the gamebox.'''
         playersFont = GET_FONT('brushscript', 62)
         player_text = playersFont.render(title, True, GOLD)
         player_text_rect = player_text.get_rect()

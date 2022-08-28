@@ -17,6 +17,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 '''
 
 import pygame
+from typing import List, Tuple
 
 from config import *
 
@@ -26,7 +27,7 @@ from config import *
 # Abstract Class #
 #####################
 class Piece:
-    def __init__(self, position: (int, int), player, view):
+    def __init__(self, position: Tuple(int, int), player, view):
         self.player = player
         
         self.piece_name = ''
@@ -47,7 +48,7 @@ class Piece:
         if event.type == pygame.VIDEORESIZE:
             self.sprite = pygame.image.load(self.image_path)
 
-    def draw(self, screen, blit_size: (int, int), panel, rotate = 0): #TODO view
+    def draw(self, screen, blit_size: Tuple(int, int), panel, rotate = 0): #TODO view
         if self.image_path == None or self.position == None:
             return
         self.sprite = pygame.image.load(self.image_path)
@@ -64,7 +65,7 @@ class Piece:
     ###
     # Piece Movement
     ###
-    def move(self, x, y, other_pieces=[]) -> (int, int): #TODO view
+    def move(self, x, y, other_pieces=[]) -> Tuple(int, int): #TODO view
         if self.is_valid_move(x, y, other_pieces) and self.is_players_turn:
             self.real_time_position = (x, y)
             self.position = (x, y)
@@ -131,10 +132,8 @@ class Piece:
             if self.real_time_position[0] + j[0] in range(0, 8) and self.real_time_position[1] - j[1] in range(0, 8)
         ]
         
-    def decode_move(self, area: list) -> [(int, int)]: #TODO view
-        '''
-            Return all possible blocks as a list
-        '''
+    def decode_move(self, area: list) -> List[Tuple(int, int)]: #TODO view
+        '''Return all possible blocks as a list.'''
         blocks = []
         pos_x = []
         pos_y = []
@@ -160,7 +159,7 @@ class Piece:
     ###
     # Two Player Board Flip
     ###
-    def translate(self, x, y) -> (int, int): #TODO view
+    def translate(self, x, y) -> Tuple(int, int): #TODO view
         '''Translates piece from one location to another.'''
         self.real_time_position = (x, y)
         self.position = (x, y)
@@ -176,7 +175,7 @@ class Piece:
         self.piece_moves = self.get_reflected_move(self.piece_moves)
         return (x, y)
 
-    def get_reflected_move(self, old_move:[(str)]) -> [(str)]:
+    def get_reflected_move(self, old_move: List[str]) -> List[str]:
         '''Returns movement of a piece when the board has been flipped.'''
         new_move = []
         for move in old_move:
@@ -262,7 +261,7 @@ class Pawn(Piece):
             else:
                 self.piece_moves = [('0', '1')] if self.is_players_turn == 0 else [('0', '-1')]
     
-    def move(self, x, y, other_pieces=[]) -> (int, int): #TODO view
+    def move(self, x, y, other_pieces=[]) -> Tuple(int, int): #TODO view
         if self.is_valid_move(x, y, other_pieces) and self.is_players_turn:
             self.real_time_position = (x, y)
             self.pos = (x, y)
@@ -298,7 +297,7 @@ class Pawn(Piece):
             self.translate(self.en_passant.real_time_position[0], self.real_time_position[1] - 1)
         self.en_passant.destroy_piece()
 
-    def translate(self, x, y, count_move = False) -> (int, int): #TODO view
+    def translate(self, x, y, count_move = False) -> Tuple(int, int): #TODO view
         '''Translates piece from one location to another.'''
         self.real_time_position = (x, y)
         self.pos = (x, y)
@@ -382,7 +381,7 @@ class King(Piece):
     def update(self, pieces=[], board_turns=False):
         self.board_turns = board_turns
     
-    def move(self, x, y, other_pieces=[]) -> (int, int): #TODO view
+    def move(self, x, y, other_pieces=[]) -> Tuple(int, int): #TODO view
         if self.is_valid_move(x, y, other_pieces) and self.is_players_turn:
             self.current_pos = (x, y)
             self.pos = (x, y)
@@ -467,7 +466,7 @@ class King(Piece):
                 break
         return
 
-    def translate(self, x, y, count_move = False) -> (int, int): #TODO view
+    def translate(self, x, y, count_move = False) -> Tuple(int, int): #TODO view
         '''Translates piece from one location to another.'''
         self.current_pos = (x, y)
         self.pos = (x, y)
