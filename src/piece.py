@@ -17,29 +17,30 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 '''
 
 import pygame
+from typing import List, Tuple
 
 from config import *
 
 
 
-##################
+#####################
 # Abstract Class #
-##################
+#####################
 class Piece:
-    def __init__(self, pos: (int, int), turn: int, view):
+    def __init__(self, position: Tuple(int, int), player, view):
+        self.player = player
+        
         self.piece_name = ''
         self.sprite = None
         self.image_path = None
+        self.position, self.real_time_position = position, position
+        
         self.piece_moves = []
-        self.disabled_moves = []
-        self.piece_attacks = None
-        # self.stale_mate = False # TODO: No moves left
+        self.illegal_moves = []
+        
         self.protectors = []
 
-        self.start_pos, self.pos, self.current_pos = pos, pos, pos
-        self.turn = turn
-        
-        self.captured = False
+        self.is_captured = False
         
         self.move_count = 0 # move to pawn and king and rook only
     
@@ -47,34 +48,37 @@ class Piece:
         if event.type == pygame.VIDEORESIZE:
             self.sprite = pygame.image.load(self.image_path)
 
-    def draw(self, screen, blit_size: (int, int), panel, rotate = 0): #TODO view
-        if self.image_path == None or self.pos == None:
+    def draw(self, screen, blit_size: Tuple(int, int), panel, rotate = 0): #TODO view
+        if self.image_path == None or self.position == None:
             return
         self.sprite = pygame.image.load(self.image_path)
-        x, y = self.pos
+        x, y = self.position
         x_pos = x * panel.width / 8 + (panel.x + 5)
         y_pos = y * panel.height / 8 + (panel.y + 5)
         self.sprite = pygame.transform.rotate(self.sprite, rotate)
         self.sprite = pygame.transform.smoothscale(self.sprite, blit_size)
         screen.blit(self.sprite, (x_pos, y_pos))
     
+    def set_player(self):
+        self.is_players_turn = not self.is_players_turn
+    
     ###
     # Piece Movement
     ###
-    def move(self, x, y, current_turn=0, other_pieces=[]) -> (int, int): #TODO view
-        if self.is_valid_move(x, y, other_pieces) and self.turn == current_turn:
-            self.current_pos = (x, y)
-            self.pos = (x, y)
+    def move(self, x, y, other_pieces=[]) -> Tuple(int, int): #TODO view
+        if self.is_valid_move(x, y, other_pieces) and self.is_players_turn:
+            self.real_time_position = (x, y)
+            self.position = (x, y)
             
         else: # snap back to original position
-            self.pos = self.current_pos
-        return self.current_pos
+            self.position = self.real_time_position
+        return self.real_time_position
 
     def is_valid_move(self, target_x, target_y, other_pieces=[]) -> bool: #TODO rewrite partially
         '''Determines whether the piece may move to a selected square given the board state.'''
-        if target_x < 0 or target_x > 7 or target_y < 0 or target_y > 7 or (target_x, target_y) == self.current_pos:
+        if target_x < 0 or target_x > 7 or target_y < 0 or target_y > 7 or (target_x, target_y) == self.real_time_position:
             return False
-        return (target_x, target_y) in self.get_movement(other_pieces) or (target_x, target_y) in self.get_capturables(other_pieces)
+        return (target_x, target_y) in self.get_movement(other_pieces)
     
     def get_movement(self, other_pieces): #TODO view
         blocks = []
@@ -88,7 +92,7 @@ class Piece:
             return blocks
         
         for move in list(self.piece_moves):
-            if self.current_pos == None:
+            if self.real_time_position == None:
                 continue
             pos = self.add_to_pos(move)
             
@@ -96,61 +100,40 @@ class Piece:
                 if p not in piece_positions:
                     blocks.append(p)
                 else:
-                    if (self.piece_attacks == None) and other_pieces[piece_positions.index(p)].turn != self.turn:
+                    if other_pieces[piece_positions.index(p)].turn != self.is_players_turn:
                         self.capturables.append(p)
                     break
             else:
                 blocks += pos
         
-        if self.disabled_moves == []:
+        if self.illegal_moves == []:
             return blocks
-        self.capturables = [c for c in self.capturables if c not in self.disabled_moves]
-        return [b for b in blocks if b not in self.disabled_moves]
-
-    def get_capturables(self, other_pieces): #TODO view
-        if self.piece_attacks == None:
-            self.get_movement(other_pieces)
-        else:
-            piece_positions = [p.current_pos for p in other_pieces]
-
-            self.capturables = []
-            for attack in list(self.piece_attacks):
-                if self.current_pos == None:
-                    continue
-                pos = self.add_to_pos(attack)
-                for p in pos:
-                    if p in piece_positions and p not in self.disabled_moves:
-                        piece = other_pieces[piece_positions.index(p)]
-                        if piece.turn != self.turn:
-                            self.capturables.append(p)
-                        break
-        return self.capturables
+        self.capturables = [c for c in self.capturables if c not in self.illegal_moves]
+        return [b for b in blocks if b not in self.illegal_moves]
 
     def is_protected(self, pieces) -> bool: #TODO view
         self._change_turn(pieces)
-        self.protectors = [p for p in pieces if p.turn == self.turn and self.current_pos in p.get_capturables(pieces)]
+        self.protectors = [p for p in pieces if p.turn == self.is_players_turn and self.real_time_position in p.get_capturables(pieces)]
         self._change_turn(pieces)
         return len(self.protectors) > 0
 
     def destroy(self): #TODO implement graveyard
         '''Moves a piece from the board to the graveyard.'''
-        self.current_pos = None
-        self.pos = None
-        self.captured = True
+        self.real_time_position = None
+        self.position = None
+        self.is_captured = True
         
         # Move to graveyard #TODO
 
     def add_to_pos(self, move: str): #TODO rewrite entirely
         return [
-            (self.current_pos[0] + j[0], self.current_pos[1] - j[1])
+            (self.real_time_position[0] + j[0], self.real_time_position[1] - j[1])
             for j in self.decode_move(move) 
-            if self.current_pos[0] + j[0] in range(0, 8) and self.current_pos[1] - j[1] in range(0, 8)
+            if self.real_time_position[0] + j[0] in range(0, 8) and self.real_time_position[1] - j[1] in range(0, 8)
         ]
         
-    def decode_move(self, area: list) -> [(int, int)]: #TODO view
-        '''
-            Return all possible blocks as a list
-        '''
+    def decode_move(self, area: list) -> List[Tuple(int, int)]: #TODO view
+        '''Return all possible blocks as a list.'''
         blocks = []
         pos_x = []
         pos_y = []
@@ -176,25 +159,23 @@ class Piece:
     ###
     # Two Player Board Flip
     ###
-    def translate(self, x, y) -> (int, int): #TODO view
+    def translate(self, x, y) -> Tuple(int, int): #TODO view
         '''Translates piece from one location to another.'''
-        self.current_pos = (x, y)
-        self.pos = (x, y)
-        return self.current_pos
+        self.real_time_position = (x, y)
+        self.position = (x, y)
+        return self.real_time_position
     
     def reflect_place(self): #TODO view
         '''Mirrors the pieces position.'''
-        if self.current_pos == None:
+        if self.real_time_position == None:
             return
-        x = 7 - self.current_pos[0]
-        y = 7 - self.current_pos[1]
+        x = 7 - self.real_time_position[0]
+        y = 7 - self.real_time_position[1]
         self.translate(x, y)
         self.piece_moves = self.get_reflected_move(self.piece_moves)
-        if self.piece_attacks != None:
-            self.piece_attacks = self.get_reflected_move(self.piece_attacks)
         return (x, y)
 
-    def get_reflected_move(self, old_move:[(str)]) -> [(str)]:
+    def get_reflected_move(self, old_move: List[str]) -> List[str]:
         '''Returns movement of a piece when the board has been flipped.'''
         new_move = []
         for move in old_move:
@@ -208,7 +189,32 @@ class Piece:
                 new_points.append(temp)
             new_move.append(new_points)
         return new_move
+
+
+    def set_theme(self):
+        self.set_sprite()
+        #TODO update sprite accordingly
     
+    def set_view(self):
+        self.set_sprite
+        #TODO update sprite accordingly
+
+    def set_sprite(self): #TODO view
+        if self.player.color == 'white':
+            self.image_path = f'{WHITE_PIECES_PATH}{self.piece_name}/{self.manager.theme}/{self.manager.view}{self.piece_name}'
+        else: # black
+            self.image_path = f'{BLACK_PIECES_PATH}{self.piece_name}/{self.manager.theme}/{self.manager.view}{self.piece_name}'
+    
+    def _change_turn(self, pieces): #TODO view
+        piece_turns = [piece.turn for piece in pieces]
+        if self.is_players_turn < max(piece_turns):
+            self.is_players_turn += 1
+        else:
+            self.is_players_turn = min(piece_turns)
+            
+
+    ######
+            
     def _get_n2n(self, n2n: str, seperator: str) -> list: #TODO Remove this function
         '''
             Returns list of numbers from n2n by seperating
@@ -232,34 +238,9 @@ class Piece:
         return nums
 
 
-    def set_theme(self, theme):
-        self.theme = theme
-        #TODO update sprite accordingly
-    
-    def set_view(self, view):
-        self.view = view
-        #TODO update sprite accordingly
-
-    def _set_sprite(self, turn, white_piece_name, black_piece_name): #TODO view
-        if turn == 0:
-            self.image_path = WHITE_PIECES_PATH + white_piece_name # + view + piece_name
-        else:
-            self.image_path = BLACK_PIECES_PATH + black_piece_name
-    
-    def _change_turn(self, pieces): #TODO view
-        piece_turns = [p.turn for p in pieces]
-        if self.turn < max(piece_turns):
-            self.turn += 1
-        else:
-            self.turn = min(piece_turns)
-    
-    
-
-
-
-##################
+#####################
 # Piece Children #
-##################
+#####################
 class Pawn(Piece):
     def __init__(self, pos, turn):
         super().__init__(pos, turn, "pawn")
@@ -272,17 +253,17 @@ class Pawn(Piece):
         self.has_moved = False
         self.is_first_move = False
     
-    def update(self, pieces=[], board_turns=False): #TODO rename and rewrite
+    def update(self, board_turns=False): #TODO rename and rewrite
         self.board_turns = board_turns
         if self.has_moved:
             if board_turns:
                 self.piece_moves = [('0', '1')]
             else:
-                self.piece_moves = [('0', '1')] if self.turn == 0 else [('0', '-1')]
+                self.piece_moves = [('0', '1')] if self.is_players_turn == 0 else [('0', '-1')]
     
-    def move(self, x, y, current_turn=0, other_pieces=[]) -> (int, int): #TODO view
-        if self.is_valid_move(x, y, other_pieces) and self.turn == current_turn:
-            self.current_pos = (x, y)
+    def move(self, x, y, other_pieces=[]) -> Tuple(int, int): #TODO view
+        if self.is_valid_move(x, y, other_pieces) and self.is_players_turn:
+            self.real_time_position = (x, y)
             self.pos = (x, y)
             
             if self.has_moved:
@@ -291,41 +272,72 @@ class Pawn(Piece):
                 self.has_moved = True
                 
         else: # snap back to original position
-            self.pos = self.current_pos
-        return self.current_pos
+            self.pos = self.real_time_position
+        return self.real_time_position
     
     def check_enpassant(self, pieces): #TODO Messy, redo, make one function
-        opponent_pawns = [p for p in pieces if not p.captured and p.turn != self.turn and isinstance(p, Pawn) and p.is_first_move and p.current_pos[1] in [3, 4]]
-        opponents_positions = [p.current_pos for p in opponent_pawns]
+        opponent_pawns = [pawn for pawn in pieces if isinstance(pawn, Pawn) and not pawn.is_captured and self.is_players_turn and pawn.is_first_move and pawn.real_time_position[1] in [3, 4]]
+        opponents_positions = [p.real_time_position for p in opponent_pawns]
         
-        if (self.current_pos[0] - 1, self.current_pos[1]) in opponents_positions: # Checks the left side
-            opponent_pawns_index = opponents_positions.index((self.current_pos[0] - 1, self.current_pos[1]))
+        if (self.real_time_position[0] - 1, self.real_time_position[1]) in opponents_positions: # Checks the left side
+            opponent_pawns_index = opponents_positions.index((self.real_time_position[0] - 1, self.real_time_position[1]))
             #TODO append to attacks
             self.en_passant = opponent_pawns[opponent_pawns_index]
-        if (self.current_pos[0] + 1, self.current_pos[1]) in opponents_positions: # Checks the right side
-            opponent_pawns_index = opponents_positions.index((self.current_pos[0] + 1, self.current_pos[1]))
+        if (self.real_time_position[0] + 1, self.real_time_position[1]) in opponents_positions: # Checks the right side
+            opponent_pawns_index = opponents_positions.index((self.real_time_position[0] + 1, self.real_time_position[1]))
             #TODO append to attacks
             self.en_passant = opponent_pawns[opponent_pawns_index]
         
         return self.en_passant != None
 
     def enpassant(self): #TODO Messy, redo, make one function
-        if (not self.board_turns and self.turn == 0) or not self.board_turns:
-            self.translate(self.en_passant.current_pos[0], self.current_pos[1] + 1)
+        if (not self.board_turns and self.is_players_turn == 0) or not self.board_turns:
+            self.translate(self.en_passant.real_time_position[0], self.real_time_position[1] + 1)
         else:
-            self.translate(self.en_passant.current_pos[0], self.current_pos[1] - 1)
+            self.translate(self.en_passant.real_time_position[0], self.real_time_position[1] - 1)
         self.en_passant.destroy_piece()
 
-    def translate(self, x, y, count_move = False) -> (int, int): #TODO view
+    def translate(self, x, y, count_move = False) -> Tuple(int, int): #TODO view
         '''Translates piece from one location to another.'''
-        self.current_pos = (x, y)
+        self.real_time_position = (x, y)
         self.pos = (x, y)
         if count_move:
             if self.has_moved:
                 self.is_first_move = False
             else:
                 self.has_moved = True
-        return self.current_pos
+        return self.real_time_position
+    
+    def get_capturables(self, other_pieces): #TODO view
+        if self.piece_attacks == None:
+            self.get_movement(other_pieces)
+        else:
+            piece_positions = [p.current_pos for p in other_pieces]
+
+            self.capturables = []
+            for attack in list(self.piece_attacks):
+                if self.real_time_position == None:
+                    continue
+                pos = self.add_to_pos(attack)
+                for p in pos:
+                    if p in piece_positions and p not in self.illegal_moves:
+                        piece = other_pieces[piece_positions.index(p)]
+                        if piece.turn != self.is_players_turn:
+                            self.capturables.append(p)
+                        break
+        return self.capturables
+
+    def reflect_place(self): #TODO view
+        '''Mirrors the pieces position.'''
+        if self.real_time_position == None:
+            return
+        x = 7 - self.real_time_position[0]
+        y = 7 - self.real_time_position[1]
+        self.translate(x, y)
+        self.piece_moves = self.get_reflected_move(self.piece_moves)
+        if self.piece_attacks != None:
+            self.piece_attacks = self.get_reflected_move(self.piece_attacks)
+        return (x, y)
 
     
 class Bishop(Piece):
@@ -369,8 +381,8 @@ class King(Piece):
     def update(self, pieces=[], board_turns=False):
         self.board_turns = board_turns
     
-    def move(self, x, y, current_turn=0, other_pieces=[]) -> (int, int): #TODO view
-        if self.is_valid_move(x, y, other_pieces) and self.turn == current_turn:
+    def move(self, x, y, other_pieces=[]) -> Tuple(int, int): #TODO view
+        if self.is_valid_move(x, y, other_pieces) and self.is_players_turn:
             self.current_pos = (x, y)
             self.pos = (x, y)
             
@@ -383,13 +395,13 @@ class King(Piece):
         return self.current_pos
     
     def set_disabled_moves(self, pieces):
-        openents = [p for p in pieces if p.turn != self.turn]
+        openents = [p for p in pieces if p.turn != self.is_players_turn]
         opponents_positions = [p.current_pos for p in openents]
         for piece in pieces:
             piece.disabled_moves = []
             hold_pos = piece.current_pos
             destroyed_piece = None
-            if piece.turn != self.turn:
+            if piece.turn != self.is_players_turn:
                 continue
             for move in (piece.get_movement(pieces) + piece.get_capturables(pieces)):
                 piece.translate(move[0], move[1], False)
@@ -404,7 +416,7 @@ class King(Piece):
                 piece.translate(hold_pos[0], hold_pos[1], False)
     
     def is_check(self, pieces: Piece, pos) -> bool:
-        self.threats = [piece for piece in pieces if piece.turn != self.turn and pos in piece.get_capturables(pieces)]
+        self.threats = [piece for piece in pieces if piece.turn != self.is_players_turn and pos in piece.get_capturables(pieces)]
         check = len(self.threats) > 0
         if check: self.check_count += 1
         return check
@@ -415,14 +427,14 @@ class King(Piece):
         self.piece_moves = [("1", "1"), ("1", "-1"), ("-1", "1"), ("-1", "-1"), ("1", "0"), ("0", "1"), ("-1", "0"), ("0", "-1")]
         if self.move_count > 0 or self.check_count > 0:
             return False
-        rooks = [piece for piece in pieces if piece.turn == self.turn and piece.piece_name == 'rook']
+        rooks = [piece for piece in pieces if piece.turn == self.is_players_turn and piece.piece_name == 'rook']
         if all(rook.move_count > 0 for rook in rooks):
             return False
         change_x = (2, 6)
         point_y = 7 
         if not self.board_turns:
-            if self.turn != 0: point_y = 0
-        elif self.turn != 0:
+            if self.is_players_turn != 0: point_y = 0
+        elif self.is_players_turn != 0:
             change_x = (1, 5)
         for rook in rooks:
             if rook.move_count == 0:
@@ -454,7 +466,7 @@ class King(Piece):
                 break
         return
 
-    def translate(self, x, y, count_move = False) -> (int, int): #TODO view
+    def translate(self, x, y, count_move = False) -> Tuple(int, int): #TODO view
         '''Translates piece from one location to another.'''
         self.current_pos = (x, y)
         self.pos = (x, y)

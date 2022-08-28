@@ -18,6 +18,7 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
 
 import pygame
 from pathlib import Path
+from typing import Tuple
 
 
 ##########
@@ -29,16 +30,16 @@ HEIGHT = 800
 WIDTH = 1280
 
 
-def PIXEL_TO_ASPECT(width, height, aspect = ASPECT_RATIO):
-    ''''''
+def PIXEL_TO_ASPECT(width, height) -> Tuple(int, int):
+    '''Returns width and height of window based ont the aspect ratio.'''
     if width < height:
-        width = abs(round(height / aspect[1])) * aspect[0] 
+        width = abs(round(height / ASPECT_RATIO[1])) * ASPECT_RATIO[0]
     else:
-        height = abs(round(width / aspect[0])) * aspect[1]
+        height = abs(round(width / ASPECT_RATIO[0])) * ASPECT_RATIO[1]
     return width, height
 
-def FIXED_SCALE(width, height, limit_min: tuple, limit_max: tuple):
-    ''''''
+def FIXED_SCALE(width, height, limit_min: tuple, limit_max: tuple) -> Tuple(int, int):
+    '''Returns a corrected width and height based on maximum and minimum values.'''
     if width < limit_min[0]:
         width = limit_min[0]
     if height < limit_min[1]:
@@ -52,33 +53,29 @@ def FIXED_SCALE(width, height, limit_min: tuple, limit_max: tuple):
 #########
 # Paths #
 #########
-
-#TODO Change all to formatted strings
-
 FILE_PATH = Path(__file__).parent.absolute()
-ASSETS_PATH = str(FILE_PATH / "assets") + "/"
-IMAGES_PATH = ASSETS_PATH + "images/"
-TEXTURE_PATH = ASSETS_PATH + "textures/"
-BLACK_PIECES_PATH = ASSETS_PATH + "pieces/black/"
-WHITE_PIECES_PATH = ASSETS_PATH + "pieces/white/"
-FONTS_PATH = ASSETS_PATH + "fonts" + "/"
+ASSETS_PATH = f'{FILE_PATH}/assets/'
+IMAGES_PATH = f'{ASSETS_PATH}images/'
+TEXTURE_PATH = f'{ASSETS_PATH}textures/'
+BLACK_PIECES_PATH = f'{ASSETS_PATH}pieces/black/'
+WHITE_PIECES_PATH = f'{ASSETS_PATH}pieces/white/'
+FONTS_PATH = f'{ASSETS_PATH}fonts/'
 
 #########
 # Fonts #
 #########
-
-CUSTOM_FONTS = { 'regular' : FONTS_PATH + "regular.ttf", 'Timer' : FONTS_PATH + "alarm_clock.ttf", 'elephant' : FONTS_PATH + "elephant.ttf", 'ocr' : FONTS_PATH + "ocr.ttf"}
+CUSTOM_FONTS = { 'regular' : f'{FONTS_PATH}regular.ttf', 'Timer' : f'{FONTS_PATH}alarm_clock.ttf', 
+                'elephant' : f'{FONTS_PATH}elephant.ttf', 'ocr' : f'{FONTS_PATH}ocr.ttf' }
 SYS_FONTS = pygame.font.get_fonts()
 def GET_FONT(name: str, size: int):
     '''Returns the pygame font of a particular size.'''
-    if name in SYS_FONTS:
-        return pygame.font.SysFont(name, size)
-    return pygame.font.Font(CUSTOM_FONTS[name], size)
+    if name in CUSTOM_FONTS:
+        return pygame.font.Font(CUSTOM_FONTS[name], size)
+    return pygame.font.SysFont(name, size) 
 
 ##########
 # Colors #
 ##########
-
 BLACK = (0, 0, 0) #TODO Change all to hexcode.
 WHITE = (255, 255, 255)
 GREEN = (0, 255, 0)
@@ -99,8 +96,7 @@ PURPLE = ('#cc5ced')
 ##########
 # Images #
 ##########
-
-BACKGROUND = pygame.image.load(IMAGES_PATH + "brain_colorful.jpg")
+BACKGROUND = pygame.image.load(f'{IMAGES_PATH}brain_colorful.jpg')
 
 
 #########

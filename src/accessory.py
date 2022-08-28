@@ -16,13 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program.  If not, see <https://www.gnu.org/licenses/>.
 '''
 
+
 import pygame
+from typing import Tuple
 
 from config import *
 
 
 class Button:
-    def __init__(self, image, position: (int, int), name_text: str, font_type, base_color, hover_color):
+    def __init__(self, image, position: Tuple(int, int), name_text: str, font_type, base_color, hover_color):
         self.image = image
         self.x_pos = position[0]
         self.y_pos = position[1]
@@ -57,8 +59,8 @@ class Button:
             self.text = self.font.render(self.name, True, self.base_color)
             
             
-class Two_Line(Button):
-    def __init__(self, image, position: (int, int), name_text1: str, name_text2: str, font_type, base_color, hover_color):
+class Button_Two_Line(Button): #TODO merge into one class
+    def __init__(self, image, position: Tuple(int, int), name_text1: str, name_text2: str, font_type, base_color, hover_color):
         self.image = image
         self.x_pos = position[0]
         self.y_pos = position[1]
@@ -81,19 +83,16 @@ class Two_Line(Button):
         self.text_rect2 = self.text2.get_rect(midbottom=(self.x_pos, self.y_pos + 30))
 
     def update(self, screen):
-
         screen.blit(self.text1, self.text_rect1)
         screen.blit(self.text2, self.text_rect2)
 
     def input(self, position):
-        if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top,
-                                                                                          self.rect.bottom):
+        if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
             return True
         return False
 
     def set_color(self, position):
-        if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top,
-                                                                                          self.rect.bottom):
+        if position[0] in range(self.rect.left, self.rect.right) and position[1] in range(self.rect.top, self.rect.bottom):
             self.text1 = self.font.render(self.name1, True, self.hovering_color)
             self.text2 = self.font.render(self.name2, True, self.hovering_color)
 
