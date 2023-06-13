@@ -23,6 +23,50 @@ along with this program.  If not, see <https://www.gnu.org/licenses/>.
     font-size: 100%;
     line-height: 1.3;
 }
+
+
+/* header */
+header {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: .5rem 0;
+    width: 100%;
+}
+.header-left { /* logo */
+    flex: 1 0 33%;
+    text-align: left;
+}
+.header-right { /* nav bar */
+    flex: 2 0 67%;
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+}
+nav ul {
+    display: flex;
+    list-style-type: none;
+}
+nav li {
+    padding-left: .75rem;
+}
+
+
+/* main */
+main {
+    padding-top: 20px;
+    display: flex;
+    justify-content: center;
+    flex-wrap: wrap;
+    align-content: flex-start;
+    flex-grow: 1;
+    max-width: 960px;
+    font-family: 'Optima', sans-serif;
+}
+
+
+/* body */
 body {
     display: flex;
     flex-direction: row;
@@ -34,174 +78,9 @@ body {
     background-image: radial-gradient(circle farthest-side at center top, hsl(0, 0%, 100%) 0%, #E6CC39 100%);
     color: #8B4513;
 }
-.container {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-start;
-    max-width: 60rem;
-}
-header {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: .5rem 0;
-    width: 100%;
-}
-.header-left {
-    flex: 1 0 33%;
-    text-align: left;
-}
-.header-right {
-    flex: 2 0 67%;
-    display: flex;
-    flex-direction: row;
-    flex-wrap: wrap;
-    justify-content: flex-end;
-}
-.btn {
-    padding: .25rem .75rem;
-    border-radius: .75rem;
-    font-size: 1rem;
-    text-transform: uppercase;
-    color: #F6F456;
-    background-color: #8B4513;
-}
-h1 {
-    padding-top: 1rem;
-    font-family: 'Press Start 2P', cursive;
-    font-size: 3.5rem;
-    text-shadow: 3.5px 4.5px #000000;
-}
-h2 {
-  font-family: "Brush Script MT", cursive;
-  font-size: 2.5rem;
-  color: 000000;
-}
-h3 {
-    font-size: 2.5rem;
-    font-family: "Brush Script MT", cursive;
-    text-shadow: 1.5px 1.5px #000000;
-}
-h1, h2, h3 {
-  font-weight: bold;
-  text-align: center;
-}
 
-h4 {
-  padding-top: 1rem;
-  font-family: 'Press Start 2P', cursive;
-  font-size: 2.5rem;
-  text-shadow: 3.5px 4.5px #000000;
-}
-nav ul {
-    display: flex;
-    list-style-type: none;
-}
-nav li {
-    padding-left: .75rem;
-}
-a {
-    text-decoration: none;
-}
-a:hover {
-  color: #ffffff;
-  background-color: #362507;
-  font-style: italic;
-}
-.intro {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin: 2rem 0;
-    width: 100%;
-    border: 3px solid #8B4513;
-    color: #362507;
-    font-size: 1.25rem;
-    background-color: #E6CC39;
-    background-image: radial-gradient(ellipse closest-corner at center, #cdc9c1 0%, #C9AD71 100%);
-}
-.intro-text {
-    flex: 2 0 67%;
-    padding: 1rem;
-    text-align: center;
-}
-.intro-text p {
-    margin: 1.5rem 0;
-}
-.img-thumbnail {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-}
-.img-thumbnail p {
-    padding-bottom: 1em;
-}
-.image-thumbnail {
-    position: relative;
-    cursor: pointer;
-    margin-left: 1em;
-    margin-bottom: 1em;
-    width: 300px;
-    height: 200px;
-}
-.image-caption {
-    display: flex;
-    flex-direction: column;
-    justify-content: flex-end;
-    position: absolute;
-    left: 0;
-    top: 0;
-    width: 300px;
-    height: 200px;
-    opacity: 0;
-    background-color: rgba(32, 32, 32, 0.75);
-    color: #ecd078;
-}
-.image-caption:hover {
-  opacity: 1;
-}
-.caption-title {
-  padding-bottom: .15em;
-  font-size: 1.65em;
-  text-align: center;
-  font-variant: small-caps;
-  font-weight: bold;
-}
-.caption-title2 {
-  padding-bottom: .1em;
-  font-size: 1.2em;
-  text-align: center;
-  font-variant: small-caps;
-  font-weight: bold;
-}
-.caption-text {
-  font-size: .9em;
-  text-align: center;
-  padding: .5em;
-}
-.caption-text2 {
-    font-size: 1em;
-    text-align: center;
-    padding: .5em;
-  }
-  .caption-text3 {
-    font-size: 1.1em;
-    text-align: center;
-    padding: .5em;
-  }
-.about {
-    margin-bottom: 1rem;
-}
-main {
-    padding-top: 20px;
-    display: flex;
-    justify-content: center;
-    flex-wrap: wrap;
-    align-content: flex-start;
-    flex-grow: 1;
-    max-width: 960px;
-    font-family: 'Optima', sans-serif;
-}
+
+/* footer */
 footer {
     display: flex;
     padding: 1em 0;
@@ -226,7 +105,59 @@ footer {
     margin-left: 1em;
     font-style: italic;
 }
-.society-intro {
+
+
+
+/* html */
+h1 {
+    padding: 1rem;
+
+    font-family: 'Press Start 2P';
+    font-size: 3.5rem;
+    text-shadow: 3.5px 4.5px #000000;
+}
+h1, h2, h3 {
+    font-weight: bold;
+    text-align: center;
+}
+h2, h3 {
+    font-family: 'Brush Script MT';
+    font-size: 2.5rem;
+}
+h3 {
+    text-shadow: 1.5px 1.5px #000000;
+}
+
+a {
+    text-decoration: none;
+}
+a:hover {
+  color: #ffffff;
+  background-color: #362507;
+  font-style: italic;
+}
+
+
+/* buttons */
+.btn {
+    padding: .25rem .75rem;
+    border-radius: .75rem;
+    font-size: 1rem;
+    text-transform: uppercase;
+    color: #F6F456;
+    background-color: #8B4513;
+}
+
+
+/* containers */
+.web-frame {
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-start;
+    max-width: 60rem;
+}
+
+.box {
     display: flex;
     flex-direction: row;
     align-items: center;
@@ -238,66 +169,11 @@ footer {
     background-color: #E6CC39;
     background-image: radial-gradient(ellipse closest-corner at center, #cdc9c1 0%, #C9AD71 100%);
 }
-.society-intro-text {
+.text {
     flex: 2 0 67%;
     padding: 1rem;
     text-align: center;
 }
-.society-intro-text p {
+.text p {
     margin: 1.5rem 0;
-}
-.society-intro-image {
-    flex: 1 0 33%;
-    padding-right: 2rem;
-    text-align: right;
-}
-.process-intro {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin: 2rem 0;
-    width: 100%;
-    border: 3px solid #8B4513;
-    color: #362507;
-    font-size: 1.25rem;
-    background-color: #E6CC39;
-    background-image: radial-gradient(ellipse closest-corner at center, #cdc9c1 0%, #C9AD71 100%);
-}
-.process-intro-text {
-    flex: 2 0 67%;
-    padding: 1rem;
-    text-align: center;
-}
-.process-intro-text p {
-    margin: 1.5rem 0;
-}
-.process-intro-image {
-    flex: 1 0 33%;
-    padding-right: 2rem;
-    text-align: right;
-}
-.game-intro {
-    display: flex;
-    flex-direction: row;
-    align-items: center;
-    margin: 2rem 0;
-    width: 100%;
-    border: 3px solid #8B4513;
-    color: #362507;
-    font-size: 1.25rem;
-    background-color: #E6CC39;
-    background-image: radial-gradient(ellipse closest-corner at center, #cdc9c1 0%, #C9AD71 100%);
-}
-.game-intro-text {
-    flex: 2 0 67%;
-    padding: 1rem;
-    text-align: center;
-}
-.game-intro-text p {
-    margin: 1.5rem 0;
-}
-.game-intro-image {
-    flex: 1 0 33%;
-    padding-right: 2rem;
-    text-align: right;
 }
