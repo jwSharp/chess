@@ -7,11 +7,12 @@ At the moment, all contents exist in one repo hosted on [our GitHub](https://git
 
 ## Table of Contents
 
-[Code of Conduct](#code-of-conduct)
+[Code of Conduct](#code-of-conduct) Coming Soon.
 
 [Make a Contribution](#make-a-contribution)
-* [Report a Bug](#report-a-bug)
-* [Request a Feature](#request-a-feature)
+
+- [Report a Bug](#report-a-bug)
+- [Request a Feature](#request-a-feature)
 
 ## Code of Conduct
 
@@ -23,7 +24,7 @@ Please note that **no contributions containing fixes or additions will be accept
 
 ### Report a Bug
 
-When dealing with a bug, we like to be specific with the report. A guide for debugging will be available soon. For now, please be precise in detailing the issue and how you produced the issue.
+Please be specific with the report of a bug. A guide for debugging will be available soon. For now, please be precise in detailing the issue and how you produced the issue.
 
 ### Request a Feature
 
